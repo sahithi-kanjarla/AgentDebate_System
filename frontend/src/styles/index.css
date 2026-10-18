@@ -132,3 +132,307 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* ---------- Debate Graph ---------- */
+.graph-stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-stage-bg);
+  color: var(--color-stage-ink);
+}
+.graph-svg {
+  display: block;
+  width: 100%;
+  height: clamp(360px, 64vh, 680px);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.graph-svg:active {
+  cursor: grabbing;
+}
+.graph-svg:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-brass-fill);
+  border-radius: 0;
+}
+.gtext {
+  font-family: var(--font-sans);
+  fill: var(--color-stage-ink);
+}
+.gtext-soft {
+  fill: var(--color-stage-ink-soft);
+}
+.gtext-serif {
+  font-family: var(--font-serif);
+}
+.gnode,
+.gedge {
+  outline: none;
+}
+.gnode {
+  cursor: pointer;
+}
+.gnode:focus-visible .focus-ring,
+.gedge:focus-visible .focus-ring {
+  stroke: var(--color-brass-fill);
+  stroke-width: 3;
+  opacity: 1;
+}
+.focus-ring {
+  fill: none;
+  stroke: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+.gnode[data-selected='true'] .focus-ring {
+  stroke: var(--color-stage-ink);
+  stroke-width: 2;
+  opacity: 0.9;
+}
+.graph-svg .mark {
+  transition: opacity 160ms ease;
+}
+.graph-svg[data-dim='true'] .mark:not([data-related='true']) {
+  opacity: 0.13;
+}
+.gedge .hit {
+  stroke: transparent;
+  fill: none;
+  pointer-events: stroke;
+}
+.gedge:focus-visible .hit {
+  stroke: var(--color-brass-fill);
+  stroke-opacity: 0.4;
+}
+
+/* Motion: only when the graph is live and the visitor has not asked for less. */
+.graph-svg[data-motion='on'] .node-body {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: node-breathe var(--duration-breathe) ease-in-out infinite;
+  animation-delay: var(--phase, 0s);
+}
+.graph-svg[data-motion='on'] .thinking-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ring-pulse 1.5s ease-out infinite;
+}
+.graph-svg[data-motion='on'] .is-fresh {
+  animation: graph-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.graph-svg[data-motion='on'] .is-fresh.node-wrap {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: node-in;
+}
+.graph-svg[data-motion='on'] .flash-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flash 900ms ease-out 1 both;
+}
+.graph-svg[data-motion='on'] .pulse {
+  animation: pulse-travel var(--duration-pulse) ease-in-out 2 both;
+}
+.graph-svg[data-motion='on'] .judge-glow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: node-breathe 3200ms ease-in-out infinite;
+}
+.graph-svg[data-motion='on'] .pos {
+  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.thinking-ring {
+  fill: none;
+  stroke: var(--color-stage-ink-soft);
+  stroke-width: 2;
+  stroke-dasharray: 3 4;
+}
+@keyframes node-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.045);
+  }
+}
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+@keyframes graph-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes node-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes flash {
+  0% {
+    opacity: 1;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+@keyframes pulse-travel {
+  from {
+    stroke-dashoffset: 0.16;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+.pulse {
+  fill: none;
+  pointer-events: none;
+  stroke-linecap: round;
+}
+@media (prefers-reduced-motion: reduce) {
+  .graph-svg * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .graph-svg .pulse {
+    display: none;
+  }
+}
+
+.graph-tip {
+  position: absolute;
+  z-index: 5;
+  max-width: min(22rem, 80%);
+  transform: translate(-50%, calc(-100% - 10px));
+  pointer-events: none;
+  border: 1px solid var(--color-stage-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-stage-bg-2);
+  color: var(--color-stage-ink);
+  padding: 0.5rem 0.65rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+}
+.graph-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+.graph-layout > * {
+  min-width: 0;
+}
+.graph-inspector-slot {
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-vellum);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-rule-strong) var(--color-mist);
+}
+.graph-inspector-slot::-webkit-scrollbar {
+  width: 10px;
+}
+.graph-inspector-slot::-webkit-scrollbar-track {
+  background: var(--color-mist);
+}
+.graph-inspector-slot::-webkit-scrollbar-thumb {
+  background: var(--color-rule-strong);
+  border-radius: 999px;
+  border: 2px solid var(--color-mist);
+}
+/* Long answers, reasoning and critiques wrap inside the panel; answers keep their whitespace. */
+.graph-inspector-slot * {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.graph-drawer-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: -1rem -1rem 0.75rem;
+  padding: 1rem 1rem 0.5rem;
+  background: var(--color-vellum);
+}
+.inspector-placeholder {
+  padding: 1rem;
+}
+/* Narrow screens: a bottom sheet over the page, never part of the graph's layout. */
+@media (max-width: 1099px) {
+  .graph-inspector-slot {
+    position: fixed;
+    z-index: 30;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    max-height: 50vh;
+    box-shadow: 0 -6px 24px rgb(0 0 0 / 0.25);
+  }
+  .graph-inspector-slot[data-open='false'] {
+    display: none;
+  }
+}
+/* Wide screens: a column of fixed width that is always reserved, sticky, with its own height. */
+@media (min-width: 1100px) {
+  .graph-sheet-spacer {
+    display: none;
+  }
+  .graph-layout {
+    grid-template-columns: minmax(0, 1fr) 400px;
+    align-items: start;
+  }
+  .graph-inspector-slot {
+    position: sticky;
+    top: 1rem;
+    height: min(calc(100vh - 2rem), var(--stage-h, 560px));
+    scrollbar-gutter: stable;
+  }
+}
+.graph-sheet-spacer {
+  height: 50vh;
+}
+.graph-tip-below {
+  transform: translate(-50%, 14px);
+}
+.graph-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-chip);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  padding: 0.2rem 0.6rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.graph-btn:hover {
+  background: var(--color-vellum);
+}
+.graph-btn[aria-pressed='true'] {
+  background: var(--color-brass-tint);
+  border-color: var(--color-brass);
+}

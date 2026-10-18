@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useDebate } from '../hooks/useDebate'
 import type { SourceFactory } from '../hooks/useDebateStream'
 import { orderedRounds, type DebateState } from '../lib/debateState'
 import { DebateBoard } from '../components/DebateBoard'
+import { DebateGraph } from '../components/graph/DebateGraph'
 import { ErrorNotes } from '../components/ErrorNotes'
 import { QuestionPlate } from '../components/QuestionPlate'
 import { VerdictCard, VerdictMissing, VerdictPending } from '../components/VerdictCard'
@@ -18,9 +20,31 @@ function progressText(state: DebateState): string {
   return `Round ${last.round}: ${answered} of ${state.agents.length} debaters have answered.`
 }
 
+type View = 'graph' | 'columns'
+
+function ViewToggle({ view, onChange }: { view: View; onChange: (v: View) => void }) {
+  const item = (v: View, text: string) => (
+    <button
+      type="button"
+      className="graph-btn"
+      aria-pressed={view === v}
+      onClick={() => onChange(v)}
+    >
+      {text}
+    </button>
+  )
+  return (
+    <div role="group" aria-label="Debate view" className="flex gap-2">
+      {item('graph', 'Graph')}
+      {item('columns', 'Columns')}
+    </div>
+  )
+}
+
 export function Debate({ sourceFactory }: { sourceFactory?: SourceFactory }) {
   const { id = '' } = useParams()
   const view = useDebate(id, sourceFactory)
+  const [mode, setMode] = useState<View>('graph')
 
   if (view.phase === 'loading') {
     return <p role="status">Loading debate…</p>
@@ -76,7 +100,14 @@ export function Debate({ sourceFactory }: { sourceFactory?: SourceFactory }) {
 
       {rounds.length === 0 && !finished && <p role="status">Waiting for the debaters…</p>}
 
-      <DebateBoard state={state} />
+      {rounds.length > 0 && <ViewToggle view={mode} onChange={setMode} />}
+      {mode === 'graph' ? (
+        rounds.length > 0 && (
+          <DebateGraph state={state} question={header.question} animate={connection !== 'closed'} />
+        )
+      ) : (
+        <DebateBoard state={state} />
+      )}
 
       <ErrorNotes errors={state.errors} />
 

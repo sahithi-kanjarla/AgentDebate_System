@@ -65,3 +65,26 @@ export function clusterColor(clusterId: number): string {
 export function clusterPattern(clusterId: number): ClusterPattern {
   return CLUSTER_PATTERNS[clusterId] ?? 'hollow'
 }
+
+/** Debate Graph stage: surfaces and the lighter cluster/severity variants used on it. */
+export const STAGE = {
+  bg: '#0f1a24',
+  bg2: '#162431',
+  grid: '#263747',
+  ink: '#e9eef2',
+  inkSoft: '#a8b5c1',
+  rule: '#5f7388',
+} as const
+
+export const STAGE_CLUSTER_COLORS = ['#6db4e0', '#a9cb5e', '#e583a3', '#a3afc4'] as const
+export const STAGE_CLUSTER_OTHER_COLOR = '#9aa5b0'
+export const STAGE_SEVERITY_COLORS: Record<Severity, string> = {
+  low: '#e6c04a',
+  medium: '#f2903f',
+  high: '#ff7468',
+}
+
+/** Hex colour for a cluster on the stage; the fifth and later answers share the neutral grey. */
+export function stageClusterColor(clusterId: number): string {
+  return STAGE_CLUSTER_COLORS[clusterId] ?? STAGE_CLUSTER_OTHER_COLOR
+}

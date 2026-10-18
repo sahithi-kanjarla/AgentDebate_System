@@ -8,6 +8,10 @@ import {
   DEBATER_TINTS,
   SEVERITY_COLORS,
   SEVERITY_TINTS,
+  STAGE,
+  STAGE_CLUSTER_COLORS,
+  STAGE_CLUSTER_OTHER_COLOR,
+  STAGE_SEVERITY_COLORS,
   SURFACES,
   clusterColor,
   clusterLetter,
@@ -15,6 +19,7 @@ import {
   debaterColor,
   debaterSlot,
   severityColor,
+  stageClusterColor,
 } from './palette'
 
 // Read from disk: the vitest config turns CSS imports into empty modules.
@@ -124,5 +129,44 @@ describe('helpers', () => {
     expect(new Set([0, 1, 2, 3].map(clusterPattern)).size).toBe(4)
     expect(clusterPattern(7)).toBe('hollow')
     expect(clusterColor(7)).toBe('var(--color-cluster-other)')
+  })
+})
+
+describe('debate graph stage', () => {
+  const css = tokens()
+
+  it('mirrors tokens.css', () => {
+    expect(css['stage-bg']).toBe(STAGE.bg)
+    expect(css['stage-bg-2']).toBe(STAGE.bg2)
+    expect(css['stage-grid']).toBe(STAGE.grid)
+    expect(css['stage-ink']).toBe(STAGE.ink)
+    expect(css['stage-ink-soft']).toBe(STAGE.inkSoft)
+    expect(css['stage-rule']).toBe(STAGE.rule)
+    ;(['a', 'b', 'c', 'd'] as const).forEach((n, i) =>
+      expect(css[`stage-cluster-${n}`]).toBe(STAGE_CLUSTER_COLORS[i]),
+    )
+    expect(css['stage-cluster-other']).toBe(STAGE_CLUSTER_OTHER_COLOR)
+    for (const s of ['low', 'medium', 'high'] as const) {
+      expect(css[`stage-severity-${s}`]).toBe(STAGE_SEVERITY_COLORS[s])
+    }
+  })
+
+  it('text is at least 4.5:1 and marks at least 3:1 on the stage', () => {
+    for (const g of [STAGE.bg, STAGE.bg2]) {
+      expect(contrast(STAGE.ink, g)).toBeGreaterThanOrEqual(4.5)
+      expect(contrast(STAGE.inkSoft, g)).toBeGreaterThanOrEqual(4.5)
+      for (const c of [...STAGE_CLUSTER_COLORS, STAGE_CLUSTER_OTHER_COLOR]) {
+        expect(contrast(c, g)).toBeGreaterThanOrEqual(4.5)
+      }
+      for (const c of Object.values(STAGE_SEVERITY_COLORS)) {
+        expect(contrast(c, g)).toBeGreaterThanOrEqual(3)
+      }
+    }
+    expect(contrast(STAGE.rule, STAGE.bg)).toBeGreaterThanOrEqual(3)
+  })
+
+  it('uses the neutral colour from the fifth answer on', () => {
+    expect(stageClusterColor(0)).toBe(STAGE_CLUSTER_COLORS[0])
+    expect(stageClusterColor(4)).toBe(STAGE_CLUSTER_OTHER_COLOR)
   })
 })

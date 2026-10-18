@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SourceFactory } from '../hooks/useDebateStream'
@@ -46,11 +46,25 @@ describe('Debate page: finished debate from a shared URL', () => {
     renderDebate()
     expect(await screen.findByRole('heading', { name: 'Verdict' })).toBeInTheDocument()
     expect(FakeEventSource.instances).toHaveLength(0)
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }))
     expect(screen.getByText('Round 0: independent answers')).toBeInTheDocument()
     expect(screen.getByText('Round 1: critique and revise')).toBeInTheDocument()
     expect(screen.getByText('2 of 3 agree')).toBeInTheDocument()
     expect(screen.getByText(/All 3 agree/)).toBeInTheDocument()
     expect(screen.getByText('Finished')).toBeInTheDocument()
+  })
+
+  it('shows the graph by default and can switch to the columns and back', async () => {
+    stubFetch(() => ({ body: detail('completed', fullRun()) }))
+    renderDebate()
+    await screen.findByRole('heading', { name: 'Verdict' })
+    expect(screen.getByRole('button', { name: 'Graph' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('debate-graph')).toBeInTheDocument()
+    expect(screen.queryByText('Round 0: independent answers')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }))
+    expect(screen.queryByTestId('debate-graph')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Graph' }))
+    expect(screen.getByTestId('debate-graph')).toBeInTheDocument()
   })
 
   it('shows the question exactly as submitted', async () => {
@@ -77,6 +91,7 @@ describe('Debate page: finished debate from a shared URL', () => {
     expect(
       screen.getByText('This debate was interrupted before the judge ruled.'),
     ).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }))
     expect(screen.getByText('Round 0: independent answers')).toBeInTheDocument()
   })
 
@@ -130,6 +145,9 @@ describe('Debate page: live debate', () => {
     act(() => {
       for (const e of events.slice(0, 4)) FakeEventSource.last.emit(e.type, e.data, e.seq)
     })
+    expect(await screen.findByTestId('debate-graph')).toBeInTheDocument()
+    expect(screen.getAllByText(/still thinking/).length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }))
     expect(await screen.findAllByText(/is thinking…/)).toHaveLength(3)
     expect(screen.getByText('In progress')).toBeInTheDocument()
 

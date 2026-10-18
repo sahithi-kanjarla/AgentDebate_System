@@ -1,8 +1,12 @@
+import { lazy, Suspense } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import { Debate } from './pages/Debate'
 import { History } from './pages/History'
 import { Home } from './pages/Home'
 import { NotFound } from './pages/NotFound'
+
+// Fixtures are test-only: the route and its import are compiled out of production builds.
+const DevGraph = import.meta.env.DEV ? lazy(() => import('./pages/DevGraph')) : null
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-chip px-2 py-1 text-sm font-medium ${isActive ? 'text-ink underline decoration-brass-fill decoration-2 underline-offset-4' : 'text-ink-soft hover:text-ink'}`
@@ -39,6 +43,16 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/debate/:id" element={<Debate />} />
           <Route path="/history" element={<History />} />
+          {DevGraph && (
+            <Route
+              path="/dev/graph/:fixture"
+              element={
+                <Suspense fallback={<p role="status">Loading…</p>}>
+                  <DevGraph />
+                </Suspense>
+              }
+            />
+          )}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

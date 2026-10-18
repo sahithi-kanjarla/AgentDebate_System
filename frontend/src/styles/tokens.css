@@ -41,6 +41,24 @@
   --color-cluster-d: #5b6578;
   --color-cluster-other: #6b7580;
 
+  /* Debate Graph stage ("night court"): a fixed dark panel whatever the page theme, so light
+     edges and pulses read as light. Cluster and severity get lighter variants tuned for this
+     ground; text is checked at 4.5:1 and marks at 3:1 in palette.test.ts. */
+  --color-stage-bg: #0f1a24;
+  --color-stage-bg-2: #162431;
+  --color-stage-grid: #263747;
+  --color-stage-ink: #e9eef2;
+  --color-stage-ink-soft: #a8b5c1;
+  --color-stage-rule: #5f7388;
+  --color-stage-cluster-a: #6db4e0;
+  --color-stage-cluster-b: #a9cb5e;
+  --color-stage-cluster-c: #e583a3;
+  --color-stage-cluster-d: #a3afc4;
+  --color-stage-cluster-other: #9aa5b0;
+  --color-stage-severity-low: #e6c04a;
+  --color-stage-severity-medium: #f2903f;
+  --color-stage-severity-high: #ff7468;
+
   /* Status */
   --color-ok: #1f6b3a;
   --color-ok-tint: #dcefe2;
@@ -58,6 +76,7 @@
   /* Motion */
   --duration-fade: 220ms;
   --duration-breathe: 2400ms;
+  --duration-pulse: 1600ms;
 }
 
 :root {
