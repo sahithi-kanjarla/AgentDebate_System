@@ -1,0 +1,67 @@
+/*
+ * The single source of design tokens: colours, fonts, spacing, radii, motion.
+ * src/lib/palette.ts mirrors the colour values (a test keeps the two in sync), so the M4 graph and a
+ * later dark mode only need to touch this file and that one.
+ */
+@theme {
+  /* Surfaces and ink */
+  --color-mist: #e8ecef;
+  --color-vellum: #f6f8f9;
+  --color-paper: #ffffff;
+  --color-ink: #17222e;
+  --color-ink-soft: #44525f;
+  --color-rule: #c5ced6;
+  --color-rule-strong: #8d9aa6;
+
+  /* The ruling: brass is used for the verdict, primary actions and the focus ring */
+  --color-brass: #8a6a1f;
+  --color-brass-fill: #c9a24a;
+  --color-brass-tint: #f1e7cb;
+
+  /* Debaters: a cool family, also told apart by persona glyph and column position */
+  --color-debater-1: #3f4fb8;
+  --color-debater-2: #0a6c67;
+  --color-debater-3: #9a3b86;
+  --color-debater-1-tint: #e4e7f6;
+  --color-debater-2-tint: #dcefee;
+  --color-debater-3-tint: #f3e3f0;
+
+  /* Severity: a warm ramp, always paired with a shape and a word */
+  --color-severity-low: #8a6d00;
+  --color-severity-medium: #b04e08;
+  --color-severity-high: #b3261e;
+  --color-severity-low-tint: #f6eecb;
+  --color-severity-medium-tint: #f8e3d3;
+  --color-severity-high-tint: #f7dcda;
+
+  /* Answer clusters: always a chip with a letter and a pattern, never colour alone */
+  --color-cluster-a: #2e6f95;
+  --color-cluster-b: #566f1a;
+  --color-cluster-c: #b0446a;
+  --color-cluster-d: #5b6578;
+  --color-cluster-other: #6b7580;
+
+  /* Status */
+  --color-ok: #1f6b3a;
+  --color-ok-tint: #dcefe2;
+
+  /* Type */
+  --font-serif: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Instrument Sans Variable', system-ui, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  /* Radii: small for chips and badges, a little more for cards */
+  --radius-chip: 2px;
+  --radius-card: 6px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --duration-fade: 220ms;
+  --duration-breathe: 2400ms;
+}
+
+:root {
+  /* One 4px spacing unit; Tailwind's spacing scale (p-1, gap-4, ...) is derived from it. */
+  --spacing: 0.25rem;
+  --focus-ring: 0 0 0 2px var(--color-vellum), 0 0 0 4px var(--color-brass);
+}

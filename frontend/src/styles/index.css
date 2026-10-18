@@ -1,0 +1,134 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  html {
+    background: var(--color-mist);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--color-mist);
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-chip);
+  }
+  button,
+  a,
+  summary,
+  textarea,
+  input {
+    cursor: pointer;
+  }
+  textarea {
+    cursor: text;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+/* Answers are compared exactly by the backend: never collapse or trim whitespace. */
+.answer-text {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+/* Cluster swatches: a colour plus a pattern, so agreement never relies on colour alone. */
+.swatch {
+  --c: var(--color-cluster-other);
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  border: 1.5px solid var(--c);
+  border-radius: var(--radius-chip);
+  background: var(--c);
+}
+.swatch[data-pattern='stripes'] {
+  background: repeating-linear-gradient(45deg, var(--c) 0 2px, var(--color-paper) 2px 5px);
+}
+.swatch[data-pattern='dots'] {
+  background: radial-gradient(var(--c) 1.4px, var(--color-paper) 1.6px) 0 0 / 5px 5px;
+}
+.swatch[data-pattern='grid'] {
+  background:
+    repeating-linear-gradient(0deg, var(--c) 0 1.5px, transparent 1.5px 5px),
+    repeating-linear-gradient(90deg, var(--c) 0 1.5px, var(--color-paper) 1.5px 5px);
+}
+.swatch[data-pattern='hollow'] {
+  background: var(--color-paper);
+}
+
+/* The one non-user-triggered motion: a thinking card breathes; new cards fade in. */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scaleX(0.35);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.thinking-bar {
+  height: 2px;
+  width: 100%;
+  transform-origin: left;
+  background: currentColor;
+  animation: breathe var(--duration-breathe) ease-in-out infinite;
+}
+.fade-in {
+  animation: fade-in var(--duration-fade) ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thinking-bar {
+    animation: none;
+    transform: none;
+    opacity: 0.6;
+  }
+  .fade-in {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.sr-only-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
