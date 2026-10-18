@@ -11,10 +11,11 @@ from app.core.logging import agent_var
 from app.core.settings import AgentConfig, AgentsFile
 from app.debate.anonymize import Anonymization, anonymize
 from app.debate.consensus import ClusterIds, RoundConsensus, compute_consensus, normalize_answer
+from app.debate.mistakes import CritiqueRecord, build_mistakes_caught, received_critiques
 from app.debate.parsing import ParseOutcome, parse_with_repair
 from app.debate.prompts import mode_task, render_messages
 from app.providers.base import LLMProvider, Message, ProviderError
-from app.schemas import DebaterOutput, EventType, JudgeOutput, Mode
+from app.schemas import DebaterOutput, EventType, JudgeOutput, MistakeCaught, Mode
 
 log = logging.getLogger(__name__)
 
@@ -70,12 +71,17 @@ class _Stats:
 
 
 @dataclass
+class _Entry:
+    out: DebaterOutput
+    critiques: list[tuple[str, str, str]]  # resolved: (target label, severity, issue)
+    changed_mind: bool  # derived by the server, not the model's claim
+    previous_answer: str | None  # the agent's last valid answer before this round
+
+
+@dataclass
 class _RoundLog:
     round: int
-    # label -> (output, resolved critiques as (target label, severity, issue))
-    entries: dict[str, tuple[DebaterOutput, list[tuple[str, str, str]]]] = field(
-        default_factory=dict
-    )
+    entries: dict[str, _Entry] = field(default_factory=dict)
 
 
 def _hash_messages(messages: list[Message]) -> str:
@@ -189,6 +195,12 @@ class Orchestrator:
         self._history.append(round_log)
         consensus = compute_consensus(answers, self._cluster_ids)
         self._last_consensus = consensus
+        # Only known once every agent has finished. Round 0 has no critiques.
+        records = self._round_critiques(round_log)
+        received = received_critiques(records, list(self.labels.values())) if rnd >= 1 else {}
+        for turn in self.turns:
+            if turn.round == rnd and turn.valid and turn.parsed_json is not None:
+                turn.parsed_json["received_critiques"] = received.get(turn.label, [])
         yield (
             "round_complete",
             {
@@ -196,8 +208,21 @@ class Orchestrator:
                 "consensus_score": consensus.score,
                 "agreed": consensus.agreed,
                 "clusters": [c.model_dump() for c in consensus.clusters],
+                # Critiques raised this round against the answer each agent held in the previous
+                # round (the one it revised). Not a claim that they caused a change: agents do
+                # not see critiques addressed to them.
+                "received_critiques": received,
             },
         )
+
+    def _round_critiques(self, round_log: _RoundLog) -> list[CritiqueRecord]:
+        """A round's resolved critiques in a deterministic order (debater order, then position)."""
+        return [
+            CritiqueRecord(round_log.round, label, target, severity, issue)
+            for label in self.labels.values()
+            if label in round_log.entries
+            for target, severity, issue in round_log.entries[label].critiques
+        ]
 
     async def _turn(self, cfg: AgentConfig, rnd: int, latest: dict[str, DebaterOutput]) -> _Outcome:
         """One agent's turn. Never raises (except cancellation): failures become the outcome."""
@@ -288,6 +313,13 @@ class Orchestrator:
         answers[label] = out.final_answer
         new_latest[cfg.id] = out
         cluster_id = self._cluster_ids.id_for(normalize_answer(out.final_answer))
+        # Models report changed_mind unreliably, so derive it: did this agent's answer cluster
+        # differ from its last valid answer? (self._latest still holds the previous round here.)
+        previous = self._latest.get(cfg.id)
+        previous_cluster = (
+            self._cluster_ids.id_for(normalize_answer(previous.final_answer)) if previous else None
+        )
+        changed_mind = previous_cluster is not None and previous_cluster != cluster_id
 
         critiques: list[dict[str, Any]] = []
         edges: list[Event] = []
@@ -310,10 +342,15 @@ class Orchestrator:
                         },
                     )
                 )
-        round_log.entries[label] = (out, resolved)
+        round_log.entries[label] = _Entry(
+            out, resolved, changed_mind, previous.final_answer if previous else None
+        )
 
         payload = {
             **out.model_dump(),
+            "changed_mind": changed_mind,  # server-derived
+            "changed_mind_claimed": out.changed_mind,  # what the model said, kept for comparison
+            "previous_cluster_id": previous_cluster,
             "critiques": critiques,
             "valid": True,
             "cluster_id": cluster_id,
@@ -322,7 +359,7 @@ class Orchestrator:
             if outcome.anon
             else {},
         }
-        record.parsed_json = payload
+        record.parsed_json = dict(payload)  # a copy: received_critiques is added at round close
         record.valid = True
         self.turns.append(record)
         return [("agent_response", {"round": rnd, "agent": label, "payload": payload}), *edges]
@@ -360,15 +397,23 @@ class Orchestrator:
             for label in self.labels.values():
                 if label not in rl.entries:
                     continue
-                out, critiques = rl.entries[label]
+                entry = rl.entries[label]
+                out = entry.out
                 lines.append(
                     f"{label}: final answer {out.final_answer} (confidence {out.confidence})"
                 )
                 lines.append(f"  Reasoning: {out.reasoning}")
-                for target, severity, issue in critiques:
+                for target, severity, issue in entry.critiques:
                     lines.append(f"  Critique of {target} [{severity}]: {issue}")
-                if out.changed_mind:
-                    lines.append(f"  Changed mind because: {out.changed_mind_because}")
+                if entry.changed_mind:
+                    lines.append(
+                        f"  Changed answer from {entry.previous_answer}"
+                        + (
+                            f"; its stated reason: {out.changed_mind_because}"
+                            if out.changed_mind_because
+                            else ""
+                        )
+                    )
             lines.append("")
         return "\n".join(lines).strip()
 
@@ -404,6 +449,9 @@ class Orchestrator:
         else:
             yield "error", {"agent": "Judge", "message": error, "recoverable": recoverable}
             self.verdict = self._fallback_verdict(error or "judge unavailable")
+        # The judge writes the summary and dissent; the caught-mistakes list is built from the
+        # recorded critiques, because judges mis-attribute rounds and catchers.
+        self.verdict = self.verdict.model_copy(update={"mistakes_caught": self._mistakes_caught()})
 
         self.turns.append(
             TurnRecord(
@@ -425,6 +473,15 @@ class Orchestrator:
             )
         )
         yield "judge_verdict", {"payload": self.verdict.model_dump()}
+
+    def _mistakes_caught(self) -> list[MistakeCaught]:
+        assert self.verdict is not None
+        records = [r for rl in self._history for r in self._round_critiques(rl)]
+        answers = {
+            rl.round: {label: entry.out.final_answer for label, entry in rl.entries.items()}
+            for rl in self._history
+        }
+        return build_mistakes_caught(self.verdict.final_answer, records, answers)
 
     def _fallback_verdict(self, reason: str) -> JudgeOutput:
         """Majority verdict used when the judge is unavailable, so a debate still ends cleanly."""

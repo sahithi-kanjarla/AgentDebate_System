@@ -27,6 +27,8 @@ class DebaterOutput(BaseModel):
 
 
 class MistakeCaught(BaseModel):
+    """Built by the server from recorded critiques and answers (see debate/mistakes.py)."""
+
     description: str
     caught_by: str  # "Debater 2"
     round: int
@@ -99,11 +101,25 @@ class Cluster(BaseModel):
     agents: list[str]
 
 
+class ReceivedCritique(BaseModel):
+    """A critique raised against the answer an agent held in the previous round.
+
+    Not a claim that it caused a change: agents do not see critiques addressed to them.
+    """
+
+    from_agent: str
+    issue: str
+    severity: Severity
+    round: int
+
+
 class RoundComplete(BaseModel):
     round: int
     consensus_score: float
     agreed: bool
     clusters: list[Cluster]
+    # agent label -> critiques raised this round against the answer that agent revised
+    received_critiques: dict[str, list[ReceivedCritique]] = Field(default_factory=dict)
 
 
 class JudgeVerdict(BaseModel):

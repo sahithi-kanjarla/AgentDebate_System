@@ -1,30 +1,30 @@
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 
 from app.schemas import Cluster
 
-_CURRENCY = re.compile(r"[$€£₹¥]")
-_WRAPPERS = "\"'`*_ "
-_TRAILING_PUNCT = ".!?;:,"
+_CURRENCY = "$€£₹¥"
+# A pure number: optional currency symbol, optional sign, digits (thousands commas only in
+# proper groups of three, so "1,2,3" is a list and never 123), optional decimals. fullmatch means
+# no surrounding whitespace, no trailing period, no words: "42." and " 42" are plain text.
+_NUMBER = re.compile(
+    rf"[{_CURRENCY}]?[+-]?(?:(?:[0-9]{{1,3}}(?:,[0-9]{{3}})+|[0-9]+)(?:\.[0-9]+)?|\.[0-9]+)"
+)
 
 
 def normalize_answer(raw: str) -> str:
-    """Canonical form so trivially different spellings of one answer cluster together.
+    """The key two answers are compared by. Exact, except that pure numbers compare by value.
 
-    "42", "42.0", "$42" and "1,042.00" -> numbers; "Yes." and "yes" -> "yes".
+    Everything else (case, whitespace, punctuation, indentation) can be meaningful, e.g. Python
+    prints "[1, 2]" and not "[1,2]", so text is returned untouched. A pure number is
+    canonicalised so "42", "42.0", "$42" and "1,042" / "1042" cluster together.
     """
-    s = re.sub(r"\s+", " ", raw).strip().strip(_WRAPPERS).casefold()
-    s = s.rstrip(_TRAILING_PUNCT).strip(_WRAPPERS)
-    numeric = _CURRENCY.sub("", s).replace(",", "").replace(" ", "")
-    try:
-        d = Decimal(numeric)
-    except InvalidOperation:
-        return s
-    if not d.is_finite():
-        return s
-    return format(d.normalize(), "f")
+    if _NUMBER.fullmatch(raw) is None:
+        return raw
+    digits = raw.lstrip(_CURRENCY).replace(",", "")
+    return format(Decimal(digits).normalize(), "f")
 
 
 class ClusterIds:
@@ -47,7 +47,7 @@ class RoundConsensus:
 def compute_consensus(
     answers: Mapping[str, str | None], ids: ClusterIds, total: int | None = None
 ) -> RoundConsensus:
-    """Cluster agents by normalized final answer.
+    """Cluster agents by exact final answer (numbers by value, see `normalize_answer`).
 
     `answers` maps agent label -> final answer, or None when the agent produced no valid answer
     this round (it cannot agree with anyone, but it still counts in the denominator).
