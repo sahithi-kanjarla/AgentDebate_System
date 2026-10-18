@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import random
+import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
@@ -21,6 +22,32 @@ class RetryPolicy:
     def backoff(self, attempt: int, rng: random.Random) -> float:
         """Exponential backoff with full jitter: uniform(0, min(cap, base * 2^(attempt-1)))."""
         return rng.uniform(0, min(self.max_delay_s, self.base_delay_s * 2 ** (attempt - 1)))
+
+
+class RateLimiter:
+    """Spaces calls at least 60/rpm seconds apart (shared by every model of one provider).
+
+    Slots are reserved in arrival order, so concurrent callers queue instead of bursting.
+    """
+
+    def __init__(
+        self,
+        rpm: float,
+        *,
+        clock: Callable[[], float] = time.monotonic,
+        sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
+    ) -> None:
+        self.interval_s = 60.0 / rpm
+        self._clock = clock
+        self._sleep = sleep
+        self._next_slot = 0.0
+
+    async def wait(self) -> None:
+        now = self._clock()
+        slot = max(now, self._next_slot)  # no await between read and write: slots never collide
+        self._next_slot = slot + self.interval_s
+        if slot > now:
+            await self._sleep(slot - now)
 
 
 async def call_with_retries[T](

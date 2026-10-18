@@ -14,7 +14,7 @@ from app.providers.demo_script import DEMO_SCRIPTS
 from app.providers.fallback import FallbackProvider, UnavailableProvider
 from app.providers.mock import MockProvider, MockScript
 from app.providers.openai_compat import OpenAICompatibleProvider
-from app.providers.resilience import RetryPolicy
+from app.providers.resilience import RateLimiter, RetryPolicy
 
 HEALTH_TIMEOUT_S = 3.0
 
@@ -70,6 +70,7 @@ class ProviderRegistry:
         self._ttl = health_ttl_s
         self._clock = clock
         self._semaphores: dict[str, asyncio.Semaphore] = {}
+        self._limiters: dict[str, RateLimiter] = {}
         self._by_agent: dict[str, LLMProvider] = {}
         self._owned_health_client: httpx.AsyncClient | None = None
         self._health_cache: dict[tuple[str, str], tuple[float, str]] = {}
@@ -127,6 +128,7 @@ class ProviderRegistry:
             timeout_s=pcfg.timeout_s,
             policy=self._policy or RetryPolicy(max_attempts=pcfg.max_attempts),
             semaphore=self._semaphore(provider, pcfg),
+            rate_limiter=self._limiter(provider, pcfg),
             http_client=self._http,
             sleep=self._sleep,
             rng=self._rng,
@@ -137,6 +139,13 @@ class ProviderRegistry:
 
     def _semaphore(self, provider: str, pcfg: ProviderConfig) -> asyncio.Semaphore:
         return self._semaphores.setdefault(provider, asyncio.Semaphore(pcfg.max_concurrency))
+
+    def _limiter(self, provider: str, pcfg: ProviderConfig) -> RateLimiter | None:
+        if pcfg.rpm is None:
+            return None
+        if provider not in self._limiters:
+            self._limiters[provider] = RateLimiter(pcfg.rpm, clock=self._clock, sleep=self._sleep)
+        return self._limiters[provider]
 
     # --- health ---
 

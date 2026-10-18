@@ -10,7 +10,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 REPO_ROOT = BACKEND_DIR.parent
 
 # Names of the Settings fields that hold provider API keys (env vars are the upper-case names).
-KEY_SETTINGS = ("gemini_api_key", "groq_api_key", "openrouter_api_key")
+KEY_SETTINGS = ("gemini_api_key", "groq_api_key", "openrouter_api_key", "mistral_api_key")
 
 
 class Settings(BaseSettings):
@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     gemini_api_key: SecretStr | None = None
     groq_api_key: SecretStr | None = None
     openrouter_api_key: SecretStr | None = None
+    mistral_api_key: SecretStr | None = None
 
     @field_validator(*KEY_SETTINGS, mode="before")
     @classmethod
@@ -61,6 +62,9 @@ class ProviderConfig(BaseModel):
     json_mode: Literal["json_object", "none"] = "json_object"
     timeout_s: float = 60.0
     max_attempts: int = Field(default=3, ge=1)
+    # Requests per minute. When set, calls (retries included) are spaced 60/rpm seconds apart
+    # instead of bursting into a 429. None = no spacing.
+    rpm: float | None = Field(default=None, gt=0)
     # Name of the output-token limit field. Groq deprecated max_tokens for max_completion_tokens.
     token_param: Literal["max_tokens", "max_completion_tokens"] = "max_tokens"
     model_options: dict[str, ModelOptions] = Field(default_factory=dict)  # keyed by model id

@@ -10,7 +10,7 @@ import openai
 from openai import AsyncOpenAI
 
 from app.providers.base import CompletionResult, LLMProvider, Message, ProviderError
-from app.providers.resilience import RetryPolicy, call_with_retries
+from app.providers.resilience import RateLimiter, RetryPolicy, call_with_retries
 
 log = logging.getLogger(__name__)
 
@@ -130,6 +130,7 @@ class OpenAICompatibleProvider(LLMProvider):
         timeout_s: float = 60.0,
         policy: RetryPolicy | None = None,
         semaphore: asyncio.Semaphore | None = None,
+        rate_limiter: RateLimiter | None = None,
         http_client: httpx.AsyncClient | None = None,
         sleep: Sleep = asyncio.sleep,
         rng: random.Random | None = None,
@@ -143,6 +144,7 @@ class OpenAICompatibleProvider(LLMProvider):
         self._json_mode_enabled = json_mode == "json_object"
         self._policy = policy or RetryPolicy()
         self._semaphore = semaphore or asyncio.Semaphore(2)
+        self._rate_limiter = rate_limiter
         self._sleep = sleep
         self._rng = rng or random.Random()
         self._client = AsyncOpenAI(
@@ -219,6 +221,8 @@ class OpenAICompatibleProvider(LLMProvider):
         )
 
     async def _attempt(self, kwargs: dict[str, Any]):
+        if self._rate_limiter is not None:
+            await self._rate_limiter.wait()  # every attempt, retries included, takes a slot
         async with self._semaphore:  # released during backoff sleeps
             try:
                 return await self._client.chat.completions.create(**kwargs)

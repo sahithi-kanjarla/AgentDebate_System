@@ -6,3 +6,6 @@ __pycache__/
 .ruff_cache/
 .coverage
 node_modules/
+*.db-shm
+*.db-wal
+*.db-journal

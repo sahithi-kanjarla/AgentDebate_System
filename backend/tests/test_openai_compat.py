@@ -394,3 +394,23 @@ async def test_detail_is_only_the_error_message_field_never_the_raw_body():
         await p.complete(MSGS)
     assert exc.value.detail.startswith("Failed to generate JSON")
     assert "Error code" not in exc.value.detail and "{" not in exc.value.detail
+
+
+async def test_rate_limiter_spaces_every_attempt_including_retries():
+    from app.providers.resilience import RateLimiter
+
+    now = [0.0]
+    spaced = Sleeps()
+
+    async def sleep(delay):
+        await spaced(delay)
+        now[0] += delay
+
+    limiter = RateLimiter(2, clock=lambda: now[0], sleep=sleep)
+    replies = iter([error_response(503), ok_response()])
+    provider = make_provider(
+        lambda request: next(replies), rate_limiter=limiter, policy=RetryPolicy(base_delay_s=0)
+    )
+    result = await provider.complete(MSGS)
+    assert result.attempts == 2
+    assert spaced.delays == [30.0]  # the retry took the next 30s slot, it did not burst

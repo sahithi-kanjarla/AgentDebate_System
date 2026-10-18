@@ -26,6 +26,13 @@ providers:
     max_concurrency: 1  # free models: 20 requests/minute
     json_mode: json_object
     timeout_s: 90
+  mistral:
+    base_url: https://api.mistral.ai/v1
+    api_key_setting: mistral_api_key
+    max_concurrency: 1
+    json_mode: json_object  # documented: response_format {"type": "json_object"}
+    timeout_s: 90
+    rpm: 2  # free tier is about 2 requests/minute; replace with the figure from the Mistral console
   ollama:
     base_url: http://localhost:11434/v1/
     api_key_setting: null  # local server, no key
@@ -60,7 +67,7 @@ debaters:
     max_tokens: 1536
     persona_prompt: Focus on factual claims, units, arithmetic and logical validity.
     fallbacks:
-      - {provider: groq, model: openai/gpt-oss-20b}
+      - {provider: mistral, model: mistral-medium-3.5}
       - {provider: ollama, model: "gemma4:e4b"}
 judge:
   id: judge
@@ -71,5 +78,6 @@ judge:
   max_tokens: 1536
   persona_prompt: Weigh the full anonymized transcript and deliver a structured verdict.
   fallbacks:
+    - {provider: mistral, model: mistral-medium-3.5}  # free tier (429s) was too strict as primary
     - {provider: gemini, model: gemini-3.5-flash-lite}
     - {provider: ollama, model: "gemma4:e4b"}

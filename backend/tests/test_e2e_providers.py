@@ -17,22 +17,24 @@ from app.providers.mock import MockProvider
 from tests.conftest import REAL_AGENTS, parse_sse, wait_until
 from tests.fakes import Sleeps, error_response, http_client, ok_response
 
-GEMINI, GROQ, OPENROUTER, OLLAMA = (
+GEMINI, GROQ, OPENROUTER, MISTRAL, OLLAMA = (
     "generativelanguage.googleapis.com",
     "api.groq.com",
     "openrouter.ai",
+    "api.mistral.ai",
     "localhost",
 )
 KEYS = {
     "gemini_api_key": "test-key-gemini",
     "groq_api_key": "test-key-groq",
     "openrouter_api_key": "test-key-or",
+    "mistral_api_key": "test-key-mistral",
 }
 PERSONAS = {"Solver": "debater_1", "Skeptic": "debater_2", "Fact-Checker": "debater_3"}
 
 
 class FakeProviders:
-    """One fake server for all four hosts. Replies come from the M1 demo scripts, chosen by the
+    """One fake server for all five hosts. Replies come from the M1 demo scripts, chosen by the
     persona named in the system prompt, so any provider can answer for any agent."""
 
     def __init__(self, down=(), unauthorized=()) -> None:
@@ -145,7 +147,7 @@ async def test_killing_groq_triggers_fallback_and_the_debate_still_completes(run
     assert [e["data"]["round"] for e in events if e["event"] == "round_complete"] == [0, 1]
     assert not [e for e in events if e["event"] == "error"]  # fallback is not an error
 
-    # Groq was retried (3 attempts per call) before giving up: 2 debater_2 rounds + judge.
+    # Groq was retried (3 attempts per call) before giving up: 2 debater_2 rounds + the judge.
     assert fake.count(GROQ) == 9 and len(world.sleeps.delays) == 6
     assert fake.count(OLLAMA) == 2  # debater_2's two turns, answered locally
 
@@ -156,7 +158,7 @@ async def test_killing_groq_triggers_fallback_and_the_debate_still_completes(run
     ] * 2
     assert all(t["valid"] for t in d2)
     judge = turns_of(stored, "judge")[0]
-    assert (judge["provider"], judge["fallback_used"]) == ("gemini", True)
+    assert (judge["provider"], judge["fallback_used"]) == ("mistral", True)  # first judge fallback
     for agent_id in ("debater_1", "debater_3"):
         assert all(not t["fallback_used"] for t in turns_of(stored, agent_id))
 
@@ -179,11 +181,15 @@ async def test_unauthorized_provider_falls_back_without_retrying(run_world):
     fake = FakeProviders(unauthorized=[OPENROUTER])
     world, [(events, stored, _)] = await run_world(fake)
     assert stored["status"] == "completed"
-    assert fake.count(OPENROUTER) == 2 and world.sleeps.delays == []  # one try per call
+    assert fake.count(OPENROUTER) == 2  # one try per call, no retries
     d3 = turns_of(stored, "debater_3")
     assert [(t["provider"], t["model"], t["fallback_used"]) for t in d3] == [
-        ("groq", "openai/gpt-oss-20b", True)
+        ("mistral", "mistral-medium-3.5", True)
     ] * 2
+    # Mistral answers debater_3 twice; rpm 2 spaces those calls, so the only sleep is one
+    # rate-limit wait (about 30s), not a retry backoff.
+    assert fake.count(MISTRAL) == 2 and len(world.sleeps.delays) == 1
+    assert world.sleeps.delays[0] > 25
 
 
 async def test_missing_gemini_key_means_gemini_is_never_contacted(run_world):
@@ -223,7 +229,7 @@ async def test_failures_are_not_cached(run_world):
 
 
 async def test_every_provider_down_degrades_gracefully(run_world):
-    fake = FakeProviders(down=[GEMINI, GROQ, OPENROUTER, OLLAMA])
+    fake = FakeProviders(down=[GEMINI, GROQ, OPENROUTER, MISTRAL, OLLAMA])
     _, [(events, stored, _)] = await run_world(fake)
     kinds = [e["event"] for e in events]
     assert kinds[0] == "debate_started" and kinds[-2:] == ["judge_verdict", "done"]

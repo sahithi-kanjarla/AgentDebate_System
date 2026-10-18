@@ -177,3 +177,37 @@ def test_pairs_cover_every_configured_model_once():
 def test_script_source_never_prints_response_bodies_or_headers():
     src = SCRIPT.read_text(encoding="utf-8")
     assert "resp.text" not in src and "response.text" not in src and "e.body" not in src
+
+
+MISTRAL_MODEL = "mistral-medium-3.5"
+
+
+def test_only_mistral_selects_just_the_mistral_model():
+    agents = load_agents(REAL_AGENTS)
+    assert [(p, m) for p, m, _ in smoke.pairs_to_check(agents, ["mistral"])] == [
+        ("mistral", MISTRAL_MODEL)
+    ]
+
+
+async def test_mistral_check_and_list_models_use_the_mistral_endpoint(capsys):
+    keys = {**KEYS, "mistral_api_key": FAKE_KEY}
+    hosts = []
+
+    def handler(request):
+        hosts.append(request.url.host)
+        if request.url.path.endswith("/models"):
+            return httpx.Response(200, json={"data": [{"id": MISTRAL_MODEL}, {"id": "other"}]})
+        assert body_of(request)["response_format"] == {"type": "json_object"}
+        return ok_response('{"ok": true}')
+
+    assert await run_check(handler, "mistral", MISTRAL_MODEL, keys=keys)
+    assert capsys.readouterr().out.startswith("PASS  mistral")
+    settings, agents, _, http = setup(handler, keys)
+    assert await smoke.list_models_command(settings, agents, "mistral", http) == 0
+    assert capsys.readouterr().out.split() == ["mistral-medium-3.5", "other"]
+    assert set(hosts) == {"api.mistral.ai"}
+
+
+async def test_mistral_without_a_key_is_skipped(capsys):
+    assert await run_check(groq_server(), "mistral", MISTRAL_MODEL)  # KEYS has no mistral key
+    assert capsys.readouterr().out.startswith("SKIP  mistral")
