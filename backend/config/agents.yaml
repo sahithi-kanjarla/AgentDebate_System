@@ -1,23 +1,75 @@
-# All model IDs live here. M1 uses the deterministic mock provider only.
+# All provider endpoints and model IDs live here, never in code. Free-tier model lists churn:
+# run `scripts/smoke_providers.py` to check every ID below against the live provider.
+# Offline/demo config with no keys: config/agents.mock.yaml (AGENTS_CONFIG=...).
+providers:
+  gemini:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_setting: gemini_api_key
+    max_concurrency: 2
+    json_mode: json_object  # not confirmed in Google's docs; auto-disabled on a 400
+    timeout_s: 60
+  groq:
+    base_url: https://api.groq.com/openai/v1
+    api_key_setting: groq_api_key
+    max_concurrency: 2
+    json_mode: json_object
+    timeout_s: 60
+    token_param: max_completion_tokens  # Groq deprecated max_tokens
+    # gpt-oss models reason before answering and reasoning tokens count against the output limit.
+    # "low" keeps enough budget for the JSON answer (and saves tokens against the 8K TPM cap).
+    model_options:
+      openai/gpt-oss-120b: {extra_body: {reasoning_effort: low}}
+      openai/gpt-oss-20b: {extra_body: {reasoning_effort: low}}
+  openrouter:
+    base_url: https://openrouter.ai/api/v1
+    api_key_setting: openrouter_api_key
+    max_concurrency: 1  # free models: 20 requests/minute
+    json_mode: json_object
+    timeout_s: 90
+  ollama:
+    base_url: http://localhost:11434/v1/
+    api_key_setting: null  # local server, no key
+    max_concurrency: 1
+    json_mode: json_object
+    timeout_s: 180
+
 debaters:
   - id: debater_1
     persona: Solver
-    provider: mock
-    model: mock-solver
+    provider: gemini
+    model: gemini-3.5-flash-lite
+    temperature: 0.6
+    max_tokens: 1536
     persona_prompt: Methodical and step-by-step; show your work.
+    fallbacks:
+      - {provider: ollama, model: "gemma4:e4b"}
   - id: debater_2
     persona: Skeptic
-    provider: mock
-    model: mock-skeptic
+    provider: groq
+    model: openai/gpt-oss-120b
+    temperature: 0.6
+    max_tokens: 1536
     persona_prompt: Assume something is wrong; hunt for errors, edge cases and hidden assumptions.
+    fallbacks:
+      - {provider: ollama, model: "gemma4:e4b"}
   - id: debater_3
     persona: Fact-Checker
-    provider: mock
-    model: mock-factchecker
+    provider: openrouter
+    model: nvidia/nemotron-3-super-120b-a12b:free
+    temperature: 0.6
+    max_tokens: 1536
     persona_prompt: Focus on factual claims, units, arithmetic and logical validity.
+    fallbacks:
+      - {provider: groq, model: openai/gpt-oss-20b}
+      - {provider: ollama, model: "gemma4:e4b"}
 judge:
   id: judge
   persona: Judge
-  provider: mock
-  model: mock-judge
+  provider: groq
+  model: openai/gpt-oss-20b  # separate Groq model => separate quota from debater_2
+  temperature: 0.2
+  max_tokens: 1536
   persona_prompt: Weigh the full anonymized transcript and deliver a structured verdict.
+  fallbacks:
+    - {provider: gemini, model: gemini-3.5-flash-lite}
+    - {provider: ollama, model: "gemma4:e4b"}

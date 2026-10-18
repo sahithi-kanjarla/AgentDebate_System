@@ -1,0 +1,24 @@
+# Offline demo/test config: every agent uses the deterministic mock provider (no keys, no network).
+# Select with AGENTS_CONFIG=config/agents.mock.yaml. Real model IDs live in agents.yaml.
+debaters:
+  - id: debater_1
+    persona: Solver
+    provider: mock
+    model: mock-solver
+    persona_prompt: Methodical and step-by-step; show your work.
+  - id: debater_2
+    persona: Skeptic
+    provider: mock
+    model: mock-skeptic
+    persona_prompt: Assume something is wrong; hunt for errors, edge cases and hidden assumptions.
+  - id: debater_3
+    persona: Fact-Checker
+    provider: mock
+    model: mock-factchecker
+    persona_prompt: Focus on factual claims, units, arithmetic and logical validity.
+judge:
+  id: judge
+  persona: Judge
+  provider: mock
+  model: mock-judge
+  persona_prompt: Weigh the full anonymized transcript and deliver a structured verdict.

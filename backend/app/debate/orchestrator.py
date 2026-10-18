@@ -7,6 +7,7 @@ from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.core.logging import agent_var
 from app.core.settings import AgentConfig, AgentsFile
 from app.debate.anonymize import Anonymization, anonymize
 from app.debate.consensus import ClusterIds, RoundConsensus, compute_consensus, normalize_answer
@@ -56,6 +57,16 @@ class _Outcome:
 class _Stats:
     calls: int = 0
     tokens: int = 0
+    api_calls: int = 0
+    cache_hits: int = 0
+    fallbacks: int = 0
+
+    def add(self, parsed: ParseOutcome[Any]) -> None:
+        self.calls += parsed.calls
+        self.tokens += parsed.tokens_in + parsed.tokens_out
+        self.api_calls += parsed.api_calls
+        self.cache_hits += parsed.cache_hits
+        self.fallbacks += int(parsed.fallback_used)
 
 
 @dataclass
@@ -146,6 +157,9 @@ class Orchestrator:
                     "total_tokens": self.stats.tokens,
                     "latency_ms": self.elapsed_ms,
                     "calls": self.stats.calls,
+                    "api_calls": self.stats.api_calls,
+                    "cache_hits": self.stats.cache_hits,
+                    "fallbacks": self.stats.fallbacks,
                 }
             },
         )
@@ -187,6 +201,7 @@ class Orchestrator:
 
     async def _turn(self, cfg: AgentConfig, rnd: int, latest: dict[str, DebaterOutput]) -> _Outcome:
         """One agent's turn. Never raises (except cancellation): failures become the outcome."""
+        agent_var.set(self.labels[cfg.id])  # log context for this agent's task
         anon: Anonymization | None = None
         messages: list[Message] = []
         try:
@@ -240,16 +255,15 @@ class Orchestrator:
         cfg, label, rnd = outcome.cfg, self.labels[outcome.cfg.id], outcome.round
         parsed = outcome.parsed
         if parsed:
-            self.stats.calls += parsed.calls
-            self.stats.tokens += parsed.tokens_in + parsed.tokens_out
+            self.stats.add(parsed)
 
         record = TurnRecord(
             round=rnd,
             agent_id=cfg.id,
             label=label,
             persona=cfg.persona,
-            provider=cfg.provider,
-            model=cfg.model,
+            provider=(parsed.provider if parsed else "") or cfg.provider,
+            model=(parsed.model if parsed else "") or cfg.model,
             prompt_hash=outcome.prompt_hash,
             raw_text=parsed.raw_text if parsed else "",
             parsed_json=None,
@@ -257,6 +271,7 @@ class Orchestrator:
             tokens_in=parsed.tokens_in if parsed else 0,
             tokens_out=parsed.tokens_out if parsed else 0,
             latency_ms=parsed.latency_ms if parsed else 0,
+            fallback_used=bool(parsed and parsed.fallback_used),
             error=outcome.error,
         )
         if parsed is None or parsed.value is None:
@@ -302,7 +317,7 @@ class Orchestrator:
             "critiques": critiques,
             "valid": True,
             "cluster_id": cluster_id,
-            "fallback_used": False,
+            "fallback_used": parsed.fallback_used,
             "label_map": {k: self.labels[v] for k, v in outcome.anon.mapping.items()}
             if outcome.anon
             else {},
@@ -340,7 +355,12 @@ class Orchestrator:
         for rl in self._history:
             title = "Independent answers" if rl.round == 0 else f"Critique round {rl.round}"
             lines.append(f"== Round {rl.round}: {title} ==")
-            for label, (out, critiques) in rl.entries.items():
+            # Fixed debater order, not completion order: the prompt (and so the cache key)
+            # must not depend on which provider happened to answer first.
+            for label in self.labels.values():
+                if label not in rl.entries:
+                    continue
+                out, critiques = rl.entries[label]
                 lines.append(
                     f"{label}: final answer {out.final_answer} (confidence {out.confidence})"
                 )
@@ -354,6 +374,7 @@ class Orchestrator:
 
     async def _run_judge(self, rnd: int) -> AsyncIterator[Event]:
         judge = self.agents.judge
+        agent_var.set("Judge")
         messages = render_messages(
             "judge",
             persona_prompt=judge.persona_prompt,
@@ -377,8 +398,7 @@ class Orchestrator:
             error = f"{type(e).__name__}: {e}"
 
         if parsed:
-            self.stats.calls += parsed.calls
-            self.stats.tokens += parsed.tokens_in + parsed.tokens_out
+            self.stats.add(parsed)
         if parsed and parsed.value:
             self.verdict = parsed.value
         else:
@@ -391,8 +411,8 @@ class Orchestrator:
                 agent_id=judge.id,
                 label="Judge",
                 persona=judge.persona,
-                provider=judge.provider,
-                model=judge.model,
+                provider=(parsed.provider if parsed else "") or judge.provider,
+                model=(parsed.model if parsed else "") or judge.model,
                 prompt_hash=_hash_messages(messages),
                 raw_text=parsed.raw_text if parsed else "",
                 parsed_json=self.verdict.model_dump(),
@@ -400,6 +420,7 @@ class Orchestrator:
                 tokens_in=parsed.tokens_in if parsed else 0,
                 tokens_out=parsed.tokens_out if parsed else 0,
                 latency_ms=parsed.latency_ms if parsed else 0,
+                fallback_used=bool(parsed and parsed.fallback_used),
                 error=error,
             )
         )

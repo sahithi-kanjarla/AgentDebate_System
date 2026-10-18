@@ -119,7 +119,10 @@ class ErrorEvent(BaseModel):
 class DoneStats(BaseModel):
     total_tokens: int
     latency_ms: int
-    calls: int
+    calls: int  # completions requested
+    api_calls: int = 0  # HTTP requests actually sent (retries count, cache hits do not)
+    cache_hits: int = 0
+    fallbacks: int = 0  # completions answered by a fallback provider
 
 
 class Done(BaseModel):

@@ -1,15 +1,59 @@
 import asyncio
 import json
+import socket
 from collections.abc import AsyncIterator, Callable
 
 import httpx
 import pytest
 
-from app.core.settings import AgentsFile, Settings
+from app.core.settings import BACKEND_DIR, KEY_SETTINGS, AgentsFile, Settings
 from app.main import create_app
 from app.providers.base import LLMProvider
 from app.providers.demo_script import DEMO_SCRIPTS
 from app.providers.mock import MockProvider
+
+MOCK_AGENTS = BACKEND_DIR / "config" / "agents.mock.yaml"
+REAL_AGENTS = BACKEND_DIR / "config" / "agents.yaml"
+_LOOPBACK = {"127.0.0.1", "::1", "localhost", ""}
+
+
+def _blocked(host) -> None:
+    raise RuntimeError(f"network access blocked in tests: {host!r}")
+
+
+@pytest.fixture(autouse=True)
+def no_network(monkeypatch):
+    """Unit tests must never reach a real provider: only loopback connections are allowed."""
+    real_getaddrinfo = socket.getaddrinfo
+    real_connect = socket.socket.connect
+    real_create_connection = asyncio.BaseEventLoop.create_connection
+
+    def getaddrinfo(host, *args, **kwargs):
+        if host not in _LOOPBACK:
+            _blocked(host)
+        return real_getaddrinfo(host, *args, **kwargs)
+
+    def connect(self, address):
+        host = address[0] if isinstance(address, tuple) else address
+        if host not in _LOOPBACK:
+            _blocked(host)
+        return real_connect(self, address)
+
+    async def create_connection(self, protocol_factory, host=None, *args, **kwargs):
+        if host not in _LOOPBACK:
+            _blocked(host)
+        return await real_create_connection(self, protocol_factory, host, *args, **kwargs)
+
+    monkeypatch.setattr(socket, "getaddrinfo", getaddrinfo)
+    monkeypatch.setattr(socket.socket, "connect", connect)
+    monkeypatch.setattr(asyncio.BaseEventLoop, "create_connection", create_connection)
+
+
+@pytest.fixture(autouse=True)
+def no_real_keys(monkeypatch):
+    """Real keys must not leak into tests through the process environment."""
+    for name in KEY_SETTINGS:
+        monkeypatch.delenv(name.upper(), raising=False)
 
 
 def demo_factory(delay_s: float = 0.0) -> Callable[[AgentsFile], dict[str, LLMProvider]]:
@@ -30,7 +74,9 @@ def demo_factory(delay_s: float = 0.0) -> Callable[[AgentsFile], dict[str, LLMPr
 
 @pytest.fixture
 def settings(tmp_path) -> Settings:
-    return Settings(database_url=f"sqlite:///{tmp_path / 'test.db'}", _env_file=None)
+    return Settings(
+        database_url=f"sqlite:///{tmp_path / 'test.db'}", agents_config=MOCK_AGENTS, _env_file=None
+    )
 
 
 @pytest.fixture

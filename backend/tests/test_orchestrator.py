@@ -9,6 +9,7 @@ from app.providers.demo_script import DEMO_SCRIPTS
 from app.providers.mock import JUDGE, MockProvider, MockScript, MockTurn
 from app.providers.registry import build_provider
 from app.schemas import DebateEvent
+from tests.conftest import MOCK_AGENTS
 
 
 def make(
@@ -16,7 +17,7 @@ def make(
     rounds: int = 3,
     min_critique_rounds: int = 1,
 ):
-    agents = load_agents()
+    agents = load_agents(MOCK_AGENTS)
     providers: dict[str, LLMProvider] = {}
     for cfg in [*agents.debaters, agents.judge]:
         ov = (overrides or {}).get(cfg.id)
@@ -268,7 +269,7 @@ async def test_prompts_never_leak_provider_or_model_names():
             seen.extend(m.content for m in messages)
             return await super().complete(messages, json_mode)
 
-    agents = load_agents()
+    agents = load_agents(MOCK_AGENTS)
     spies = {c.id: Spy(DEMO_SCRIPTS[c.id]()) for c in [*agents.debaters, agents.judge]}
     await collect(make(spies))
     blob = "\n".join(seen).lower()
@@ -288,3 +289,33 @@ async def test_round_agents_run_concurrently():
     start = asyncio.get_running_loop().time()
     await collect(orch)
     assert asyncio.get_running_loop().time() - start < 0.9
+
+
+async def test_judge_prompt_does_not_depend_on_completion_order():
+    """Same debate, agents finishing in opposite orders => byte-identical judge prompt.
+
+    A prompt that varied with timing would never hit the response cache on a re-run.
+    """
+
+    async def judge_prompt(delays: dict[str, float]) -> str:
+        seen: list[str] = []
+
+        class Spy(MockProvider):
+            async def complete(self, messages, json_mode=True):
+                seen.append("\n".join(m.content for m in messages))
+                return await super().complete(messages, json_mode)
+
+        overrides: dict = {}
+        for agent_id, delay in delays.items():
+            script = DEMO_SCRIPTS[agent_id]()
+            for turn in (*script.turns.values(), script.default):
+                turn.delay_s = delay
+            overrides[agent_id] = script
+        overrides["judge"] = Spy(DEMO_SCRIPTS["judge"]())
+        await collect(make(overrides))
+        return seen[0]
+
+    forward = await judge_prompt({"debater_1": 0.0, "debater_2": 0.03, "debater_3": 0.06})
+    reverse = await judge_prompt({"debater_1": 0.06, "debater_2": 0.03, "debater_3": 0.0})
+    assert forward == reverse
+    assert forward.index("Debater 1:") < forward.index("Debater 2:") < forward.index("Debater 3:")

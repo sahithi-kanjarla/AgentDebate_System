@@ -8,3 +8,7 @@ Multi-agent debate system. The full spec is in @PRD.md, so read it before any wo
 - Never commit .env or API keys.
 - If the PRD and reality disagree (deprecated model, changed API), adapt and log it in DECISIONS.md.
 - Ask me before adding any paid service or new major dependency.
+- Never read, grep, print or open .env or any file containing real keys.
+- Never add Co-authored-by trailers or Claude attribution to commits.
+- Only commit when I ask.
+- Never run anything that uses my real API keys (I run those myself).

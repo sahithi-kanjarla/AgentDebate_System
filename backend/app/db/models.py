@@ -50,3 +50,15 @@ class DebateEventRow(SQLModel, table=True):
     seq: int
     type: str
     data: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+
+
+class CacheEntry(SQLModel, table=True):
+    """Cached successful completion, keyed on (provider, model, params, messages, json_mode)."""
+
+    key_hash: str = Field(primary_key=True)
+    response_text: str
+    tokens_in: int = 0
+    tokens_out: int = 0
+    provider: str = ""
+    model: str = ""
+    created_at: datetime = Field(default_factory=_now)

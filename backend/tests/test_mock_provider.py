@@ -7,6 +7,7 @@ from app.providers.base import Message, ProviderError
 from app.providers.mock import MockProvider, MockScript, MockTurn
 from app.providers.registry import build_provider
 from app.schemas import DebaterOutput, JudgeOutput
+from tests.conftest import MOCK_AGENTS
 
 
 def debater_msgs(round_: int, peers: dict[int, str] | None = None) -> list[Message]:
@@ -17,7 +18,7 @@ def debater_msgs(round_: int, peers: dict[int, str] | None = None) -> list[Messa
 
 
 async def test_demo_story_wrong_agent_changes_mind():
-    cfg = load_agents()
+    cfg = load_agents(MOCK_AGENTS)
     d1, d3 = (build_provider(c) for c in (cfg.debaters[0], cfg.debaters[2]))
     r0 = DebaterOutput.model_validate_json((await d1.complete(debater_msgs(0))).text)
     assert r0.final_answer == "408"
@@ -34,13 +35,13 @@ async def test_demo_story_wrong_agent_changes_mind():
     [({1: "408", 2: "398"}, "Response 2"), ({1: "398", 2: "408"}, "Response 1")],
 )
 async def test_critique_target_survives_shuffle(peers, expected):
-    d1 = build_provider(load_agents().debaters[0])
+    d1 = build_provider(load_agents(MOCK_AGENTS).debaters[0])
     out = DebaterOutput.model_validate_json((await d1.complete(debater_msgs(1, peers))).text)
     assert [c.target for c in out.critiques] == [expected]
 
 
 async def test_critique_dropped_when_nobody_holds_target_answer():
-    d1 = build_provider(load_agents().debaters[0])
+    d1 = build_provider(load_agents(MOCK_AGENTS).debaters[0])
     out = DebaterOutput.model_validate_json(
         (await d1.complete(debater_msgs(1, {1: "408", 2: "408"}))).text
     )
@@ -48,7 +49,7 @@ async def test_critique_dropped_when_nobody_holds_target_answer():
 
 
 async def test_judge_output_valid():
-    judge = build_provider(load_agents().judge)
+    judge = build_provider(load_agents(MOCK_AGENTS).judge)
     msgs = [Message(role="user", content="ROLE: judge\ntranscript")]
     out = JudgeOutput.model_validate_json((await judge.complete(msgs)).text)
     assert out.consensus_reached and out.mistakes_caught[0].caught_by == "Debater 1"
@@ -73,6 +74,6 @@ async def test_scripted_error_and_missing_turn():
 
 
 def test_unknown_provider_rejected():
-    cfg = load_agents().debaters[0].model_copy(update={"provider": "nope"})
+    cfg = load_agents(MOCK_AGENTS).debaters[0].model_copy(update={"provider": "nope"})
     with pytest.raises(ValueError):
         build_provider(cfg)

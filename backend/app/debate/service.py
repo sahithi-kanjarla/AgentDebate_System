@@ -7,11 +7,13 @@ from typing import Any
 
 from sqlalchemy.engine import Engine
 
+from app.core.logging import debate_id_var
 from app.core.settings import AgentsFile, Settings
 from app.db import repo
 from app.debate.hub import DebateChannel
 from app.debate.orchestrator import Orchestrator, TurnRecord
 from app.providers.base import LLMProvider
+from app.providers.registry import ProviderRegistry
 from app.schemas import CreateDebateRequest, DebateEvent, EventType
 
 log = logging.getLogger(__name__)
@@ -33,11 +35,13 @@ class DebateService:
         settings: Settings,
         agents: AgentsFile,
         provider_factory: ProviderFactory,
+        registry: ProviderRegistry | None = None,
     ) -> None:
         self.engine = engine
         self.settings = settings
         self.agents = agents
         self.provider_factory = provider_factory
+        self.registry = registry
         self._channels: dict[str, DebateChannel] = {}
         self._tasks: set[asyncio.Task[None]] = set()
 
@@ -89,6 +93,7 @@ class DebateService:
     async def _run(
         self, debate_id: str, req: CreateDebateRequest, rounds: int, channel: DebateChannel
     ) -> None:
+        debate_id_var.set(debate_id)
         orch: Orchestrator | None = None
         status = "completed"
         stats: dict[str, Any] | None = None

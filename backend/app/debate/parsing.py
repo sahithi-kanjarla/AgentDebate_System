@@ -29,6 +29,11 @@ class ParseOutcome[T: BaseModel]:
     tokens_out: int = 0
     latency_ms: int = 0
     calls: int = 0
+    api_calls: int = 0  # HTTP requests actually sent (retries count, cache hits do not)
+    cache_hits: int = 0
+    provider: str = ""  # who answered the last call
+    model: str = ""
+    fallback_used: bool = False
 
     @property
     def valid(self) -> bool:
@@ -80,6 +85,11 @@ async def parse_with_repair[T: BaseModel](
         outcome.tokens_in += result.tokens_in
         outcome.tokens_out += result.tokens_out
         outcome.latency_ms += result.latency_ms
+        outcome.api_calls += 0 if result.cached else result.attempts
+        outcome.cache_hits += int(result.cached)
+        outcome.provider = result.provider or outcome.provider
+        outcome.model = result.model or outcome.model
+        outcome.fallback_used = outcome.fallback_used or result.fallback_used
         outcome.raw_text = result.text
         try:
             outcome.value = parse_model(result.text, model)
