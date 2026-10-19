@@ -47,7 +47,9 @@ $zip = Join-Path ([IO.Path]::GetTempPath()) "tribunal-space-$stamp.zip"
 try {
     & git -C $repo archive --format=zip -o $zip HEAD
     if ($LASTEXITCODE -ne 0) { throw 'git archive failed.' }
-    Expand-Archive -LiteralPath $zip -DestinationPath $out
+    # Expand-Archive is very slow in Windows PowerShell 5.1; the .NET call does the same job.
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [IO.Compression.ZipFile]::ExtractToDirectory($zip, $out)
 } finally {
     if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
 }
@@ -94,3 +96,4 @@ Write-Host "Folder:     $out"
 Write-Host "File count: $count"
 Write-Host ''
 Write-Host 'Review it before pushing anywhere (see docs/DEPLOY.md).'
+Write-Output $out
