@@ -9,3 +9,7 @@ node_modules/
 *.db-shm
 *.db-wal
 *.db-journal
+
+# eval harness: downloaded dataset and the eval response cache (results and id lists are kept)
+eval/data/*.jsonl
+eval/cache/

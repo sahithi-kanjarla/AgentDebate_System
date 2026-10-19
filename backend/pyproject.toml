@@ -33,8 +33,8 @@ select = ["E", "F", "I", "UP", "B", "ASYNC"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["tests"]
-pythonpath = ["."]
+testpaths = ["tests", "../eval/tests"]
+pythonpath = [".", ".."]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["ASYNC110"]  # test helpers poll plain predicates

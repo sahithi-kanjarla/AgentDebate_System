@@ -14,6 +14,11 @@ _NUMBER = re.compile(
 )
 
 
+def is_pure_number(raw: str) -> bool:
+    """True when `raw` is a pure number by the rule above (so it is compared by value)."""
+    return _NUMBER.fullmatch(raw) is not None
+
+
 def normalize_answer(raw: str) -> str:
     """The key two answers are compared by. Exact, except that pure numbers compare by value.
 
