@@ -13,3 +13,8 @@ node_modules/
 # eval harness: downloaded dataset and the eval response cache (results and id lists are kept)
 eval/data/*.jsonl
 eval/cache/
+
+# env variants (the example file is kept) and scratch eval reports
+.env.*
+!.env.example
+report*.md
