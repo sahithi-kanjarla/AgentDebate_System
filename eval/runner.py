@@ -36,7 +36,13 @@ ErrorKind = Literal["model", "quota", "budget", "config", "transient"]
 
 # Errors the model itself caused: unparseable output after the repair attempt. These are real
 # results (counted wrong), not infrastructure problems.
-_MODEL_MARKERS = ("invalid output after repair", "judge output invalid after repair")
+# An empty reply that stopped on the output limit (finish_reason=length) is the model running
+# out of room, not an outage: hard problems must not be skipped as if they were errors.
+_MODEL_MARKERS = (
+    "invalid output after repair",
+    "judge output invalid after repair",
+    "finish_reason=length",
+)
 _CONFIG_MARKERS = ("unauthorized", "model_not_found", "payment_required", "no_provider")
 MAX_ATTEMPTS = 3  # per question per session, for transient errors
 
@@ -93,6 +99,22 @@ def _provider_of(agents: AgentsFile, label: str, labels: dict[str, str]) -> str:
     return ""
 
 
+def looks_truncated(t: TurnRecord) -> bool:
+    """An invalid turn whose output was probably cut off by the token limit.
+
+    Either the provider said so (an empty reply with finish_reason=length), or the last reply
+    opened more braces than it closed (JSON cut mid-way). A heuristic: a provider that does
+    not report why it stopped cannot be told apart from malformed JSON that happens to be
+    unbalanced.
+    """
+    if t.valid:
+        return False
+    if "finish_reason=length" in (t.error or ""):
+        return True
+    text = t.raw_text
+    return "{" in text and text.count("{") > text.count("}")
+
+
 def _turn_info(t: TurnRecord) -> TurnInfo:
     parsed = t.parsed_json or {}
     answer = parsed.get("final_answer") if t.valid else None
@@ -110,6 +132,7 @@ def _turn_info(t: TurnRecord) -> TurnInfo:
         tokens_in=t.tokens_in,
         tokens_out=t.tokens_out,
         latency_ms=t.latency_ms,
+        truncated=looks_truncated(t),
     )
 
 
@@ -192,11 +215,13 @@ class Runner:
             c_equals_d=c is None,
             prefix_consistent=consistent,
             cache_hits_d=d.total.cache_hits,
+            truncated_turns=_truncated_turns(d, c),
         )
         return {
             "qid": q.qid,
             "question": q.text,
             "gold": self.dataset.gold_label(q),
+            "meta": q.meta,
             "finished_at": datetime.now(UTC).isoformat(timespec="seconds"),
             "facts": asdict(facts),
             "conditions": {k: v.to_json() for k, v in results.items()},
@@ -204,6 +229,13 @@ class Runner:
             "judge_d": asdict(d.judge) if d.judge else None,
             "judge_c": asdict(c.judge) if c and c.judge else None,
         }
+
+
+def _truncated_turns(d: RunData, c: RunData | None) -> int:
+    """Debater turns of run D plus judge turns of D (and C) that look cut off."""
+    runs = [d] if c is None else [d, c]
+    n = sum(t.truncated for t in d.turns)
+    return n + sum(bool(r.judge and r.judge.truncated) for r in runs)
 
 
 # --- a session over many questions ---

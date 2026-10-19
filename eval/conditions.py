@@ -51,6 +51,7 @@ class TurnInfo:
     tokens_in: int
     tokens_out: int
     latency_ms: int
+    truncated: bool = False  # invalid, and the output looks cut off
 
 
 @dataclass
@@ -80,6 +81,7 @@ class ConditionResult:
     fallback: bool  # any contributing turn was answered by a fallback model
     cost: Cost
     note: str | None = None  # "tie", "judge_failed", "no_valid_answers"
+    truncated: bool = False  # the answer is missing because its source output was cut off
 
     def to_json(self) -> dict:
         d = asdict(self)
@@ -119,6 +121,10 @@ def prefix_consistent(d: RunData, c: RunData, up_to_round: int = 1) -> bool:
     return key(d) == key(c)
 
 
+def _judge_cut_off(run: RunData) -> bool:
+    return bool(run.judge_failed and run.judge and run.judge.truncated)
+
+
 def derive(
     qid: str,
     seed: int,
@@ -130,10 +136,14 @@ def derive(
     C's transcript (and so its judge prompt) is identical to D's and C == D."""
 
     def result(
-        answer: str | None, cost: Cost, fallback: bool, note: str | None = None
+        answer: str | None,
+        cost: Cost,
+        fallback: bool,
+        note: str | None = None,
+        truncated: bool = False,
     ) -> ConditionResult:
         s = score(answer)
-        return ConditionResult(answer, s.status, s.correct, fallback, cost, note)
+        return ConditionResult(answer, s.status, s.correct, fallback, cost, note, truncated)
 
     out: dict[str, ConditionResult] = {}
 
@@ -141,7 +151,7 @@ def derive(
     for i, t in enumerate(round0, start=1):
         # One call each. repair calls are not separable per turn, so calls is nominal.
         cost = Cost(1, 1, t.tokens_in + t.tokens_out, t.latency_ms, 0)
-        out[f"A{i}"] = result(t.answer, cost, t.fallback_used)
+        out[f"A{i}"] = result(t.answer, cost, t.fallback_used, truncated=t.truncated)
 
     pick, tied = majority(_answers(d, 0), f"{seed}:{qid}:B")
     note = "tie" if tied else ("no_valid_answers" if pick is None else None)
@@ -149,7 +159,11 @@ def derive(
 
     if c is None:
         out["C"] = result(
-            d.verdict, d.total, d.used_fallback(), "judge_failed" if d.judge_failed else None
+            d.verdict,
+            d.total,
+            d.used_fallback(),
+            "judge_failed" if d.judge_failed else None,
+            _judge_cut_off(d),
         )
     else:
         last = max(c.snapshots)
@@ -159,10 +173,15 @@ def derive(
             d.snapshots[1] + judge_cost,
             d.used_fallback(1, judge=False) or bool(c.judge and c.judge.fallback_used),
             "judge_failed" if c.judge_failed else None,
+            _judge_cut_off(c),
         )
 
     out["D"] = result(
-        d.verdict, d.total, d.used_fallback(), "judge_failed" if d.judge_failed else None
+        d.verdict,
+        d.total,
+        d.used_fallback(),
+        "judge_failed" if d.judge_failed else None,
+        _judge_cut_off(d),
     )
 
     vote, vtied = majority(_answers(d, d.rounds_run), f"{seed}:{qid}:Dvote")
@@ -182,4 +201,5 @@ class QuestionFacts:
     c_equals_d: bool
     prefix_consistent: bool
     cache_hits_d: int
+    truncated_turns: int = 0  # turns whose output looks cut off by the token limit
     extra: dict = field(default_factory=dict)

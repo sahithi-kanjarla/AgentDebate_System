@@ -22,14 +22,13 @@ from app.providers.registry import ProviderRegistry
 from eval import CACHE_DIR, DATA_DIR, RESULTS_DIR
 from eval.budget import (
     DEFAULT_PROVIDER_CAPS,
-    DEFAULT_SLEEP_BETWEEN_S,
     Budget,
     Ledger,
     estimate_per_question,
     parse_caps,
     utc_today,
 )
-from eval.datasets import Dataset, DatasetError, get_dataset, load_order
+from eval.datasets import Dataset, DatasetError, RunProfile, get_dataset, load_order
 from eval.runner import EvalSettings, Runner, agents_fingerprint, run_session, wrap_providers
 from eval.store import ManifestMismatch, ResultStore
 
@@ -52,8 +51,20 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument(
         "--sleep-between-s",
         type=float,
-        default=DEFAULT_SLEEP_BETWEEN_S,
-        help="pause after a question that sent requests (Groq ~8K tokens/min)",
+        help="pause after a question that sent requests (Groq ~8K tokens/min); default by "
+        "dataset: 60 for gsm8k, 120 for math45",
+    )
+    ap.add_argument(
+        "--max-tokens",
+        type=int,
+        help="raise every agent's output limit to at least this, in the eval's own config copy "
+        "only (default by dataset: none for gsm8k, 4096 for math45; 0 = keep the app's values)",
+    )
+    ap.add_argument(
+        "--rpm",
+        default="",
+        help="requests per minute per provider in the eval's config copy, e.g. groq=2 "
+        "(default by dataset: none for gsm8k, groq=2 for math45; groq=0 removes it)",
     )
     ap.add_argument("--allow-fallback", action="store_true", help="let fallback models answer")
     ap.add_argument(
@@ -72,6 +83,46 @@ def strip_fallbacks(agents: AgentsFile) -> AgentsFile:
     return stripped
 
 
+def apply_profile(
+    agents: AgentsFile, profile: RunProfile, max_tokens: int | None, rpm: dict[str, float]
+) -> tuple[AgentsFile, dict[str, Any]]:
+    """The eval's own copy of the agent config with a bigger output limit and request pacing.
+
+    The app's agents.yaml and its loaded config are never modified. Returns the copy and what was
+    applied (empty when nothing changed), which goes into the run manifest.
+    """
+    limit = profile.max_tokens if max_tokens is None else (max_tokens or None)
+    pacing = {**profile.rpm, **rpm}
+    out = agents.model_copy(deep=True)
+    applied: dict[str, Any] = {}
+    if limit:
+        for cfg in out.all_agents():
+            cfg.max_tokens = max(cfg.max_tokens or 0, limit)
+        applied["max_tokens"] = limit
+    used = {}
+    for provider, value in pacing.items():
+        if provider in out.providers:
+            out.providers[provider].rpm = value or None
+            used[provider] = value
+    if used:
+        applied["rpm"] = used
+    return out, applied
+
+
+def parse_rpm(text: str) -> dict[str, float]:
+    rpm: dict[str, float] = {}
+    for part in filter(None, (p.strip() for p in text.split(","))):
+        name, sep, value = part.partition("=")
+        try:
+            number = float(value)
+        except ValueError:
+            number = -1
+        if not sep or not name.strip() or number < 0:
+            raise ValueError(f"bad --rpm entry {part!r}; expected provider=number")
+        rpm[name.strip()] = number
+    return rpm
+
+
 def format_estimate(
     agents: AgentsFile,
     es: EvalSettings,
@@ -81,16 +132,26 @@ def format_estimate(
     budget: Budget,
     sleep_s: float,
     run: str,
+    profile: RunProfile | None = None,
+    applied: dict[str, Any] | None = None,
 ) -> str:
+    profile = profile or RunProfile()
     est = estimate_per_question(agents, es.rounds, es.d_min_critique)
     lines = [
         f"Run '{run}': {todo} question(s) to do, {done} already done (target n={target}).",
-        "Estimated HTTP requests for those questions "
-        "(cache hits are free; repair calls and fallbacks not included):",
+        "Estimated HTTP requests for those questions (cache hits are free; fallbacks not "
+        "included; the upper bound allows "
+        + (
+            f"{profile.repair_factor:.1f}x for repair calls after cut-off output)"
+            if profile.repair_factor > 1
+            else "no repair calls)"
+        )
+        + ":",
         f"  {'provider':<12}{'per question':>14}{'total':>14}{'cap/day':>10}{'used today':>12}"
         f"{'days at cap':>13}",
     ]
     for provider, (lo, hi) in sorted(est.items()):
+        hi = math.ceil(hi * profile.repair_factor)
         cap = budget.caps.get(provider)
         days = f"{math.ceil(hi * todo / cap)}" if cap and todo else "-"
         lines.append(
@@ -102,6 +163,22 @@ def format_estimate(
     lines.append(
         f"Pauses between questions: {sleep_s:.0f}s each, about {sleep_s * todo / 60:.0f} min total."
     )
+    applied = applied or {}
+    if applied.get("max_tokens"):
+        lines.append(
+            f"Eval-only output limit: {applied['max_tokens']} tokens per answer for every agent "
+            "(the app's agents.yaml is unchanged). It does not change how many requests are sent."
+        )
+    for provider, value in sorted(applied.get("rpm", {}).items()):
+        if value:
+            lo, hi = est.get(provider, (0, 0))
+            hi = math.ceil(hi * profile.repair_factor)
+            minutes = (lo / value, hi / value)  # calls / (calls per minute)
+            lines.append(
+                f"{provider} paced at {value:g} request(s)/min: at least {60 / value:.0f}s between "
+                f"calls, so {lo}-{hi} calls take {minutes[0]:.1f}-{minutes[1]:.1f} min of pacing "
+                "per question, on top of the pause."
+            )
     return "\n".join(lines)
 
 
@@ -165,12 +242,16 @@ def _main(
 
     try:
         dataset = dataset or get_dataset(args.dataset)
+        agents, applied = apply_profile(
+            agents, dataset.profile, args.max_tokens, parse_rpm(args.rpm)
+        )
         order = load_order(dataset, args.seed, data_dir)
         questions = {q.qid: q for q in dataset.load()}
         sha = dataset.source_sha256()
-    except DatasetError as e:
+    except (DatasetError, ValueError) as e:
         out(f"error: {e}")
         return 1
+    sleep_s = dataset.profile.sleep_s if args.sleep_between_s is None else args.sleep_between_s
     n = min(args.n, len(order))
     run = args.run or f"{dataset.name}-s{args.seed}"
     es = EvalSettings(
@@ -189,6 +270,7 @@ def _main(
         "early_stop": es.early_stop,
         "allow_fallback": args.allow_fallback,
         "agents_fingerprint": agents_fingerprint(agents),
+        **({"profile": applied} if applied else {}),
     }
 
     store = ResultStore(results_dir / run)
@@ -209,7 +291,11 @@ def _main(
     done = store.done_ids()
     target = order[:n]
     todo = [questions[qid] for qid in target if qid not in done]
-    out(format_estimate(agents, es, len(todo), n - len(todo), n, budget, args.sleep_between_s, run))
+    out(
+        format_estimate(
+            agents, es, len(todo), n - len(todo), n, budget, sleep_s, run, dataset.profile, applied
+        )
+    )
     if args.dry_run:
         out("Dry run: nothing was sent.")
         return 0
@@ -244,7 +330,7 @@ def _main(
     summary = asyncio.run(
         _run(
             agents, settings, provider_factory, dataset, es, todo, store, budget,
-            args.sleep_between_s, sleep, out, n, n - len(todo), cache_dir,
+            sleep_s, sleep, out, n, n - len(todo), cache_dir,
         )
     )  # fmt: skip
     out(

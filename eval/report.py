@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from eval import EVAL_DIR, RESULTS_DIR
+from eval.datasets import DATASETS
 from eval.stats import Comparison, compare, reading, wilson
 from eval.store import ResultStore
 
@@ -37,20 +38,76 @@ ROW_LABELS = {
 }
 SHORT = {"A1": "A1", "A2": "A2", "A3": "A3", "B": "B", "C": "C", "D": "D", "D_vote": "D-vote"}
 
-LIMITATIONS = """\
-- **Training-data contamination.** GSM8K is public and very probably in the training data of these models, so accuracy here says little about unseen problems and is likely inflated.
-- **Small sample.** Intervals are wide at this n; a real but modest difference between conditions would not be detected. "No detectable difference" is not evidence of no difference.
-- **Free-tier models change.** The models, quotas and behaviour behind the free tiers shift over time. The run records the agent/prompt fingerprint and dates; a different day or lineup is a different experiment.
-- **Fallback models.** Fallbacks are off by default, so answers come from the primary models. The tables show how many answers came from fallback models and the primary-only accuracy beside the all-answers accuracy. If any answers did come from fallbacks, treat the primary-only column as the cleaner comparison.
-- **Strict answer matching.** An answer counts only if it is a pure number equal to the gold by value (18, 18.0 and $18 match; "18 dollars" does not). There is no fuzzy matching. Every question was sent with the extra line "Give the final answer as a plain number with no units." and a missing or invalid answer counts as wrong.
-- **Judge asymmetry.** Conditions C and D include a judge model that A and B do not have; the D-vote row (final-round plurality, no judge) separates debate from the judge.
-- **Early stopping.** D is "up to 3 rounds": it stops once all debaters agree after at least one critique round, so its cost is below a fixed 3 rounds and C equals D on those questions.
-- **One sample per question.** Models run at temperature 0.6 and each question is answered once, so run-to-run sampling noise is not measured; the intervals cover which questions were drawn, not sampling variance.
-- **Costs.** HTTP calls exclude response-cache hits, so a question re-run after an interruption can show lower cost. Latency includes provider rate-limit waits. Repair calls are not separable per single-model answer, so A's calls are nominal (1).
-"""
+SMALL_SAMPLE = '- **Small sample.** Intervals are wide at this n; a real but modest difference between conditions would not be detected. "No detectable difference" is not evidence of no difference.'
+FREE_TIER = "- **Free-tier models change.** The models, quotas and behaviour behind the free tiers shift over time. The run records the agent/prompt fingerprint and dates; a different day or lineup is a different experiment."
+FALLBACKS = "- **Fallback models.** Fallbacks are off by default, so answers come from the primary models. The tables show how many answers came from fallback models and the primary-only accuracy beside the all-answers accuracy. If any answers did come from fallbacks, treat the primary-only column as the cleaner comparison."
+JUDGE = "- **Judge asymmetry.** Conditions C and D include a judge model that A and B do not have; the D-vote row (final-round plurality, no judge) separates debate from the judge."
+EARLY_STOP = '- **Early stopping.** D is "up to 3 rounds": it stops once all debaters agree after at least one critique round, so its cost is below a fixed 3 rounds and C equals D on those questions.'
+ONE_SAMPLE = "- **One sample per question.** Models run at temperature 0.6 and each question is answered once, so run-to-run sampling noise is not measured; the intervals cover which questions were drawn, not sampling variance."
+COSTS = "- **Costs.** HTTP calls exclude response-cache hits, so a question re-run after an interruption can show lower cost. Latency includes provider rate-limit waits. Repair calls are not separable per single-model answer, so A's calls are nominal (1)."
+
+CONTAMINATION = {
+    "gsm8k": (
+        "GSM8K is public and very probably in the training data of these models, so accuracy "
+        "here says little about unseen problems and is likely inflated."
+    ),
+    "math45": (
+        "MATH, including its MATH-500 split, is public and very likely in the training data of "
+        "these models, so accuracy here says little about unseen problems and is likely inflated."
+    ),
+}
+MATH_EXTRA = [
+    "- **Small subset.** Only level 4 and 5 problems with a plain-integer answer are used, and only a small seeded sample of those; the numbers describe that sample, not MATH as a whole.",
+    "- **Integer-only filter.** Dropping every problem whose answer is a fraction, expression, interval or text makes this easier than the full benchmark, and the scores are not comparable to published MATH results.",
+]
+CUT_OFF = (
+    "- **Cut-off outputs.** Harder problems need longer reasoning. For this run the output limit was "
+    "raised to {limit} tokens per answer in the eval's own config copy (the app is unchanged). An "
+    "answer whose output looks cut off by the limit is counted as wrong and shown in the "
+    '"Cut off" column; the detection is a heuristic (a provider reply with finish_reason=length, '
+    "or JSON that opens more braces than it closes)."
+)
+STRICT = (
+    "- **Strict answer matching.** An answer counts only if it is a pure number equal to the gold "
+    'by value (18, 18.0 and $18 match; "18 dollars" does not). There is no fuzzy matching. '
+    'Every question was sent with the extra line "{suffix}" and a missing or invalid answer '
+    "counts as wrong."
+)
+
+
+def limitations(dataset: str, suffix: str, profile: dict[str, Any] | None = None) -> str:
+    """The limitations block for a run; fixed text apart from the dataset-specific bullets."""
+    contamination = CONTAMINATION.get(
+        dataset, "The dataset is public and may be in the training data of these models."
+    )
+    out = [f"- **Training-data contamination.** {contamination}", SMALL_SAMPLE]
+    if dataset == "math45":
+        out += MATH_EXTRA
+    out += [FREE_TIER, FALLBACKS, STRICT.format(suffix=suffix or "(none recorded)")]
+    if profile and profile.get("max_tokens"):
+        out.append(CUT_OFF.format(limit=profile["max_tokens"]))
+    out += [JUDGE, EARLY_STOP, ONE_SAMPLE, COSTS]
+    return "\n".join(out) + "\n"
 
 
 # --- helpers ---
+
+
+def dataset_label(name: str) -> str:
+    cls = DATASETS.get(name)
+    return (cls().label if cls else "") or name
+
+
+def profile_text(profile: dict[str, Any] | None) -> str:
+    """Eval-only settings that differ from the app's (output limit, request pacing)."""
+    if not profile:
+        return ""
+    parts = []
+    if profile.get("max_tokens"):
+        parts.append(f"output limit {profile['max_tokens']} tokens per answer")
+    for provider, value in sorted((profile.get("rpm") or {}).items()):
+        parts.append(f"{provider} paced at {value:g} request(s)/min")
+    return "Eval-only settings: " + ", ".join(parts) + ". " if parts else ""
 
 
 def pct(x: float) -> str:
@@ -148,6 +205,7 @@ def quality_cost_section(records: list[dict[str, Any]]) -> str:
                 ROW_LABELS[name].split(" ")[0] if name != "D_vote" else "D-vote",
                 str(sum(v["status"] == "non_numeric" for v in vals)),
                 str(sum(v["status"] == "missing" for v in vals)),
+                str(sum(bool(v.get("truncated")) for v in vals)),
                 f"{mean('api_calls'):.1f}",
                 f"{mean('tokens'):.0f}",
                 f"{mean('latency_ms') / 1000:.1f}",
@@ -158,6 +216,7 @@ def quality_cost_section(records: list[dict[str, Any]]) -> str:
             "Condition",
             "Non-numeric answers",
             "No valid answer",
+            "Cut off",
             "Mean HTTP calls",
             "Mean tokens",
             "Mean latency (s)",
@@ -238,6 +297,7 @@ def debate_behaviour_section(records: list[dict[str, Any]], skipped: dict[str, s
     ties = sum(cond(r, "B").get("note") == "tie" for r in records)
     judge_failed = sum(cond(r, "D").get("note") == "judge_failed" for r in records)
     replays = sum(f.get("cache_hits_d", 0) > 0 for f in facts)
+    cut_off = sum(f.get("truncated_turns", 0) for f in facts)
     turns = [t for r in records for t in r.get("turns", [])]
     fb_turns = sum(bool(t.get("fallback_used")) for t in turns)
     fb_questions = sum(any(cond(r, k)["fallback"] for k in ALL_ROWS) for r in records)
@@ -248,6 +308,8 @@ def debate_behaviour_section(records: list[dict[str, Any]], skipped: dict[str, s
         f"- Judge output unusable (majority fallback verdict used): {judge_failed}/{n}.",
         f"- Debater turns answered by a fallback model: {fb_turns}/{len(turns)}; "
         f"questions where any counted answer came via fallback: {fb_questions}/{n}.",
+        f"- Outputs that looked cut off by the token limit (debater turns plus judge calls): "
+        f"{cut_off} across {n} questions.",
         f"- Questions whose cost includes cached replays (re-run after an interruption): "
         f"{replays}/{n}.",
         f"- Questions where the C run did not reproduce D's rounds 0-1 answers: {bad_prefix}/{n}.",
@@ -306,11 +368,12 @@ def build_report(
     suffix = config.get("prompt_suffix", "")
     head = (
         f"_Generated by `python -m eval.report` from {n} finished question(s) of "
-        f"{config.get('dataset', 'gsm8k')} (seed {seed}), run {span}. "
+        f"{dataset_label(config.get('dataset', 'gsm8k'))} (seed {seed}), run {span}. "
         f"Agent/prompt fingerprint `{config.get('agents_fingerprint', 'unknown')}`, "
         f"fallbacks {'allowed' if config.get('allow_fallback') else 'off'}, "
         f"early stop {'on' if config.get('early_stop', True) else 'off'}. "
         + (f'Each question was sent with the added line: "{suffix}". ' if suffix else "")
+        + profile_text(config.get("profile"))
         + "Do not edit by hand._"
     )
     parts = [
@@ -325,7 +388,8 @@ def build_report(
         "#### Quality and cost per question\n\n" + quality_cost_section(records),
         "#### Debate fixed / broke\n\n" + fixed_broke_section(records),
         "#### How the debate ran\n\n" + debate_behaviour_section(records, skipped or {}),
-        "#### Limitations\n\n" + LIMITATIONS.rstrip(),
+        "#### Limitations\n\n"
+        + limitations(config.get("dataset", "gsm8k"), suffix, config.get("profile")).rstrip(),
     ]
     return "\n\n".join(parts) + "\n"
 

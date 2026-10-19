@@ -111,3 +111,48 @@ def standard(c: Call) -> str | Exception:
     if c.role == "judge":
         return g
     return [g, str(gold_of(c.q) + 1), str(gold_of(c.q) + 2)][idx]
+
+
+# A problem as the MATH dataset writes it: inline and display math, braces, backslashes, dollar
+# signs and a literal "\n" sequence. It must reach the models exactly as written.
+LATEX = (
+    r"Let $f(x)=\frac{1}{2}x^{2}$ and ${a}$ with \textbf{bold} \ costs \$5, $$\sum_{i=1}^{n} i$$ "
+    r"and \(x\) \n $\mathbf{v}$ in \boxed{} ${\$}$. Find the value."
+)
+
+
+def math_rows(overrides: dict[int, dict] | None = None, n: int = 500) -> list[dict]:
+    """MATH-500 shaped rows. Row i has level i % 5 + 1 and answer 10 + i, except a non-integer
+    answer on every row where i % 11 == 3. `overrides` replaces fields of single rows."""
+    rows = []
+    for i in range(n):
+        rows.append(
+            {
+                "problem": f"QID={i} {LATEX}",
+                "solution": "worked solution",
+                "answer": r"\frac{1}{2}" if i % 11 == 3 else str(gold_of(i)),
+                "subject": "Algebra" if i % 2 else "Number Theory",
+                "level": i % 5 + 1,
+                "unique_id": f"test/algebra/{i}.json",
+            }
+        )
+    for i, fields in (overrides or {}).items():
+        rows[i].update(fields)
+    return rows
+
+
+def write_math(path: Path, overrides: dict[int, dict] | None = None):
+    from eval.datasets import MATH45
+
+    path.write_text("\n".join(json.dumps(r) for r in math_rows(overrides)) + "\n", encoding="utf-8")
+    return MATH45(path)
+
+
+def eligible_math_indices(rows: list[dict]) -> list[int]:
+    import re
+
+    return [
+        i
+        for i, r in enumerate(rows)
+        if str(r["level"]) in ("4", "5") and re.fullmatch(r"-?(\d{1,3}(,\d{3})+|\d+)", r["answer"])
+    ]

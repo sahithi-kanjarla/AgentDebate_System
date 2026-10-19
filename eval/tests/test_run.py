@@ -26,7 +26,9 @@ class Env:
 
     def run(self, *argv, **kw):
         # a fixed order (seed 42) over 5 questions; tests pick questions by qid, not position
-        args = ["--n", "3", "--yes", "--sleep-between-s", "5", *argv]
+        args = ["--n", "3", "--yes", *argv]
+        if "--sleep-between-s" not in argv and not kw.get("dataset_sleep"):
+            args += ["--sleep-between-s", "5"]  # fast tests; dataset_sleep=True uses the default
         return main(
             args,
             provider_factory=kw.get("provider_factory", self.factory),
