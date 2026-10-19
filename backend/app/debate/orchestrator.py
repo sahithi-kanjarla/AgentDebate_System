@@ -12,7 +12,7 @@ from app.core.settings import AgentConfig, AgentsFile
 from app.debate.anonymize import Anonymization, anonymize
 from app.debate.consensus import ClusterIds, RoundConsensus, compute_consensus, normalize_answer
 from app.debate.mistakes import CritiqueRecord, build_mistakes_caught, received_critiques
-from app.debate.parsing import ParseOutcome, parse_with_repair
+from app.debate.parsing import Attempt, ParseOutcome, parse_with_repair
 from app.debate.prompts import mode_task, render_messages
 from app.providers.base import LLMProvider, Message, ProviderError
 from app.schemas import DebaterOutput, EventType, JudgeOutput, MistakeCaught, Mode
@@ -41,6 +41,10 @@ class TurnRecord:
     latency_ms: int
     fallback_used: bool = False
     error: str | None = None
+    finish_reason: str | None = None  # of the last call; None when cached or unreported
+    repair_used: bool = False  # the reply needed the second (repair) call
+    attempts: list[Attempt] = field(default_factory=list)  # every provider call of the turn
+    attempts: list[Attempt] = field(default_factory=list)  # every call of the turn
 
 
 @dataclass
@@ -298,6 +302,9 @@ class Orchestrator:
             latency_ms=parsed.latency_ms if parsed else 0,
             fallback_used=bool(parsed and parsed.fallback_used),
             error=outcome.error,
+            finish_reason=parsed.finish_reason if parsed else None,
+            repair_used=bool(parsed and parsed.repair_used),
+            attempts=list(parsed.attempts) if parsed else [],
         )
         if parsed is None or parsed.value is None:
             message = outcome.error or "agent produced no output"
@@ -470,6 +477,9 @@ class Orchestrator:
                 latency_ms=parsed.latency_ms if parsed else 0,
                 fallback_used=bool(parsed and parsed.fallback_used),
                 error=error,
+                finish_reason=parsed.finish_reason if parsed else None,
+                repair_used=bool(parsed and parsed.repair_used),
+                attempts=list(parsed.attempts) if parsed else [],
             )
         )
         yield "judge_verdict", {"payload": self.verdict.model_dump()}

@@ -257,6 +257,7 @@ class OpenAICompatibleProvider(LLMProvider):
             provider=self.name,
             model=self.model,
             attempts=attempts,
+            finish_reason=getattr(choice, "finish_reason", None),
         )
 
     def _log(self, status: str, started: float, attempts: int, **extra: Any) -> None:

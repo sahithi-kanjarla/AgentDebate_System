@@ -20,6 +20,7 @@ class CompletionResult(BaseModel):
     attempts: int = 1  # HTTP attempts made, including retries
     cached: bool = False
     fallback_used: bool = False
+    finish_reason: str | None = None  # why generation stopped, when the provider says
 
 
 class ProviderError(Exception):
