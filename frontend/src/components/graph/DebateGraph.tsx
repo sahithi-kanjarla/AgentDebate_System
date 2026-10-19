@@ -9,7 +9,16 @@ import {
   type GraphModel,
   type GraphNode as GNode,
 } from '../../lib/graphModel'
-import { capsulePath, computeLayout, edgePath, laneShift, type Layout } from '../../lib/layout'
+import {
+  MAX_ZOOM,
+  MIN_ZOOM,
+  capsulePath,
+  computeLayout,
+  edgePath,
+  fitView,
+  laneShift,
+  type Layout,
+} from '../../lib/layout'
 import { narrate } from '../../lib/narrate'
 import { STAGE, STAGE_SEVERITY_COLORS, stageClusterColor } from '../../lib/palette'
 import { useFreshIds } from '../../hooks/useFreshIds'
@@ -17,29 +26,21 @@ import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import { CritiqueEdge, SEVERITY_WORD } from './CritiqueEdge'
 import { GraphDefs } from './Defs'
 import { GraphLegend } from './GraphLegend'
+import { readStored, writeStored } from '../../lib/safeStorage'
 import { GraphNode, JUDGE_RADIUS, QUESTION_HALF_W } from './GraphNode'
 import { NarratorBar } from './NarratorBar'
 import { NodeInspector } from './NodeInspector'
 
 const LEGEND_KEY = 'tribunal.graph.legend'
-const MAX_STAGE_H = 700
 
 function readLegendPref(): boolean {
-  try {
-    const stored = window.localStorage.getItem(LEGEND_KEY)
-    if (stored) return stored === 'shown'
-  } catch {
-    /* fall through to the default */
-  }
+  const stored = readStored(LEGEND_KEY)
+  if (stored) return stored === 'shown'
   // First visit: open on wide screens, closed on narrow ones so the graph comes first.
   return typeof window.matchMedia !== 'function' || !window.matchMedia('(max-width: 639px)').matches
 }
 function writeLegendPref(open: boolean) {
-  try {
-    window.localStorage.setItem(LEGEND_KEY, open ? 'shown' : 'hidden')
-  } catch {
-    /* storage can be unavailable; the legend still works for this visit */
-  }
+  writeStored(LEGEND_KEY, open ? 'shown' : 'hidden')
 }
 
 interface Pos {
@@ -179,7 +180,7 @@ export function DebateGraph({
     const g = viewportRef.current
     if (!svg || !g) return
     const z = zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.35, 3])
+      .scaleExtent([MIN_ZOOM, MAX_ZOOM])
       .filter((ev: Event) => {
         if (ev.type === 'wheel') return (ev as WheelEvent).ctrlKey || (ev as WheelEvent).metaKey
         return !(ev as MouseEvent).button
@@ -203,18 +204,10 @@ export function DebateGraph({
     const rect = svg.getBoundingClientRect()
     if (rect.width === 0) return
     // The scale depends on the width only; the stage then takes the height the content needs.
-    const s = Math.min(
-      1.25,
-      Math.max(0.7, Math.min((rect.width - 16) / layout.width, MAX_STAGE_H / layout.height)),
-    )
-    const height = Math.round(Math.min(MAX_STAGE_H, Math.max(280, layout.height * s + 28)))
-    setStageH(height)
-    const w = layout.width * s
-    // Too wide for the screen: follow the newest column on a live debate, start at the left otherwise.
-    const tx = w <= rect.width ? (rect.width - w) / 2 : motionOn ? rect.width - w - 8 : 8
-    const ty = Math.max(8, (height - layout.height * s) / 2)
-    select(svg).call(z.transform, zoomIdentity.translate(tx, ty).scale(s))
-  }, [layout.width, layout.height, motionOn])
+    const v = fitView(rect.width, layout, motionOn)
+    setStageH(v.height)
+    select(svg).call(z.transform, zoomIdentity.translate(v.tx, v.ty).scale(v.scale))
+  }, [layout, motionOn])
 
   useEffect(() => {
     if (autoFit.current) fit()
@@ -367,8 +360,13 @@ export function DebateGraph({
         >
           Zoom out
         </button>
-        <button type="button" className="graph-btn" onClick={resetView}>
-          Reset view
+        <button
+          type="button"
+          className="graph-btn"
+          onClick={resetView}
+          title="Fit the whole graph on screen"
+        >
+          Fit
         </button>
         <button
           type="button"

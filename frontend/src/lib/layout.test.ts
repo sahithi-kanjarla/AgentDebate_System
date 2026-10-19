@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { capsulePath, COLUMN_PITCH, computeLayout, edgePath, laneShift } from './layout'
+import {
+  capsulePath,
+  COLUMN_PITCH,
+  computeLayout,
+  edgePath,
+  fitView,
+  laneShift,
+  MAX_STAGE_H,
+  MIN_ZOOM,
+} from './layout'
 
 describe('computeLayout', () => {
   const cases: [number, number][] = []
@@ -65,5 +74,38 @@ describe('paths', () => {
     ).toBe('M5,10L5,90')
     expect(capsulePath([{ x: 1, y: 2 }])).toBe('M1,2')
     expect(capsulePath([])).toBe('')
+  })
+})
+
+describe('fitView', () => {
+  const content = computeLayout(3, 3)
+
+  it('fits the whole graph width on a 360px phone, below 1x', () => {
+    const v = fitView(360, content, false)
+    expect(v.scale).toBeLessThan(1)
+    expect(v.scale).toBeGreaterThanOrEqual(MIN_ZOOM)
+    // Every column is on screen: the content, scaled and shifted, sits inside the viewport.
+    expect(v.tx).toBeGreaterThanOrEqual(0)
+    expect(v.tx + content.width * v.scale).toBeLessThanOrEqual(360)
+  })
+
+  it('does not blow a small graph up past 1.25x, and centres it', () => {
+    const v = fitView(1600, content, false)
+    expect(v.scale).toBe(1.25)
+    expect(v.tx).toBeCloseTo((1600 - content.width * 1.25) / 2)
+  })
+
+  it('only falls back to the left edge or the newest column when even the minimum zoom is too wide', () => {
+    const wide = { width: 4000, height: 400 }
+    expect(fitView(360, wide, false).tx).toBe(8)
+    expect(fitView(360, wide, true).tx).toBe(360 - 4000 * MIN_ZOOM - 8)
+  })
+
+  it('gives the stage a sensible height', () => {
+    for (const w of [360, 768, 1280]) {
+      const v = fitView(w, content, false)
+      expect(v.height).toBeGreaterThanOrEqual(w < 600 ? 150 : 280)
+      expect(v.height).toBeLessThanOrEqual(MAX_STAGE_H)
+    }
   })
 })

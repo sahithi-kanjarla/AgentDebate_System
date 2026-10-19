@@ -1,0 +1,336 @@
+{
+  "format": 1,
+  "slug": "placeholder-invalid-turn",
+  "title": "Placeholder: one debater gives no valid answer",
+  "testOnly": true,
+  "question": "Is 91 a prime number?",
+  "mode": "answer",
+  "events": [
+    {
+      "seq": 0,
+      "type": "debate_started",
+      "data": {
+        "id": "placeholder-invalid-turn",
+        "agents": [
+          {
+            "label": "Debater 1",
+            "persona": "Solver"
+          },
+          {
+            "label": "Debater 2",
+            "persona": "Skeptic"
+          },
+          {
+            "label": "Debater 3",
+            "persona": "Fact-Checker"
+          }
+        ]
+      }
+    },
+    {
+      "seq": 1,
+      "type": "agent_thinking",
+      "data": {
+        "round": 0,
+        "agent": "Debater 1"
+      }
+    },
+    {
+      "seq": 2,
+      "type": "agent_thinking",
+      "data": {
+        "round": 0,
+        "agent": "Debater 2"
+      }
+    },
+    {
+      "seq": 3,
+      "type": "agent_thinking",
+      "data": {
+        "round": 0,
+        "agent": "Debater 3"
+      }
+    },
+    {
+      "seq": 4,
+      "type": "agent_response",
+      "data": {
+        "round": 0,
+        "agent": "Debater 1",
+        "payload": {
+          "valid": true,
+          "final_answer": "No",
+          "reasoning": "Debater 1's reasoning in round 0.\n  Indented line kept as written.",
+          "confidence": 90,
+          "cluster_id": 0,
+          "previous_cluster_id": null,
+          "changed_mind": false,
+          "fallback_used": false,
+          "critiques": []
+        }
+      }
+    },
+    {
+      "seq": 5,
+      "type": "agent_response",
+      "data": {
+        "round": 0,
+        "agent": "Debater 2",
+        "payload": {
+          "valid": true,
+          "final_answer": "Yes",
+          "reasoning": "Debater 2's reasoning in round 0.\n  Indented line kept as written.",
+          "confidence": 61,
+          "cluster_id": 1,
+          "previous_cluster_id": null,
+          "changed_mind": false,
+          "fallback_used": false,
+          "critiques": []
+        }
+      }
+    },
+    {
+      "seq": 6,
+      "type": "agent_response",
+      "data": {
+        "round": 0,
+        "agent": "Debater 3",
+        "payload": {
+          "valid": true,
+          "final_answer": "No",
+          "reasoning": "Debater 3's reasoning in round 0.\n  Indented line kept as written.",
+          "confidence": 84,
+          "cluster_id": 0,
+          "previous_cluster_id": null,
+          "changed_mind": false,
+          "fallback_used": true,
+          "critiques": []
+        }
+      }
+    },
+    {
+      "seq": 7,
+      "type": "round_complete",
+      "data": {
+        "round": 0,
+        "consensus_score": 0.6666666666666666,
+        "agreed": false,
+        "clusters": [
+          {
+            "cluster_id": 0,
+            "normalized_answer": "No",
+            "agents": [
+              "Debater 1",
+              "Debater 3"
+            ]
+          },
+          {
+            "cluster_id": 1,
+            "normalized_answer": "Yes",
+            "agents": [
+              "Debater 2"
+            ]
+          }
+        ],
+        "received_critiques": {}
+      }
+    },
+    {
+      "seq": 8,
+      "type": "agent_thinking",
+      "data": {
+        "round": 1,
+        "agent": "Debater 1"
+      }
+    },
+    {
+      "seq": 9,
+      "type": "agent_thinking",
+      "data": {
+        "round": 1,
+        "agent": "Debater 2"
+      }
+    },
+    {
+      "seq": 10,
+      "type": "agent_thinking",
+      "data": {
+        "round": 1,
+        "agent": "Debater 3"
+      }
+    },
+    {
+      "seq": 11,
+      "type": "agent_response",
+      "data": {
+        "round": 1,
+        "agent": "Debater 1",
+        "payload": {
+          "valid": true,
+          "final_answer": "No",
+          "reasoning": "Debater 1's reasoning in round 1.\n  Indented line kept as written.",
+          "confidence": 94,
+          "cluster_id": 0,
+          "previous_cluster_id": 0,
+          "changed_mind": false,
+          "fallback_used": false,
+          "critiques": [
+            {
+              "target_agent": "Debater 2",
+              "issue": "91 = 7 x 13.",
+              "severity": "high"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 12,
+      "type": "critique_edge",
+      "data": {
+        "round": 1,
+        "from_agent": "Debater 1",
+        "to_agent": "Debater 2",
+        "severity": "high",
+        "issue": "91 = 7 x 13."
+      }
+    },
+    {
+      "seq": 13,
+      "type": "agent_response",
+      "data": {
+        "round": 1,
+        "agent": "Debater 2",
+        "payload": {
+          "valid": false,
+          "error": "The reply could not be read as an answer, even after one repair attempt.",
+          "fallback_used": false
+        }
+      }
+    },
+    {
+      "seq": 14,
+      "type": "agent_response",
+      "data": {
+        "round": 1,
+        "agent": "Debater 3",
+        "payload": {
+          "valid": true,
+          "final_answer": "No",
+          "reasoning": "Debater 3's reasoning in round 1.\n  Indented line kept as written.",
+          "confidence": 88,
+          "cluster_id": 0,
+          "previous_cluster_id": 0,
+          "changed_mind": false,
+          "fallback_used": true,
+          "critiques": [
+            {
+              "target_agent": "Debater 2",
+              "issue": "No factors were shown.",
+              "severity": "low"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 15,
+      "type": "critique_edge",
+      "data": {
+        "round": 1,
+        "from_agent": "Debater 3",
+        "to_agent": "Debater 2",
+        "severity": "low",
+        "issue": "No factors were shown."
+      }
+    },
+    {
+      "seq": 16,
+      "type": "round_complete",
+      "data": {
+        "round": 1,
+        "consensus_score": 0.6666666666666666,
+        "agreed": true,
+        "clusters": [
+          {
+            "cluster_id": 0,
+            "normalized_answer": "No",
+            "agents": [
+              "Debater 1",
+              "Debater 3"
+            ]
+          }
+        ],
+        "received_critiques": {
+          "Debater 1": [],
+          "Debater 2": [
+            {
+              "from_agent": "Debater 1",
+              "issue": "91 = 7 x 13.",
+              "severity": "high",
+              "round": 1
+            },
+            {
+              "from_agent": "Debater 3",
+              "issue": "No factors were shown.",
+              "severity": "low",
+              "round": 1
+            }
+          ],
+          "Debater 3": []
+        }
+      }
+    },
+    {
+      "seq": 17,
+      "type": "error",
+      "data": {
+        "agent": "Debater 2",
+        "message": "This debater gave no usable answer in round 1.",
+        "recoverable": true
+      }
+    },
+    {
+      "seq": 18,
+      "type": "agent_thinking",
+      "data": {
+        "round": 2,
+        "agent": "Judge"
+      }
+    },
+    {
+      "seq": 19,
+      "type": "judge_verdict",
+      "data": {
+        "payload": {
+          "final_answer": "No",
+          "confidence": 90,
+          "summary": "91 is 7 times 13.",
+          "dissent": null,
+          "consensus_reached": true,
+          "mistakes_caught": [
+            {
+              "description": "91 = 7 x 13.",
+              "caught_by": "Debater 1",
+              "round": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 20,
+      "type": "done",
+      "data": {
+        "stats": {
+          "total_tokens": 4200,
+          "latency_ms": 9000,
+          "calls": 12,
+          "api_calls": 12,
+          "cache_hits": 0,
+          "fallbacks": 0
+        }
+      }
+    }
+  ]
+}

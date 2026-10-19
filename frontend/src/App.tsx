@@ -4,10 +4,12 @@ import { Debate } from './pages/Debate'
 import { History } from './pages/History'
 import { Home } from './pages/Home'
 import { NotFound } from './pages/NotFound'
+import { Showcase } from './pages/Showcase'
 
 // Fixtures are test-only: the route and its import are compiled out of production builds.
 const DevGraph = import.meta.env.DEV ? lazy(() => import('./pages/DevGraph')) : null
 const DevDebate = import.meta.env.DEV ? lazy(() => import('./pages/DevDebate')) : null
+const DevExport = import.meta.env.DEV ? lazy(() => import('./pages/DevExport')) : null
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-chip px-2 py-1 text-sm font-medium ${isActive ? 'text-ink underline decoration-brass-fill decoration-2 underline-offset-4' : 'text-ink-soft hover:text-ink'}`
@@ -44,6 +46,7 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/debate/:id" element={<Debate />} />
           <Route path="/history" element={<History />} />
+          <Route path="/showcase/:slug" element={<Showcase />} />
           {DevGraph && (
             <Route
               path="/dev/graph/:fixture"
@@ -60,6 +63,16 @@ export function App() {
               element={
                 <Suspense fallback={<p role="status">Loading…</p>}>
                   <DevDebate />
+                </Suspense>
+              }
+            />
+          )}
+          {DevExport && (
+            <Route
+              path="/dev/export/:debateId"
+              element={
+                <Suspense fallback={<p role="status">Loading…</p>}>
+                  <DevExport />
                 </Suspense>
               }
             />

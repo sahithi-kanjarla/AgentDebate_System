@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { resetStoredMemory } from '../lib/safeStorage'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SourceFactory } from '../hooks/useDebateStream'
 import { FakeEventSource } from '../test/fakeEventSource'
@@ -37,8 +38,16 @@ function renderDebate() {
   )
 }
 
-beforeEach(() => FakeEventSource.reset())
-afterEach(() => vi.unstubAllGlobals())
+beforeEach(() => {
+  FakeEventSource.reset()
+  // These tests are not about the tour; a tour card would make live and finished pages differ in timing.
+  window.localStorage.setItem('tribunal.tour.v1', 'done')
+})
+afterEach(() => {
+  vi.unstubAllGlobals()
+  window.localStorage.clear()
+  resetStoredMemory()
+})
 
 describe('Debate page: finished debate from a shared URL', () => {
   it('renders the stored events without opening a stream', async () => {

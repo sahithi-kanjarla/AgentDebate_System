@@ -87,3 +87,41 @@ export function capsulePath(points: { x: number; y: number }[]): string {
   if (rest.length === 0) return `M${head.x},${head.y}`
   return `M${head.x},${head.y}` + rest.map((p) => `L${p.x},${p.y}`).join('')
 }
+
+export const MAX_STAGE_H = 700
+export const MIN_ZOOM = 0.2
+export const MAX_ZOOM = 3
+
+export interface FitView {
+  scale: number
+  tx: number
+  ty: number
+  /** The height the stage should take for this content. */
+  height: number
+}
+
+/**
+ * Where the graph sits when it is "fitted": the whole width on screen (down to MIN_ZOOM, so a phone sees
+ * every column and can still pan and zoom from there), never bigger than 1.25. When it still does not
+ * fit, a live debate follows the newest column and a finished one starts at the left.
+ */
+export function fitView(
+  viewportWidth: number,
+  content: { width: number; height: number },
+  followNewest: boolean,
+): FitView {
+  const scale = Math.min(
+    1.25,
+    Math.max(
+      MIN_ZOOM,
+      Math.min((viewportWidth - 16) / content.width, MAX_STAGE_H / content.height),
+    ),
+  )
+  const height = Math.round(
+    Math.min(MAX_STAGE_H, Math.max(viewportWidth < 600 ? 150 : 280, content.height * scale + 28)),
+  )
+  const w = content.width * scale
+  const tx = w <= viewportWidth ? (viewportWidth - w) / 2 : followNewest ? viewportWidth - w - 8 : 8
+  const ty = Math.max(8, (height - content.height * scale) / 2)
+  return { scale, tx, ty, height }
+}

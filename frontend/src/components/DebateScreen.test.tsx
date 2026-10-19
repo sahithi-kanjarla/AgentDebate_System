@@ -1,8 +1,11 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { initialState, reduceAll, streamEnded } from '../lib/debateState'
 import { FIXTURES } from '../test/graphFixtures'
 import { DebateScreen } from './DebateScreen'
+
+// These tests are not about the tour.
+beforeEach(() => window.localStorage.setItem('tribunal.tour.v1', 'done'))
 
 function mount(name: 'mergeWrongCluster' | 'legacy' = 'mergeWrongCluster') {
   const f = FIXTURES[name]

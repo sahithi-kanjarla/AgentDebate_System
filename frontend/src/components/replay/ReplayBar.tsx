@@ -1,4 +1,4 @@
-import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useId, useState, type KeyboardEvent, type ReactNode } from 'react'
 import type { Replay } from '../../hooks/useReplay'
 import { SPEEDS, type Speed } from '../../lib/replay'
 
@@ -56,7 +56,17 @@ const ReplayIcon = () => (
   </Icon>
 )
 
-function SpeedGroup({ speed, onChange }: { speed: Speed; onChange: (s: Speed) => void }) {
+function SpeedGroup({
+  speed,
+  onChange,
+  id,
+  open,
+}: {
+  speed: Speed
+  onChange: (s: Speed) => void
+  id: string
+  open: boolean
+}) {
   const onKey = (e: KeyboardEvent<HTMLButtonElement>) => {
     const i = SPEEDS.indexOf(speed)
     let next = i
@@ -71,7 +81,13 @@ function SpeedGroup({ speed, onChange }: { speed: Speed; onChange: (s: Speed) =>
     )
   }
   return (
-    <div role="radiogroup" aria-label="Playback speed" className="replay-speeds">
+    <div
+      role="radiogroup"
+      aria-label="Playback speed"
+      className="replay-speeds"
+      id={id}
+      data-open={open ? '' : undefined}
+    >
       {SPEEDS.map((s) => (
         <button
           key={s}
@@ -108,6 +124,10 @@ export function ReplayBar({ replay }: { replay: Replay }) {
     const id = setTimeout(() => setSpoken(replay.valueText), SETTLE_MS)
     return () => clearTimeout(id)
   }, [playing, replay.touched, replay.valueText])
+
+  // On a phone the four speeds sit behind one button; on wider screens CSS shows them inline.
+  const uid = useId()
+  const [speedOpen, setSpeedOpen] = useState(false)
 
   const playLabel = playing ? 'Pause' : atEnd ? 'Replay' : 'Play'
 
@@ -186,7 +206,21 @@ export function ReplayBar({ replay }: { replay: Replay }) {
         </p>
       </div>
 
-      <SpeedGroup speed={replay.speed} onChange={replay.setSpeed} />
+      <button
+        type="button"
+        className="replay-speed-toggle"
+        aria-expanded={speedOpen}
+        aria-controls={`${uid}-speeds`}
+        onClick={() => setSpeedOpen((v) => !v)}
+      >
+        Speed {replay.speed}×
+      </button>
+      <SpeedGroup
+        speed={replay.speed}
+        onChange={replay.setSpeed}
+        id={`${uid}-speeds`}
+        open={speedOpen}
+      />
 
       <p className="sr-only-live" aria-live="polite" data-testid="replay-announce">
         {spoken}

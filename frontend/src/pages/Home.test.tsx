@@ -32,7 +32,7 @@ describe('Home', () => {
     fireEvent.click(start())
     await screen.findByText('debate page')
 
-    const [url, init] = fetchMock.mock.calls[0]!
+    const [url, init] = fetchMock.mock.calls.find(([u]) => u === '/api/debates')!
     expect(url).toBe('/api/debates')
     expect(JSON.parse(init!.body as string)).toEqual({ question: code, mode: 'answer' })
   })

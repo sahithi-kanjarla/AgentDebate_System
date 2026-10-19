@@ -471,6 +471,10 @@
 .replay-btn {
   min-width: 2.25rem;
 }
+.replay-btn svg,
+.replay-play svg {
+  flex: none;
+}
 .replay-btn:hover,
 .replay-speed:hover {
   background: var(--color-vellum);
@@ -583,9 +587,30 @@
   font-weight: 700;
 }
 
+.replay-speed-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-chip);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.replay-speed-toggle[aria-expanded='true'] {
+  background: var(--color-brass-tint);
+  border-color: var(--color-brass);
+}
+
 @media (max-width: 719px) {
-  /* Two rows with big targets, pinned to the bottom of the screen so a thumb can reach them. The bar
-     sits below the inspector bottom sheet (z-index 30) and never changes the graph's size. */
+  /* Compact: the scrubber on top, the transport and one speed button below, pinned to the bottom of the
+     screen so a thumb can reach them. The bar sits below the inspector bottom sheet (z-index 30) and
+     never changes the graph's size. The four speeds open as a third row only when asked for. */
   .replay-bar {
     position: sticky;
     bottom: 0;
@@ -593,7 +618,10 @@
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'scrub scrub'
-      'controls speeds';
+      'controls toggle'
+      'speeds speeds';
+    gap: 0.15rem 0.5rem;
+    padding: 0.3rem 0.6rem 0.4rem;
     box-shadow: 0 -6px 16px rgb(15 26 36 / 0.14);
   }
   .replay-scrubber {
@@ -601,49 +629,57 @@
   }
   .replay-controls {
     grid-area: controls;
+    min-width: 0;
+  }
+  .replay-speed-toggle {
+    display: inline-flex;
+    grid-area: toggle;
   }
   .replay-speeds {
     grid-area: speeds;
+    display: none;
+  }
+  .replay-speeds[data-open] {
+    display: flex;
   }
   .replay-btn,
-  .replay-play,
-  .replay-speed {
-    min-height: 2.75rem;
+  .replay-play {
+    min-height: 2.5rem;
   }
   .replay-btn {
-    min-width: 2.75rem;
+    min-width: 2.5rem;
   }
   .replay-play {
-    min-width: 5.5rem;
+    min-width: 4.5rem;
+    flex: 1;
+    margin: 0 0.15rem;
   }
   .replay-speed {
-    min-width: 2.75rem;
+    flex: 1;
+    min-height: 2.5rem;
+  }
+  .replay-range {
+    height: 2.75rem;
+    touch-action: none;
+  }
+  .replay-status {
+    margin-top: -0.5rem;
   }
 }
 @media (max-width: 479px) {
-  /* Narrow phones: three rows (position, controls, speed) so nothing overlaps at 360px. */
-  .replay-bar {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      'scrub'
-      'controls'
-      'speeds';
-    gap: 0.25rem;
-    padding: 0.4rem 0.6rem 0.5rem;
+  .replay-btn {
+    min-width: 2.25rem;
+    padding: 0;
+  }
+  .replay-play {
+    min-width: 3.5rem;
+    padding: 0 0.5rem;
   }
   .replay-controls {
-    justify-content: space-between;
+    gap: 0.1rem;
   }
-  .replay-controls > .replay-play {
-    flex: 1;
-    margin: 0 0.25rem;
-  }
-  .replay-speeds {
-    display: flex;
-  }
-  .replay-speed {
-    flex: 1;
-    min-height: 2.25rem;
+  .replay-speed-toggle {
+    padding: 0 0.45rem;
   }
 }
 
@@ -881,4 +917,84 @@
     padding: 0.35rem 0.5rem;
     font-size: 0.875rem;
   }
+}
+
+/* ---------- Tour (M5a): a non-modal card, and an outline on the real thing it describes ---------- */
+.tour-card {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 40;
+  width: min(30rem, calc(100vw - 2rem));
+  transform: translateX(-50%);
+  border: 1px solid var(--color-ink);
+  border-top: 6px solid var(--color-brass-fill);
+  border-radius: var(--radius-card);
+  background: var(--color-paper);
+  padding: 0.9rem 1rem 0.8rem;
+  box-shadow: 0 10px 30px rgb(15 26 36 / 0.28);
+}
+.tour-count {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.tour-title {
+  margin: 0.15rem 0 0.3rem;
+  font-size: 1.25rem;
+}
+.tour-body {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-ink);
+}
+.tour-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+.tour-spacer {
+  flex: 1;
+}
+.tour-next {
+  min-height: 2.25rem;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-chip);
+  background: var(--color-brass-fill);
+  color: var(--color-ink);
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.tour-card .graph-btn:disabled {
+  opacity: 0.5;
+}
+@media (max-width: 719px) {
+  .tour-card {
+    bottom: 0;
+    width: 100%;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    padding-bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px));
+  }
+  .tour-card .graph-btn,
+  .tour-next {
+    min-height: 2.75rem;
+  }
+}
+
+/* Static outlines (nothing animates, so reduced motion needs no special case). */
+[data-tour='nodes'] [data-node-kind='answer'],
+[data-tour='edges'] [data-edge-kind='critique'],
+[data-tour='judge'] [data-node-kind='judge'] {
+  filter: drop-shadow(0 0 3px var(--color-brass-fill)) drop-shadow(0 0 1px var(--color-brass-fill));
+}
+[data-tour='legend'] [data-testid='legend'],
+[data-tour='legend'] [role='toolbar'],
+[data-tour='verdict'] section[aria-labelledby='verdict-heading'] {
+  outline: 3px solid var(--color-brass-fill);
+  outline-offset: 3px;
 }

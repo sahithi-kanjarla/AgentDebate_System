@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useReplay } from '../hooks/useReplay'
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 import type { Connection } from '../hooks/useDebateStream'
 import { orderedRounds, type DebateState } from '../lib/debateState'
 import { buildGraphModel } from '../lib/graphModel'
@@ -12,6 +13,7 @@ import { VerdictCard, VerdictMissing, VerdictPending } from './VerdictCard'
 import { DebateGraph, type GraphHighlight } from './graph/DebateGraph'
 import { Insights } from './insights/Insights'
 import { ReplayBar } from './replay/ReplayBar'
+import { Tour, tourDone } from './tour/Tour'
 
 const NO_EVENTS: RawEvent[] = []
 
@@ -28,7 +30,15 @@ function progressText(state: DebateState): string {
 
 type View = 'graph' | 'columns'
 
-function ViewToggle({ view, onChange }: { view: View; onChange: (v: View) => void }) {
+function ViewToggle({
+  view,
+  onChange,
+  extra,
+}: {
+  view: View
+  onChange: (v: View) => void
+  extra?: ReactNode
+}) {
   const item = (v: View, text: string) => (
     <button
       type="button"
@@ -40,9 +50,12 @@ function ViewToggle({ view, onChange }: { view: View; onChange: (v: View) => voi
     </button>
   )
   return (
-    <div role="group" aria-label="Debate view" className="flex gap-2">
-      {item('graph', 'Graph')}
-      {item('columns', 'Columns')}
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div role="group" aria-label="Debate view" className="flex gap-2">
+        {item('graph', 'Graph')}
+        {item('columns', 'Columns')}
+      </div>
+      {extra}
     </div>
   )
 }
@@ -56,6 +69,10 @@ interface Props {
   connection: Connection
   /** The ordered event log; a finished debate can be replayed from it. */
   events: RawEvent[]
+  /** A saved example: it starts at the beginning and plays once (unless the person prefers less motion). */
+  recorded?: boolean
+  /** Shown above the debate, e.g. the "Recorded example" notice. */
+  banner?: ReactNode
 }
 
 /**
@@ -63,10 +80,15 @@ interface Props {
  * one, or, while a replay is not at its end, the reducer's state for the events played so far. So the
  * graph, narrator, insights and verdict can never disagree about where the debate is.
  */
-export function DebateScreen({ header, state, connection, events }: Props) {
+export function DebateScreen({ header, state, connection, events, recorded, banner }: Props) {
   const [mode, setMode] = useState<View>('graph')
   const finished = state.status === 'done' || state.status === 'failed'
-  const replay = useReplay(finished ? events : NO_EVENTS, state)
+  const reduced = usePrefersReducedMotion()
+  const replay = useReplay(finished ? events : NO_EVENTS, state, {
+    // Under reduced motion a recorded example opens on the finished debate, with the same controls.
+    startAtBeginning: recorded === true && !reduced,
+    autoplay: recorded === true && !reduced,
+  })
   const view = replay.available ? replay.state : state
 
   const rounds = orderedRounds(state)
@@ -86,6 +108,13 @@ export function DebateScreen({ header, state, connection, events }: Props) {
   const [activeEdge, setActiveEdge] = useState<string | null>(null)
   const onEdgeActive = useCallback((id: string | null) => setActiveEdge(id), [])
 
+  // --- tour: only once there is a finished debate to point at, and never while it is playing
+  const [tourOpen, setTourOpen] = useState<boolean | null>(null)
+  const [tourStep, setTourStep] = useState<string | null>(null)
+  const tourReady = finished && rounds.length > 0 && !(replay.available && replay.playing)
+  const showTour = tourReady && mode === 'graph' && (tourOpen ?? !tourDone())
+  const closeTour = useCallback(() => setTourOpen(false), [])
+
   const lit = hovered ?? pinned
   const highlight = useMemo<GraphHighlight>(() => {
     const l = lit !== null ? links[lit] : undefined
@@ -103,8 +132,10 @@ export function DebateScreen({ header, state, connection, events }: Props) {
     <div
       className="space-y-6"
       data-replay-seek={replay.available && !replay.motion ? '' : undefined}
+      data-tour={showTour ? (tourStep ?? undefined) : undefined}
     >
-      <QuestionPlate header={header} status={state.status} />
+      {banner}
+      <QuestionPlate header={header} status={view.status} />
 
       <p role="status" className="sr-only-live" aria-live={replay.available ? 'off' : undefined}>
         {progressText(view)}
@@ -125,7 +156,19 @@ export function DebateScreen({ header, state, connection, events }: Props) {
 
       {replay.available && rounds.length > 0 && <ReplayBar replay={replay} />}
 
-      {rounds.length > 0 && <ViewToggle view={mode} onChange={setMode} />}
+      {rounds.length > 0 && (
+        <ViewToggle
+          view={mode}
+          onChange={setMode}
+          extra={
+            tourReady && mode === 'graph' ? (
+              <button type="button" className="graph-btn" onClick={() => setTourOpen(true)}>
+                Replay the tour
+              </button>
+            ) : null
+          }
+        />
+      )}
       {mode === 'graph' ? (
         rounds.length > 0 && (
           <DebateGraph
@@ -166,6 +209,7 @@ export function DebateScreen({ header, state, connection, events }: Props) {
       ) : (
         view.judging && <VerdictPending />
       )}
+      {showTour && <Tour onStep={setTourStep} onClose={closeTour} />}
     </div>
   )
 }

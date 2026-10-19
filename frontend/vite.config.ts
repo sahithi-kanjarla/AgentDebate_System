@@ -8,6 +8,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,
+    // The dev-only export page reads the provider and model names from backend/config/agents*.yaml.
+    fs: { allow: ['..'] },
     proxy: {
       '/api': { target: process.env.API_TARGET ?? 'http://127.0.0.1:8765', changeOrigin: false },
     },

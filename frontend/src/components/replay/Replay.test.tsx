@@ -132,6 +132,20 @@ describe('ReplayBar', () => {
     expect(latest?.speed).toBe(2)
   })
 
+  it('puts the speeds behind one button that says the current speed (shown on phones)', () => {
+    render(<Harness />)
+    const toggle = screen.getByRole('button', { name: /^Speed 1×$/ })
+    const group = screen.getByRole('radiogroup', { name: 'Playback speed' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(toggle).toHaveAttribute('aria-controls', group.id)
+    expect(group).not.toHaveAttribute('data-open')
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(group).toHaveAttribute('data-open')
+    fireEvent.click(screen.getByRole('radio', { name: '2×' }))
+    expect(screen.getByRole('button', { name: /^Speed 2×$/ })).toBeInTheDocument()
+  })
+
   it('does not speak a position before anyone has used the replay', () => {
     render(<Harness />)
     expect(screen.getByTestId('replay-announce')).toHaveTextContent('')

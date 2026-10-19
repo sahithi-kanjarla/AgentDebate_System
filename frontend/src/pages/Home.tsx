@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ShowcaseList } from '../components/ShowcaseList'
 import { createDebate } from '../lib/api'
 import { EXAMPLES } from '../lib/examples'
 import type { Mode } from '../lib/types'
@@ -141,6 +142,8 @@ export function Home() {
           ))}
         </ul>
       </section>
+
+      <ShowcaseList />
     </div>
   )
 }
