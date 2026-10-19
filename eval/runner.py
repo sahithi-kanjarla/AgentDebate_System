@@ -44,6 +44,7 @@ _MODEL_MARKERS = (
     "finish_reason=length",
 )
 _CONFIG_MARKERS = ("unauthorized", "model_not_found", "payment_required", "no_provider")
+RAW_TAIL_CHARS = 300  # kept per turn in the result file for diagnosis
 MAX_ATTEMPTS = 3  # per question per session, for transient errors
 
 
@@ -99,23 +100,43 @@ def _provider_of(agents: AgentsFile, label: str, labels: dict[str, str]) -> str:
     return ""
 
 
-def looks_truncated(t: TurnRecord) -> bool:
-    """An invalid turn whose output was probably cut off by the token limit.
+NEAR_LIMIT = 0.95  # output tokens at or above this share of the limit count as "hit the limit"
 
-    Either the provider said so (an empty reply with finish_reason=length), or the last reply
-    opened more braces than it closed (JSON cut mid-way). A heuristic: a provider that does
-    not report why it stopped cannot be told apart from malformed JSON that happens to be
-    unbalanced.
+
+def _limit_of(agents: AgentsFile, label: str, labels: dict[str, str]) -> int | None:
+    if label == JUDGE_LABEL:
+        return agents.judge.max_tokens
+    for agent_id, lab in labels.items():
+        if lab == label:
+            return next((a.max_tokens for a in agents.debaters if a.id == agent_id), None)
+    return None
+
+
+def looks_truncated(t: TurnRecord, max_tokens: int | None = None) -> bool:
+    """An invalid turn where any reply (the first or the repair) was probably cut off.
+
+    A heuristic. A reply counts as cut off when the provider said so (finish_reason=length, or an
+    empty reply with that error), when it opened more braces than it closed, or, where no stop
+    reason was stored (cached replays), when its output tokens reached NEAR_LIMIT of the agent's
+    limit. A model that stops by chance near the limit, or malformed JSON that happens to be
+    unbalanced, cannot be told apart from a real cut-off.
     """
     if t.valid:
         return False
     if "finish_reason=length" in (t.error or ""):
         return True
+    for a in t.attempts:
+        if a.finish_reason == "length" or a.unbalanced:
+            return True
+        if a.finish_reason is None and max_tokens and a.tokens_out >= NEAR_LIMIT * max_tokens:
+            return True
+    if t.attempts:
+        return False
     text = t.raw_text
     return "{" in text and text.count("{") > text.count("}")
 
 
-def _turn_info(t: TurnRecord) -> TurnInfo:
+def _turn_info(t: TurnRecord, max_tokens: int | None = None) -> TurnInfo:
     parsed = t.parsed_json or {}
     answer = parsed.get("final_answer") if t.valid else None
     confidence = parsed.get("confidence") if t.valid else None
@@ -132,7 +153,11 @@ def _turn_info(t: TurnRecord) -> TurnInfo:
         tokens_in=t.tokens_in,
         tokens_out=t.tokens_out,
         latency_ms=t.latency_ms,
-        truncated=looks_truncated(t),
+        truncated=looks_truncated(t, max_tokens),
+        finish_reason=t.finish_reason,
+        raw_tail=t.raw_text[-RAW_TAIL_CHARS:],
+        repair_used=t.repair_used,
+        error=t.error[:300] if t.error else None,
     )
 
 
@@ -165,9 +190,13 @@ async def drive(orch: Orchestrator, agents: AgentsFile) -> RunData:
         await gen.aclose()
 
     assert orch.verdict is not None and total is not None
-    debater_turns = [_turn_info(t) for t in orch.turns if t.label != JUDGE_LABEL]
+
+    def info(t: TurnRecord) -> TurnInfo:
+        return _turn_info(t, _limit_of(agents, t.label, orch.labels))
+
+    debater_turns = [info(t) for t in orch.turns if t.label != JUDGE_LABEL]
     judge_turns = [t for t in orch.turns if t.label == JUDGE_LABEL]
-    judge = _turn_info(judge_turns[0]) if judge_turns else None
+    judge = info(judge_turns[0]) if judge_turns else None
     return RunData(
         turns=debater_turns,
         judge=judge,

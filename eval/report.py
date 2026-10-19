@@ -64,8 +64,10 @@ CUT_OFF = (
     "- **Cut-off outputs.** Harder problems need longer reasoning. For this run the output limit was "
     "raised to {limit} tokens per answer in the eval's own config copy (the app is unchanged). An "
     "answer whose output looks cut off by the limit is counted as wrong and shown in the "
-    '"Cut off" column; the detection is a heuristic (a provider reply with finish_reason=length, '
-    "or JSON that opens more braces than it closes)."
+    '"Cut off" column; the detection is a heuristic, not a measurement: any reply of the turn '
+    "(the first or the repair) counts if the provider reported finish_reason=length, if its JSON "
+    "opens more braces than it closes, or, when no stop reason was stored, if its output reached "
+    "95% of the limit. It can miss a cut-off or flag a reply that ended near the limit by chance)."
 )
 STRICT = (
     "- **Strict answer matching.** An answer counts only if it is a pure number equal to the gold "

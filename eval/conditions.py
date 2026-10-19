@@ -52,6 +52,11 @@ class TurnInfo:
     tokens_out: int
     latency_ms: int
     truncated: bool = False  # invalid, and the output looks cut off
+    # Diagnosis aids, so a bad turn can be understood without the response cache.
+    finish_reason: str | None = None  # None: cached replay or provider did not say
+    raw_tail: str = ""  # last 300 characters of the last reply
+    repair_used: bool = False
+    error: str | None = None  # provider error text, e.g. empty_response (finish_reason=length)
 
 
 @dataclass

@@ -241,7 +241,7 @@ def test_latex_survives_the_response_cache_round_trip(tmp_path, settings):
     assert first["conditions"]["D"]["answer"] == again["conditions"]["D"]["answer"]
 
 
-def test_a_reply_with_an_invalid_json_escape_is_a_stored_missing_answer(tmp_path, settings):
+def test_a_reply_with_latex_escapes_is_read_and_scored_by_its_answer(tmp_path, settings):
     def behave(c):
         if c.agent_id == "debater_2" and c.role == "debater":
             return 'RAW:{"reasoning": "so \\(x\\) is 3", "final_answer": "12", "confidence": 80}'
@@ -251,8 +251,12 @@ def test_a_reply_with_an_invalid_json_escape_is_a_stored_missing_answer(tmp_path
     pin_math(env, [4])
     assert env.run("--dataset", "math45", "--n", "1") == 0
     c = env.records()["math500-4"]["conditions"]
-    assert c["A2"]["status"] == "missing" and not c["A2"]["truncated"]
-    assert c["B"]["correct"]  # the two valid votes carry the majority
+    # \(x\) used to make the turn unusable (missing); the parser now reads it, so the answer
+    # "12" is scored as an ordinary wrong answer, with no repair call needed.
+    assert c["A2"]["status"] == "wrong" and c["A2"]["answer"] == "12" and not c["A2"]["truncated"]
+    assert c["B"]["correct"]  # the two other votes carry the majority
+    turn = next(x for x in env.records()["math500-4"]["turns"] if x["label"] == "Debater 2")
+    assert turn["valid"] and not turn["repair_used"]
 
 
 # --- run folder, manifest, profile ---
@@ -403,6 +407,8 @@ def test_empty_reply_stopped_on_the_limit_is_stored_and_counted_as_cut_off(tmp_p
     assert rec["facts"]["truncated_turns"] >= 1
     assert not (env.run_dir / "skipped.json").exists()  # hard problems are not skipped as errors
     assert sum(1 for x in env.calls("debater_2") if x.round == 0) == 1  # and not retried 3 times
+    turn = next(x for x in rec["turns"] if x["label"] == "Debater 2" and x["round"] == 0)
+    assert "finish_reason=length" in turn["error"] and turn["raw_tail"] == ""
 
 
 def test_json_cut_off_mid_way_counts_as_cut_off_but_prose_and_bad_schema_do_not(tmp_path, settings):
@@ -422,6 +428,9 @@ def test_json_cut_off_mid_way_counts_as_cut_off_but_prose_and_bad_schema_do_not(
     assert c["A1"]["truncated"] and c["A1"]["status"] == "missing"
     assert not c["A2"]["truncated"] and not c["A3"]["truncated"]
     assert all(c[k]["status"] == "missing" for k in ("A1", "A2", "A3"))
+    turn = next(x for x in rec["turns"] if x["label"] == "Debater 1" and x["round"] == 0)
+    assert turn["repair_used"] and turn["raw_tail"] == cut[-300:] and not turn["valid"]
+    assert "finish_reason" in turn  # None here: the fake provider reports no stop reason
     assert c["B"]["note"] == "no_valid_answers" and not c["B"]["correct"]
 
 
