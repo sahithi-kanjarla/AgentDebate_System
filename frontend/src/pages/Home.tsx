@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { StartNotice } from '../components/DemoNotice'
 import { RateLimitNotice } from '../components/RateLimitNotice'
 import { ShowcaseList } from '../components/ShowcaseList'
 import { RateLimitedError, createDebate } from '../lib/api'
@@ -132,6 +133,7 @@ export function Home() {
         >
           {busy ? 'Starting…' : 'Start debate'}
         </button>
+        <StartNotice />
       </form>
 
       <section aria-labelledby="examples-heading" className="mt-12">

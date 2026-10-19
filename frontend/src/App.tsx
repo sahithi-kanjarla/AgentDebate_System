@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
+import { DemoBanner, DemoFooter } from './components/DemoNotice'
 import { Debate } from './pages/Debate'
 import { History } from './pages/History'
 import { Home } from './pages/Home'
@@ -23,6 +24,7 @@ export function App() {
       >
         Skip to content
       </a>
+      <DemoBanner />
       <header className="border-b border-rule-strong bg-vellum">
         <nav
           aria-label="Main"
@@ -80,6 +82,7 @@ export function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      <DemoFooter />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { HistoryNotice } from '../components/DemoNotice'
 import { useFetch } from '../hooks/useFetch'
 import { listDebates } from '../lib/api'
 import type { DebateListItem } from '../lib/types'
@@ -50,6 +51,7 @@ export function History() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="mb-6 text-3xl text-ink">Recent debates</h1>
+      <HistoryNotice />
       {result.status === 'loading' && <p role="status">Loading…</p>}
       {result.status === 'error' && (
         <p
