@@ -4,7 +4,8 @@ from typing import Annotated, Any
 from fastapi import APIRouter, HTTPException, Query, Request
 from sse_starlette.sse import EventSourceResponse
 
-from app.debate.service import DebateService
+from app.core.ratelimit import AdmissionControl, client_ip
+from app.debate.service import DebateRunning, DebateService
 from app.schemas import CreateDebateRequest, CreateDebateResponse
 
 router = APIRouter(prefix="/api/debates", tags=["debates"])
@@ -16,7 +17,24 @@ def _service(request: Request) -> DebateService:
 
 @router.post("", status_code=201, response_model=CreateDebateResponse)
 async def create_debate(body: CreateDebateRequest, request: Request) -> CreateDebateResponse:
-    return CreateDebateResponse(id=await _service(request).start(body))
+    service = _service(request)
+    admission: AdmissionControl = request.app.state.admission
+    ip = client_ip(
+        request.client.host if request.client else None,
+        request.headers.get("x-forwarded-for"),
+        service.settings.trusted_proxy,
+    )
+    # Only reads that cost nothing are free: a rerun that the response cache will answer entirely
+    # skips the per-IP and global counts. The checks that need the database run only when needed.
+    exempt = admission.enabled and await service.is_replayable(body)
+    billable = (
+        await service.billable_today(admission.now)
+        if admission.needs_global_count and not exempt
+        else 0
+    )
+    # Raises AdmissionDenied (429, handled in main.py); counts the IP only if it passes.
+    admission.admit(ip=ip, exempt=exempt, running=service.running_count, billable_today=billable)
+    return CreateDebateResponse(id=await service.start(body))
 
 
 @router.get("")
@@ -32,6 +50,18 @@ async def get_debate(debate_id: str, request: Request) -> dict[str, Any]:
     if debate is None:
         raise HTTPException(404, "debate not found")
     return debate
+
+
+@router.get("/{debate_id}/reveal")
+async def reveal_debate(debate_id: str, request: Request) -> dict[str, Any]:
+    """Which provider and model answered each turn. Only for debates that are no longer running."""
+    try:
+        result = await _service(request).reveal(debate_id)
+    except DebateRunning:
+        raise HTTPException(409, "the debate is still running") from None
+    if result is None:
+        raise HTTPException(404, "debate not found")
+    return result
 
 
 @router.get("/{debate_id}/stream")

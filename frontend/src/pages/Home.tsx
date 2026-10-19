@@ -1,18 +1,23 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { RateLimitNotice } from '../components/RateLimitNotice'
 import { ShowcaseList } from '../components/ShowcaseList'
-import { createDebate } from '../lib/api'
+import { RateLimitedError, createDebate } from '../lib/api'
 import { EXAMPLES } from '../lib/examples'
+import { readStored, removeStored, writeStored } from '../lib/safeStorage'
 import type { Mode } from '../lib/types'
 
 const MAX_CHARS = 4000
+// A question the server refused, kept so a reload after waiting does not lose it.
+const DRAFT_KEY = 'tribunal.draft.v1'
 
 export function Home() {
   const navigate = useNavigate()
-  const [question, setQuestion] = useState('')
+  const [question, setQuestion] = useState(() => readStored(DRAFT_KEY) ?? '')
   const [mode, setMode] = useState<Mode>('answer')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [limited, setLimited] = useState<RateLimitedError | null>(null)
   const textarea = useRef<HTMLTextAreaElement>(null)
 
   const blank = question.trim().length === 0
@@ -23,12 +28,19 @@ export function Home() {
     if (blank || tooLong || busy) return
     setBusy(true)
     setError(null)
+    setLimited(null)
     try {
       // Sent exactly as typed: whitespace and newlines matter for code questions.
       const id = await createDebate(question, mode)
+      removeStored(DRAFT_KEY)
       navigate(`/debate/${id}`)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not start the debate.')
+      if (err instanceof RateLimitedError) {
+        writeStored(DRAFT_KEY, question)
+        setLimited(err)
+      } else {
+        setError(err instanceof Error ? err.message : 'Could not start the debate.')
+      }
       setBusy(false)
     }
   }
@@ -101,6 +113,8 @@ export function Home() {
             </label>
           </div>
         </fieldset>
+
+        {limited && <RateLimitNotice scope={limited.scope} retryAfterS={limited.retryAfterS} />}
 
         {error && (
           <p

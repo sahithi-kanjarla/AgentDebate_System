@@ -3,6 +3,7 @@
 "Killing" a provider means its host answers 503/401. No test here touches the network.
 """
 
+import asyncio
 import json
 import random
 
@@ -10,6 +11,7 @@ import httpx
 import pytest
 
 from app.core.settings import Settings
+from app.db import repo
 from app.main import create_app
 from app.providers.base import Message
 from app.providers.demo_script import DEMO_SCRIPTS
@@ -69,6 +71,7 @@ class FakeProviders:
 class World:
     def __init__(self, tmp_path, fake: FakeProviders, keys=KEYS) -> None:
         self.fake = fake
+        self.public_raw: list[str] = []  # what the browser could read, per debate
         self.sleeps = Sleeps()
         self.settings = Settings(
             database_url=f"sqlite:///{tmp_path / 'e2e.db'}",
@@ -90,7 +93,14 @@ class World:
         debate_id = resp.json()["id"]
         stream = await client.get(f"/api/debates/{debate_id}/stream")
         await wait_until(lambda: not self.app.state.service._channels)
-        stored = (await client.get(f"/api/debates/{debate_id}")).json()
+        got = await client.get(f"/api/debates/{debate_id}")
+        replay = await client.get(f"/api/debates/{debate_id}/stream")
+        self.public_raw += [got.text, replay.text]
+        stored = got.json()
+        # The API withholds provider and model; these tests check who really answered, so they
+        # read the stored turns from the database (the reveal endpoint is tested separately).
+        full = await asyncio.to_thread(repo.get_debate, self.app.state.service.engine, debate_id)
+        stored["turns"] = full["turns"]
         return parse_sse(stream.text), stored, stream.text
 
 
@@ -253,3 +263,15 @@ async def test_groq_requests_use_the_current_token_param_and_low_reasoning(run_w
     # providers without special options still use plain max_tokens and no extras
     other = [b for host, b in fake.bodies if host != GROQ]
     assert all("max_tokens" in b and "reasoning_effort" not in b for b in other)
+
+
+async def test_serve_paths_hide_the_real_lineup_even_after_fallbacks(run_world):
+    from tests.test_reveal import assert_anonymous, config_terms
+
+    fake = FakeProviders(down=[GROQ])
+    world, _ = await run_world(fake)
+    terms = config_terms(REAL_AGENTS)
+    assert {"groq", "ollama", "openai/gpt-oss-120b"} <= terms
+    assert len(world.public_raw) == 2
+    for raw in world.public_raw:
+        assert_anonymous(raw, terms)

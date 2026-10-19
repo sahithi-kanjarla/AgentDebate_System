@@ -3,6 +3,7 @@ import { clusterLetter, debaterColor } from '../lib/palette'
 import { ChangedMindBadge } from './ChangedMindBadge'
 import { CritiqueList, ReceivedCritiques } from './CritiqueList'
 import { PersonaBadge } from './PersonaBadge'
+import { ModelTag } from './reveal/RevealContext'
 import { ThinkingState } from './ThinkingState'
 
 interface Props {
@@ -25,7 +26,10 @@ export function RoundCard({ round, label, persona, index, turn, previousAnswer }
       {/* Repeated on every card so a stacked (narrow) layout still says whose card this is. */}
       <header className="md:hidden">
         <PersonaBadge label={label} persona={persona} index={index} />
+        <ModelTag label={label} round={round} className="ml-1 mt-1.5" />
       </header>
+      {/* The column heading already names the main model; only a backup is worth a note here. */}
+      <ModelTag label={label} round={round} onlyBackup className="hidden md:inline-flex" />
 
       {turn === undefined && <ThinkingState text={`Waiting for ${label}…`} />}
       {turn?.status === 'thinking' && <ThinkingState text={`${label} is thinking…`} />}

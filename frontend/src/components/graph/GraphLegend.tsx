@@ -8,6 +8,8 @@ import {
 } from '../../lib/palette'
 import { SEVERITY_DASH, SEVERITY_WIDTH, SeverityMarker } from './CritiqueEdge'
 import { clusterFill } from './Defs'
+import { useReveal } from '../reveal/RevealContext'
+import { REVEAL_NOTE, modelText } from '../../lib/reveal'
 
 const PATTERN_NAMES = ['solid', 'stripes', 'dots', 'grid']
 
@@ -66,6 +68,7 @@ function ClusterSample({ id }: { id: number }) {
 /** Dismissible key to the graph (uses the pattern defs of the graph's own svg). It sits under the canvas, never over it, so it cannot hide nodes. */
 export function GraphLegend({ onDismiss }: { onDismiss: () => void }) {
   const severities: Severity[] = ['low', 'medium', 'high']
+  const reveal = useReveal()
   return (
     <section
       aria-label="Legend"
@@ -298,6 +301,26 @@ export function GraphLegend({ onDismiss }: { onDismiss: () => void }) {
           </p>
         </div>
       </div>
+
+      {reveal && (
+        <div className="mt-4 border-t border-rule pt-3" data-testid="legend-models">
+          <h3 className="mb-1.5 font-sans text-sm font-semibold">Models (revealed)</h3>
+          <ul className="grid gap-x-8 gap-y-1 text-sm text-ink sm:grid-cols-2 lg:grid-cols-3">
+            {[...reveal.debaters, ...(reveal.judge ? [reveal.judge] : [])].map((e) => (
+              <li key={e.label}>
+                {e.label}
+                {e.persona && e.label !== 'Judge' ? ` (${e.persona})` : ''}:{' '}
+                <span className="break-all font-mono text-xs">
+                  {e.primary ? modelText(e.primary) : 'unknown'}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1.5 text-xs text-ink-soft">
+            {REVEAL_NOTE} The answer letters in the graph stay the same.
+          </p>
+        </div>
+      )}
     </section>
   )
 }

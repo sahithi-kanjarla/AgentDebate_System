@@ -12,6 +12,7 @@ dependencies = [
     "sqlmodel",
     "pyyaml",
     "openai>=3.35.1",
+    "slowapi>=0.1.10",
 ]
 
 [dependency-groups]

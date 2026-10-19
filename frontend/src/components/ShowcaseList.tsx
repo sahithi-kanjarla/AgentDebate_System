@@ -3,7 +3,7 @@ import { useFetch } from '../hooks/useFetch'
 import { validateIndex, type ShowcaseIndexItem } from '../lib/showcase'
 import { showcaseUrl } from '../pages/Showcase'
 
-async function loadIndex(): Promise<ShowcaseIndexItem[]> {
+export async function loadIndex(): Promise<ShowcaseIndexItem[]> {
   const res = await fetch(showcaseUrl('index'))
   if (!res.ok) throw new Error('no index')
   const items = validateIndex(await res.json())

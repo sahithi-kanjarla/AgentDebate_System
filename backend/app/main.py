@@ -1,11 +1,14 @@
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from app.api import agents, debates
 from app.core.logging import configure_logging
+from app.core.ratelimit import AdmissionControl, AdmissionDenied
 from app.core.settings import AgentsFile, Settings, get_settings, load_agents
 from app.db.session import init_db, make_engine
 from app.debate.service import DebateService, ProviderFactory
@@ -26,6 +29,8 @@ def create_app(
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         configure_logging(settings.log_level, settings.secret_values())
+        app.state.admission = AdmissionControl(settings)
+        logging.getLogger("app.admission").info(app.state.admission.describe())
         engine = make_engine(settings.database_url)
         init_db(engine)
         agents_cfg = load_agents(settings.agents_config)
@@ -55,6 +60,15 @@ def create_app(
             engine.dispose()
 
     app = FastAPI(title="Tribunal", lifespan=lifespan)
+
+    @app.exception_handler(AdmissionDenied)
+    async def _denied(_request: Request, exc: AdmissionDenied) -> JSONResponse:
+        return JSONResponse(
+            exc.denial.body(),
+            status_code=429,
+            headers={"Retry-After": str(exc.denial.retry_after_s)},
+        )
+
     app.include_router(debates.router)
     app.include_router(agents.router)
     return app

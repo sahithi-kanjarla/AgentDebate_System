@@ -27,6 +27,24 @@ class Settings(BaseSettings):
     cache_enabled: bool = True
     log_level: str = "INFO"
 
+    # Public-demo protection (FR10). Off by default so local dev and tests are unaffected; the
+    # deployment (Dockerfile / Space secrets) turns it on. Free-tier quotas are shared by every
+    # visitor, so besides the per-IP limits there is a global daily cap on real debates.
+    rate_limit_enabled: bool = False
+    rate_limit_per_hour: int = Field(default=5, ge=1)
+    rate_limit_per_day: int = Field(default=20, ge=1)
+    # Real debates per UTC day across all visitors; 0 = no cap. Default 15: the tightest free
+    # quota (OpenRouter, about 50 requests/day) is hit 2-4 times per debate.
+    global_daily_cap: int = Field(default=15, ge=0)
+    # Debates running at once (all visitors); 0 = no cap. Independent of rate_limit_enabled.
+    max_concurrent_debates: int = Field(default=0, ge=0)
+    # Number of trusted reverse proxies in front of the app. 0 = use the socket peer and ignore
+    # X-Forwarded-For (cannot be spoofed). N > 0 = take the Nth entry from the right.
+    trusted_proxy: int = Field(default=0, ge=0)
+    # /api/agents lists provider and model per persona, which un-anonymizes every debate. Only
+    # for local dev.
+    expose_agent_models: bool = False
+
     gemini_api_key: SecretStr | None = None
     groq_api_key: SecretStr | None = None
     openrouter_api_key: SecretStr | None = None

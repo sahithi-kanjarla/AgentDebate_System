@@ -4,6 +4,7 @@ import { nodeById, receivedFor, type GraphModel, type GraphNode } from '../../li
 import { clusterColor, clusterLetter, clusterPattern } from '../../lib/palette'
 import { ChangedMindBadge } from '../ChangedMindBadge'
 import { CritiqueList, ReceivedCritiques } from '../CritiqueList'
+import { ModelTag } from '../reveal/RevealContext'
 
 function Swatch({ clusterId }: { clusterId: number }) {
   return (
@@ -204,6 +205,10 @@ export const NodeInspector = forwardRef<HTMLElement, Props>(function NodeInspect
               {column ? `, ${column.sublabel}` : ''}
             </p>
           )}
+          {node.kind === 'answer' && node.agent && (
+            <ModelTag label={node.agent} round={node.round} className="mt-1.5" />
+          )}
+          {node.kind === 'judge' && <ModelTag label="Judge" className="mt-1.5" />}
         </div>
         <button type="button" className="graph-btn" onClick={onClose}>
           Close

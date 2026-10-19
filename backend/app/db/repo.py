@@ -1,7 +1,7 @@
 """Synchronous DB operations. Callers on the event loop must run these via asyncio.to_thread."""
 
 from collections.abc import Sequence
-from datetime import UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy.engine import Engine
@@ -98,6 +98,56 @@ def get_debate(engine: Engine, debate_id: str) -> dict[str, Any] | None:
             "stats": d.stats_json,
             "turns": [t.model_dump(exclude={"debate_id", "id"}) | {"turn_id": t.id} for t in turns],
         }
+
+
+def count_billable_since(engine: Engine, since: datetime) -> int:
+    """Debates created since `since` that used (or may still use) provider calls.
+
+    Running debates count. A finished debate that sent no HTTP request (every call answered from
+    the response cache) does not; one with no recorded stats is counted, to stay on the safe side.
+    """
+    with _session(engine) as s:
+        rows = s.exec(select(Debate).where(Debate.created_at >= since)).all()
+        return sum(1 for d in rows if not _sent_no_requests(d))
+
+
+def _sent_no_requests(d: Debate) -> bool:
+    if d.status == "running" or not d.stats_json:
+        return False
+    return d.stats_json.get("api_calls") == 0
+
+
+def find_replayable(
+    engine: Engine, *, question: str, mode: str, config: dict[str, Any], limit: int = 5
+) -> bool:
+    """Is there a clean finished debate that a new one with this input and config would repeat
+    entirely from the response cache?
+
+    "Clean" means completed, same question (exact), mode and config (rounds, seed, early-stop
+    setting and the lineup/prompt fingerprint), with no error events and no fallback, because a
+    failed call is never cached and would be sent again. Legacy debates with no fingerprint never
+    match. This errs toward "no", which only means the request is counted.
+    """
+    with _session(engine) as s:
+        candidates = s.exec(
+            select(Debate)
+            .where(Debate.question == question, Debate.mode == mode, Debate.status == "completed")
+            .order_by(col(Debate.created_at).desc())
+            .limit(limit)
+        ).all()
+        for d in candidates:
+            if any(d.config_json.get(k) != v for k, v in config.items()):
+                continue
+            if (d.stats_json or {}).get("fallbacks", 0):
+                continue
+            errored = s.exec(
+                select(DebateEventRow.id).where(
+                    DebateEventRow.debate_id == d.id, DebateEventRow.type == "error"
+                )
+            ).first()
+            if errored is None:
+                return True
+        return False
 
 
 def list_debates(engine: Engine, limit: int) -> list[dict[str, Any]]:

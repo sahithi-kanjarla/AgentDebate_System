@@ -32,7 +32,7 @@ async def stream(client, debate_id: str, **headers) -> list[dict]:
 
 
 async def test_health_and_agents(make_client):
-    async with make_client() as (client, _):
+    async with make_client(expose_agent_models=True) as (client, _):
         assert (await client.get("/api/health")).json() == {"status": "ok"}
         agents = (await client.get("/api/agents")).json()
         assert [a["role"] for a in agents] == ["debater"] * 3 + ["judge"]

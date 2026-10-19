@@ -149,19 +149,19 @@ Prompts live in `backend/app/prompts/*.md` (not hard-coded) so they're easy to i
   - `done` `{stats: {total_tokens, latency_ms, calls}}`
 - **FR3** `GET /api/debates/{id}`: full stored transcript + verdict.
 - **FR4** `GET /api/debates?limit=20`: recent debates (history page).
-- **FR5** `GET /api/agents`: configured agents, personas, and whether each provider is currently reachable (models shown here only, not inside debates).
+- **FR5** `GET /api/agents`: configured agents, personas, and whether each provider is currently reachable. **Provider and model ids are omitted unless `EXPOSE_AGENT_MODELS=true` (local dev):** the lineup is the same for every debate, so listing it publicly would un-anonymize all of them. Models are shown inside a debate only through the reveal (FR15).
 - **FR6** `GET /api/health`.
 - **FR7** Provider abstraction: `LLMProvider` interface with `complete(messages, json_mode) -> CompletionResult(text, tokens_in, tokens_out, latency_ms)`. Implementations: `OpenAICompatibleProvider` (Gemini/Groq/OpenRouter/Ollama via base_url), `MockProvider`.
 - **FR8** Resilience: per-provider retry with exponential backoff + jitter on 429/5xx; per-provider concurrency semaphore; **fallback chain** (e.g., if OpenRouter fails twice → Ollama or another free model), recorded in the transcript.
 - **FR9** Response cache keyed on `(provider, model, messages hash)` in SQLite. This is essential for the eval harness to stay within free quotas and be resumable.
-- **FR10** Public demo protection: rate limit by IP (e.g., 5 debates/hour, 20/day), configurable via env.
+- **FR10** Public demo protection, all configurable via env and off by default for local dev (`RATE_LIMIT_ENABLED`): per-IP limits on `POST /api/debates` (default 5/hour, 20/day); a global cap on real debates per UTC day (`GLOBAL_DAILY_CAP`, default 15) because free-tier quotas are shared; a cap on debates running at once (`MAX_CONCURRENT_DEBATES`); client IP taken from `X-Forwarded-For` only when `TRUSTED_PROXY` says how many proxies to trust. Refusals are `429` with `Retry-After` and a JSON body naming the `scope` (`ip_hour`, `ip_day`, `global_day`, `busy`). Reads (replays, streams, the showcase) and reruns that the response cache answers entirely are never counted.
 
 ### Frontend
 - **FR11** Home: big input box, mode toggle (Answer / Review), 3 example prompts (one math, one factual trap, one opinion), "Start debate" button.
 - **FR12** Live debate view: one column per debater with a persona badge. Each round renders as a card inside the column (reasoning collapsed by default; critiques highlighted with severity color; "changed mind" badge). Show a typing/thinking state while waiting.
 - **FR13** Consensus meter between rounds (e.g., "2/3 agree").
 - **FR14** Verdict card: final answer, confidence bar, summary, **"Mistakes caught" list** (the hero feature), dissent if any.
-- **FR15** Reveal button: "Show which model was which" (de-anonymizes after the verdict; fun for demos).
+- **FR15** Reveal button: "Show which model was which" (de-anonymizes after the verdict; fun for demos). The server never sends provider, model or `label_map` in `GET /api/debates/{id}` or the SSE stream (live or replayed); they stay in the database and are served only by `GET /api/debates/{id}/reveal`, for debates that are not running. The reveal is per page view and is not offered on recorded (sanitized) showcase examples. It only says who wrote what; debaters were never told each other's identity.
 - **FR16** History page + shareable URL `/debate/{id}`.
 - **FR17** Results page: renders the latest eval results table/chart from `eval/results/latest.json`.
 - **FR18** Responsive layout; columns stack on mobile. No theme switching: one light theme, with the graph on a fixed dark stage.

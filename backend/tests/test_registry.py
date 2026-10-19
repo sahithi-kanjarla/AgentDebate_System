@@ -250,7 +250,8 @@ def test_model_id_normalization():
 
 async def test_agents_endpoint_uses_real_health(tmp_path):
     app = create_app(
-        settings_for(tmp_path), registry_kwargs={"http_client": http_client(models_handler())}
+        settings_for(tmp_path, expose_agent_models=True),
+        registry_kwargs={"http_client": http_client(models_handler())},
     )
     async with app.router.lifespan_context(app):
         transport = httpx.ASGITransport(app=app)

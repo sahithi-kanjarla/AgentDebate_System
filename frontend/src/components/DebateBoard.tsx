@@ -3,6 +3,7 @@ import { ConsensusBand } from './ConsensusBand'
 import { PersonaBadge } from './PersonaBadge'
 import { RoundCard } from './RoundCard'
 import { debaterColor } from '../lib/palette'
+import { ModelTag } from './reveal/RevealContext'
 
 /**
  * One column per debater, one row per round, with the consensus band between rounds. Rows are
@@ -29,6 +30,7 @@ export function DebateBoard({ state }: { state: DebateState }) {
             style={{ borderBottomColor: debaterColor(i) }}
           >
             <PersonaBadge label={a.label} persona={a.persona} index={i} />
+            <ModelTag label={a.label} className="ml-1 mt-1.5" />
           </div>
         ))}
       </div>

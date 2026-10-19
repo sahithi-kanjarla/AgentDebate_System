@@ -37,5 +37,13 @@ export function Debate({ sourceFactory }: { sourceFactory?: SourceFactory }) {
   }
 
   const { header, state, connection, events } = view
-  return <DebateScreen header={header} state={state} connection={connection} events={events} />
+  return (
+    <DebateScreen
+      header={header}
+      state={state}
+      connection={connection}
+      events={events}
+      revealDebateId={header.id}
+    />
+  )
 }
