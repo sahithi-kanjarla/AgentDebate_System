@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     shuffle_seed: int = 42
     cache_enabled: bool = True
     log_level: str = "INFO"
+    # The built frontend (Vite `dist`). When set and index.html is there, the API serves it, so one
+    # process and one port serve everything in the container (the Dockerfile sets FRONTEND_DIST).
+    # Unset in local development, which uses the Vite dev server.
+    frontend_dist: Path | None = None
 
     # Public-demo protection (FR10). Off by default so local dev and tests are unaffected; the
     # deployment (Dockerfile / Space secrets) turns it on. Free-tier quotas are shared by every

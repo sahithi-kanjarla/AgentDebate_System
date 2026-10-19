@@ -1,0 +1,35 @@
+# Keep the build context small and keep secrets, history and local data out of every layer.
+.git
+.github
+.claude
+**/.claude
+
+# Secrets: never copied, not even the example
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Local data and caches
+*.db
+*.db-*
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/.venv
+.coverage
+
+# Frontend: rebuilt inside the image
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+
+# Not needed at runtime
+eval
+docs
+scripts
+**/tests
+PRD.md
+DECISIONS.md
+CLAUDE.md
+README.md

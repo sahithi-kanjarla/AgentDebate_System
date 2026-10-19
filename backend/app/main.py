@@ -7,13 +7,21 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.api import agents, debates
+from app.core.clientip import ClientIpProbe
 from app.core.logging import configure_logging
 from app.core.ratelimit import AdmissionControl, AdmissionDenied
-from app.core.settings import AgentsFile, Settings, get_settings, load_agents
+from app.core.settings import (
+    KEY_SETTINGS,
+    AgentsFile,
+    Settings,
+    get_settings,
+    load_agents,
+)
 from app.db.session import init_db, make_engine
 from app.debate.service import DebateService, ProviderFactory
 from app.providers.base import LLMProvider
 from app.providers.registry import ProviderRegistry
+from app.web import SecurityHeaders, mount_frontend
 
 
 def create_app(
@@ -31,6 +39,11 @@ def create_app(
         configure_logging(settings.log_level, settings.secret_values())
         app.state.admission = AdmissionControl(settings)
         logging.getLogger("app.admission").info(app.state.admission.describe())
+        # Names only, never values: makes a missing Space secret obvious in the first log lines.
+        with_keys = [n.removesuffix("_api_key") for n in KEY_SETTINGS if settings.api_key(n)]
+        logging.getLogger("app.startup").info(
+            "providers with an API key: %s", ", ".join(with_keys) or "none"
+        )
         engine = make_engine(settings.database_url)
         init_db(engine)
         agents_cfg = load_agents(settings.agents_config)
@@ -71,6 +84,10 @@ def create_app(
 
     app.include_router(debates.router)
     app.include_router(agents.router)
+    # Last, so /api wins; a no-op when there is no frontend build.
+    mount_frontend(app, settings.frontend_dist)
+    app.add_middleware(SecurityHeaders)
+    app.add_middleware(ClientIpProbe, trusted_hops=settings.trusted_proxy)
     return app
 
 
