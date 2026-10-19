@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { getDebate } from '../lib/api'
 import { initialState, reduceAll, streamEnded, type DebateState } from '../lib/debateState'
-import type { DebateHeader } from '../lib/types'
+import type { DebateHeader, RawEvent } from '../lib/types'
 import { useFetch } from './useFetch'
 import { useDebateStream, type Connection, type SourceFactory } from './useDebateStream'
 
@@ -9,7 +9,14 @@ export type DebateView =
   | { phase: 'loading' }
   | { phase: 'error'; message: string }
   | { phase: 'notfound' }
-  | { phase: 'ready'; header: DebateHeader; state: DebateState; connection: Connection }
+  | {
+      phase: 'ready'
+      header: DebateHeader
+      state: DebateState
+      connection: Connection
+      /** The ordered event log so far; what a replay plays back. */
+      events: RawEvent[]
+    }
 
 /**
  * The one entry point for the debate page. A running debate is followed over SSE; anything else
@@ -40,6 +47,20 @@ export function useDebate(id: string, factory?: SourceFactory): DebateView {
     status: data.status,
     created_at: data.created_at,
   }
-  if (live) return { phase: 'ready', header, state: stream.state, connection: stream.connection }
-  return { phase: 'ready', header, state: stored ?? initialState(), connection: 'closed' }
+  if (live) {
+    return {
+      phase: 'ready',
+      header,
+      state: stream.state,
+      connection: stream.connection,
+      events: stream.events,
+    }
+  }
+  return {
+    phase: 'ready',
+    header,
+    state: stored ?? initialState(),
+    connection: 'closed',
+    events: data.events,
+  }
 }

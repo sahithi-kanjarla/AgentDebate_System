@@ -11,6 +11,8 @@ const FORBIDDEN = [
   'fixture-seven',
   '/dev/graph',
   'DevGraph',
+  '/dev/debate',
+  'DevDebate',
 ]
 
 function* files(dir) {

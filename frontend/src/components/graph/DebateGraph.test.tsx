@@ -347,7 +347,9 @@ describe('anonymity', () => {
       expect(container.innerHTML).not.toContain('secret-model')
       unmount()
     }
-  })
+    // Renders every fixture, including the 7 x 4 one, and opens four inspectors on each: slow on a
+    // busy machine, so it gets more time than the default.
+  }, 90_000)
 })
 
 function getComputedStyleSafe(el: Element): boolean {

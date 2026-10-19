@@ -80,9 +80,15 @@ function edgeGeometry(
   return { d: edgePath(x1, a.y, x2, b.y, shift), ex: x2, ey: b.y + shift }
 }
 
-function critiqueLabel(e: GraphEdge, model: GraphModel): string {
+function critiqueLabel(e: GraphEdge, model: GraphModel, caught: boolean): string {
   const fromRound = model.nodes.find((n) => n.id === e.from)?.round
-  return `${e.critic} flagged a ${SEVERITY_WORD[e.severity!]}-severity problem with ${e.target}'s Round ${fromRound} answer: ${e.issue}`
+  const listed = caught ? ' Listed under Mistakes caught.' : ''
+  return `${e.critic} flagged a ${SEVERITY_WORD[e.severity!]}-severity problem with ${e.target}'s Round ${fromRound} answer: ${e.issue}${listed}`
+}
+
+export interface GraphHighlight {
+  edgeIds: ReadonlySet<string>
+  nodeIds: ReadonlySet<string>
 }
 
 interface Props {
@@ -90,9 +96,25 @@ interface Props {
   question: string | null
   /** Animate arrivals (a live debate). Finished debates and reduced-motion visitors get a static graph. */
   animate: boolean
+  /** Edges and nodes lit from outside the graph (a hovered Mistakes caught item). */
+  highlight?: GraphHighlight | null
+  /** Called with the critique edge being hovered or focused, or null. */
+  onEdgeActive?: (id: string | null) => void
+  /** Critique edges that appear under Mistakes caught; they get a ring. */
+  caughtEdgeIds?: ReadonlySet<string>
+  /** During a replay, how the narrator should announce captions. */
+  replay?: { playing: boolean; speed: number } | null
 }
 
-export function DebateGraph({ state, question, animate }: Props) {
+export function DebateGraph({
+  state,
+  question,
+  animate,
+  highlight = null,
+  onEdgeActive,
+  caughtEdgeIds,
+  replay = null,
+}: Props) {
   const reduced = usePrefersReducedMotion()
   const motionOn = animate && !reduced
   const model = useMemo(() => buildGraphModel(state, question), [state, question])
@@ -122,7 +144,34 @@ export function DebateGraph({ state, question, animate }: Props) {
   const returnTo = useRef<string | null>(null)
 
   const activeId = hoverId ?? focusId
-  const related = useMemo(() => (activeId ? relatedTo(model, activeId) : null), [model, activeId])
+  const related = useMemo(() => {
+    const own = activeId ? relatedTo(model, activeId) : null
+    if (!highlight || (highlight.edgeIds.size === 0 && highlight.nodeIds.size === 0)) return own
+    const edgeIds = new Set(own?.edgeIds)
+    const nodeIds = new Set(own?.nodeIds)
+    for (const id of highlight.nodeIds) nodeIds.add(id)
+    for (const id of highlight.edgeIds) {
+      edgeIds.add(id)
+      const e = model.edges.find((x) => x.id === id)
+      if (e) {
+        nodeIds.add(e.from)
+        nodeIds.add(e.to)
+      }
+    }
+    return { edgeIds, nodeIds }
+  }, [model, activeId, highlight])
+
+  // Tell the page which critique edge is active so a linked Mistakes caught item can light up.
+  const activeCritique =
+    activeId !== null && model.edges.some((e) => e.id === activeId && e.kind === 'critique')
+      ? activeId
+      : null
+  useEffect(() => {
+    onEdgeActive?.(activeCritique)
+  }, [activeCritique, onEdgeActive])
+
+  // A node can disappear when a replay is scrubbed back; close its inspector rather than show a ghost.
+  if (selectedId && !model.nodes.some((n) => n.id === selectedId)) setSelectedId(null)
 
   // --- pan and zoom (d3-zoom writes the transform straight to the DOM; no React re-render per frame)
   useEffect(() => {
@@ -299,7 +348,7 @@ export function DebateGraph({ state, question, animate }: Props) {
       data-nodes={nodeCount}
       data-edges={edgeCount}
     >
-      <NarratorBar captions={captions} />
+      <NarratorBar captions={captions} replay={replay} />
 
       <div className="flex flex-wrap items-center gap-2" role="toolbar" aria-label="Graph controls">
         <button
@@ -546,7 +595,8 @@ export function DebateGraph({ state, question, animate }: Props) {
                     severity={e.severity!}
                     mx={g.ex}
                     my={g.ey}
-                    label={critiqueLabel(e, model)}
+                    label={critiqueLabel(e, model, caughtEdgeIds?.has(e.id) ?? false)}
+                    caught={caughtEdgeIds?.has(e.id) ?? false}
                     related={related?.edgeIds.has(e.id) ?? false}
                     fresh={fresh.has(e.id)}
                     onHover={onEdgeHover}
@@ -594,6 +644,9 @@ export function DebateGraph({ state, question, animate }: Props) {
                 {tipEdge.target}&apos;s answer
               </p>
               <p className="mt-1 whitespace-pre-wrap break-words">{tipEdge.issue}</p>
+              {caughtEdgeIds?.has(tipEdge.id) && (
+                <p className="mt-1 text-xs text-stage-ink-soft">Listed under Mistakes caught.</p>
+              )}
             </div>
           )}
         </div>

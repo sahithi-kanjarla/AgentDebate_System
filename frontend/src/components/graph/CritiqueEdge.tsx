@@ -31,6 +31,8 @@ interface Props {
   mx: number
   my: number
   label: string
+  /** Listed under Mistakes caught: ringed, so it can be found without relying on colour. */
+  caught?: boolean
   related: boolean
   fresh: boolean
   onHover: (id: string | null, el: Element | null, e?: { clientX: number; clientY: number }) => void
@@ -47,6 +49,7 @@ export const CritiqueEdge = memo(function CritiqueEdge(p: Props) {
       data-edge-kind="critique"
       data-severity={p.severity}
       data-related={p.related ? 'true' : undefined}
+      data-caught={p.caught ? 'true' : undefined}
       tabIndex={0}
       role="img"
       aria-label={p.label}
@@ -86,6 +89,16 @@ export const CritiqueEdge = memo(function CritiqueEdge(p: Props) {
         />
       )}
       <g transform={`translate(${p.mx - 10},${p.my})`}>
+        {p.caught && (
+          <circle
+            className="caught-ring"
+            r={13}
+            fill="none"
+            stroke="#c9a24a"
+            strokeWidth={2}
+            strokeDasharray="3 2.5"
+          />
+        )}
         <SeverityMarker severity={p.severity} color={color} />
       </g>
     </g>

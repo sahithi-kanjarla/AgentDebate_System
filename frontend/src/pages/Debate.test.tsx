@@ -162,13 +162,15 @@ describe('Debate page: live debate', () => {
   it('renders exactly the same page as a finished debate with the same events', async () => {
     const { view } = await liveWith(fullRun())
     await screen.findByRole('heading', { name: 'Verdict' })
-    const live = view.container.innerHTML
+    // React's generated ids (useId) count up across mounts; they are not part of the page's content.
+    const plain = (html: string) => html.replace(/_r_[0-9a-z]+_/g, '_r_')
+    const live = plain(view.container.innerHTML)
     view.unmount()
 
     stubFetch(() => ({ body: detail('completed', fullRun()) }))
     const finished = renderDebate()
     await screen.findByRole('heading', { name: 'Verdict' })
-    expect(finished.container.innerHTML).toBe(live)
+    expect(plain(finished.container.innerHTML)).toBe(live)
   })
 
   it('shows an application error without ending the debate', async () => {

@@ -164,7 +164,7 @@ Prompts live in `backend/app/prompts/*.md` (not hard-coded) so they're easy to i
 - **FR15** Reveal button: "Show which model was which" (de-anonymizes after the verdict; fun for demos).
 - **FR16** History page + shareable URL `/debate/{id}`.
 - **FR17** Results page: renders the latest eval results table/chart from `eval/results/latest.json`.
-- **FR18** Responsive layout; columns stack on mobile. Dark mode.
+- **FR18** Responsive layout; columns stack on mobile. No theme switching: one light theme, with the graph on a fixed dark stage.
 
 ### Visualization — "See the debate think"
 
@@ -187,7 +187,7 @@ Prompts live in `backend/app/prompts/*.md` (not hard-coded) so they're easy to i
 - **VIS7 — Guided intro & legend.** A skippable 5-step tour on first visit (what a node is, what edges mean, what the colors mean, what the Judge does, how to read the verdict) and an always-available legend.
 - **VIS8 — Linked verdict.** Each item in "Mistakes caught" is linked to its critique edge; hovering the item highlights that edge in the graph and vice versa.
 - **VIS9 — Eval visuals** (Results page): grouped bar chart of accuracy by condition; a diverging bar showing questions debate **fixed** vs **broke**; an accuracy-vs-cost scatter (API calls per question vs accuracy).
-- **VIS10 — Quality bar.** Respect `prefers-reduced-motion` (static graph, no pulses); colorblind-safe palette plus shape/pattern cues for severity (not color alone); dark-mode palette; smooth at 60fps for up to ~60 nodes; on mobile the graph scrolls horizontally with pinch-zoom while the narrator and verdict stay readable.
+- **VIS10 — Quality bar.** Respect `prefers-reduced-motion` (static graph, no pulses); colorblind-safe palette plus shape/pattern cues for severity (not color alone); smooth at 60fps for up to ~60 nodes; on mobile the graph scrolls horizontally with pinch-zoom while the narrator and verdict stay readable.
 - **VIS11 (stretch, only after M7).** Optional 3D mode with react-three-fiber: nodes as glowing spheres in layered planes, critique edges as light beams. Must be a toggle with the 2D graph remaining the default.
 
 **Backend support:** persist enough in `Turn.parsed_json` (including `cluster_id`, resolved critique targets, `changed_mind_because`) that replay needs no extra data.
@@ -268,7 +268,8 @@ tribunal/
 | **M2** | Real providers (Gemini, Groq, OpenRouter, Ollama), retries, fallback, cache, logging | A real debate completes with 3 different providers; killing one provider triggers fallback |
 | **M3** | Frontend: home, live debate view, verdict card, history | Can run a debate end-to-end in the browser with live streaming |
 | **M4** | **Visualization:** `debateState` reducer, Debate Graph (VIS1), node inspector (VIS2), narrator (VIS3), legend; add `critique_edge` + cluster data to the backend | A live debate animates as a layered graph with traveling critique pulses; clicking a node explains why it changed its mind; reducer has unit tests |
-| **M5** | Charts + replay + polish: consensus/confidence charts (VIS4), answer flow (VIS5), replay (VIS6), tour (VIS7), linked verdict (VIS8), a11y/perf (VIS10); review mode + model reveal + rate limiting + dark mode/mobile | Replay of a stored debate matches the live run; reduced-motion works; both modes work; rate limit returns 429 with friendly UI message |
+| **M5a** | Frontend: consensus/confidence charts (VIS4), answer flow (VIS5), replay (VIS6), tour (VIS7), linked verdict (VIS8), mobile/a11y polish (VIS10), Showcase of recorded examples | Replay of a stored debate matches the live run (state at position k equals the reducer over the first k events); reduced-motion works; charts have text alternatives; showcase replays with no model calls |
+| **M5b** | Backend + UI: Review mode, model reveal with server-side withholding of provider/model and `label_map` until the reveal, rate limiting (FR10), replace placeholder showcase files with real recordings | Both modes work; the browser never receives provider/model/`label_map` before the reveal; rate limit returns 429 with friendly UI message |
 | **M6** | Eval harness + results page + eval visuals (VIS9) + README auto-table + chart | `eval.run --n 100` completes within free quotas (using cache/resume across days if needed) |
 | **M7** | Docker + CI + deploy to HF Spaces + README (with demo GIF of the graph) | Public URL works; CI green; README has demo GIF, architecture diagram, results table |
 | **M8 (stretch)** | 3D mode (VIS11) | Toggle works; 2D remains default; no performance regression |

@@ -7,6 +7,7 @@ import { NotFound } from './pages/NotFound'
 
 // Fixtures are test-only: the route and its import are compiled out of production builds.
 const DevGraph = import.meta.env.DEV ? lazy(() => import('./pages/DevGraph')) : null
+const DevDebate = import.meta.env.DEV ? lazy(() => import('./pages/DevDebate')) : null
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-chip px-2 py-1 text-sm font-medium ${isActive ? 'text-ink underline decoration-brass-fill decoration-2 underline-offset-4' : 'text-ink-soft hover:text-ink'}`
@@ -49,6 +50,16 @@ export function App() {
               element={
                 <Suspense fallback={<p role="status">Loading…</p>}>
                   <DevGraph />
+                </Suspense>
+              }
+            />
+          )}
+          {DevDebate && (
+            <Route
+              path="/dev/debate/:fixture"
+              element={
+                <Suspense fallback={<p role="status">Loading…</p>}>
+                  <DevDebate />
                 </Suspense>
               }
             />

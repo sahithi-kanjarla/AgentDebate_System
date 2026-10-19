@@ -1,3 +1,4 @@
+import type { MistakeLink } from '../lib/mistakeLinks'
 import type { Verdict } from '../lib/types'
 import { CheckIcon } from './Icons'
 import { ThinkingState } from './ThinkingState'
@@ -24,8 +25,18 @@ export function ConfidenceBar({ value }: { value: number }) {
   )
 }
 
+/** Hover, focus and pin state for the Mistakes caught items, owned by the page so the graph can share it. */
+export interface MistakeLinking {
+  links: MistakeLink[]
+  /** Indices to show as linked: hovered or focused here, or the edge being hovered in the graph. */
+  active: ReadonlySet<number>
+  pinned: number | null
+  onActivate: (index: number | null) => void
+  onPin: (index: number) => void
+}
+
 /** The ruling. `final_answer` is rendered exactly as received: pre-wrap, monospace, never trimmed. */
-export function VerdictCard({ verdict }: { verdict: Verdict }) {
+export function VerdictCard({ verdict, linking }: { verdict: Verdict; linking?: MistakeLinking }) {
   return (
     <section
       aria-labelledby="verdict-heading"
@@ -76,14 +87,51 @@ export function VerdictCard({ verdict }: { verdict: Verdict }) {
           <p className="text-sm text-ink-soft">No mistakes were recorded in this debate.</p>
         ) : (
           <ul className="space-y-2">
-            {verdict.mistakes_caught.map((m, i) => (
-              <li key={i} className="rounded-card border border-rule bg-vellum p-3">
-                <p className="mb-1 text-sm font-medium text-ink">
-                  {m.caught_by} caught this in round {m.round}
-                </p>
-                <p className="whitespace-pre-wrap break-words text-sm text-ink">{m.description}</p>
-              </li>
-            ))}
+            {verdict.mistakes_caught.map((m, i) => {
+              const link = linking?.links[i]
+              const linkable = linking !== undefined && link !== undefined && link.kind !== 'none'
+              const active = linkable && linking.active.has(i)
+              const pinned = linkable && linking.pinned === i
+              const noteId = `mistake-note-${i}`
+              return (
+                <li
+                  key={i}
+                  className="mistake-item rounded-card border border-rule bg-vellum p-3"
+                  data-testid="mistake-item"
+                  data-linked={active ? 'true' : undefined}
+                  data-link-kind={link?.kind}
+                  onPointerEnter={linkable ? () => linking.onActivate(i) : undefined}
+                  onPointerLeave={linkable ? () => linking.onActivate(null) : undefined}
+                  onFocus={linkable ? () => linking.onActivate(i) : undefined}
+                  onBlur={linkable ? () => linking.onActivate(null) : undefined}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="text-sm font-medium text-ink">
+                      {m.caught_by} caught this in round {m.round}
+                    </p>
+                    {linkable && (
+                      <button
+                        type="button"
+                        className="graph-btn"
+                        aria-pressed={pinned}
+                        aria-describedby={link.note ? noteId : undefined}
+                        onClick={() => linking.onPin(i)}
+                      >
+                        Show in graph
+                      </button>
+                    )}
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap break-words text-sm text-ink">
+                    {m.description}
+                  </p>
+                  {linkable && link.note && (
+                    <p id={noteId} className="mt-1.5 text-xs text-ink-soft">
+                      {link.note}
+                    </p>
+                  )}
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>

@@ -47,15 +47,18 @@ export function useDebateStream(
   id: string,
   enabled: boolean,
   factory: SourceFactory = defaultFactory,
-): { state: DebateState; connection: Connection } {
+): { state: DebateState; connection: Connection; events: RawEvent[] } {
   const [state, setState] = useState<DebateState>(initialState)
+  const [events, setEvents] = useState<RawEvent[]>([])
   const [connection, setConnection] = useState<Connection>('open')
   const factoryRef = useRef(factory)
 
   useEffect(() => {
     if (!enabled) return
     setState(initialState())
+    setEvents([])
     setConnection('open')
+    const seenSeq = new Set<number>()
 
     let buffer: RawEvent[] = []
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -69,8 +72,14 @@ export function useDebateStream(
       const batch = buffer
       buffer = []
       setState((prev) => reduceAll(batch, prev))
+      setEvents((prev) => prev.concat(batch))
     }
     const push = (event: RawEvent) => {
+      // A reconnect can replay events; the log keeps each once, like the reducer does.
+      if (event.seq !== undefined) {
+        if (seenSeq.has(event.seq)) return
+        seenSeq.add(event.seq)
+      }
       buffer.push(event)
       if (timer === undefined) timer = setTimeout(flush, FLUSH_MS)
     }
@@ -131,5 +140,5 @@ export function useDebateStream(
     }
   }, [id, enabled])
 
-  return { state, connection }
+  return { state, connection, events }
 }
