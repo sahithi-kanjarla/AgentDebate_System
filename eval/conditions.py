@@ -107,7 +107,8 @@ def majority(answers: list[str | None], salt: str) -> tuple[str | None, bool]:
     if not groups:
         return None, False
     top = max(len(v) for v in groups.values())
-    leaders = [v for v in groups.values() if len(v) == top]
+    # Sorted by answer key: turns arrive in completion order, which must not decide the tie-break.
+    leaders = [v for _key, v in sorted(groups.items()) if len(v) == top]
     if len(leaders) == 1:
         return leaders[0][0], False
     return random.Random(salt).choice(leaders)[0], True
@@ -136,9 +137,17 @@ def derive(
     score: Callable[[str | None], Score],
     d: RunData,
     c: RunData | None,
+    include_c: bool = True,
+    valid: Callable[[str], bool] | None = None,
 ) -> dict[str, ConditionResult]:
     """All conditions for one question. `c` is None when D stopped after round 1, in which case
-    C's transcript (and so its judge prompt) is identical to D's and C == D."""
+    C's transcript (and so its judge prompt) is identical to D's and C == D.
+
+    `include_c=False` leaves out C and D_vote. `valid` (multiple choice) says which answers may
+    vote in a plurality; an answer it rejects is still scored as given but does not vote."""
+
+    def votes(rnd: int) -> list[str | None]:
+        return [a if a is None or valid is None or valid(a) else None for a in _answers(d, rnd)]
 
     def result(
         answer: str | None,
@@ -158,11 +167,11 @@ def derive(
         cost = Cost(1, 1, t.tokens_in + t.tokens_out, t.latency_ms, 0)
         out[f"A{i}"] = result(t.answer, cost, t.fallback_used, truncated=t.truncated)
 
-    pick, tied = majority(_answers(d, 0), f"{seed}:{qid}:B")
+    pick, tied = majority(votes(0), f"{seed}:{qid}:B")
     note = "tie" if tied else ("no_valid_answers" if pick is None else None)
     out["B"] = result(pick, d.snapshots[0], d.used_fallback(0, judge=False), note)
 
-    if c is None:
+    if include_c and c is None:
         out["C"] = result(
             d.verdict,
             d.total,
@@ -170,7 +179,7 @@ def derive(
             "judge_failed" if d.judge_failed else None,
             _judge_cut_off(d),
         )
-    else:
+    elif include_c and c is not None:
         last = max(c.snapshots)
         judge_cost = c.total - c.snapshots[last]
         out["C"] = result(
@@ -189,11 +198,12 @@ def derive(
         _judge_cut_off(d),
     )
 
-    vote, vtied = majority(_answers(d, d.rounds_run), f"{seed}:{qid}:Dvote")
-    vnote = "tie" if vtied else ("no_valid_answers" if vote is None else None)
-    out["D_vote"] = result(
-        vote, d.snapshots[d.rounds_run], d.used_fallback(d.rounds_run, judge=False), vnote
-    )
+    if include_c:
+        vote, vtied = majority(votes(d.rounds_run), f"{seed}:{qid}:Dvote")
+        vnote = "tie" if vtied else ("no_valid_answers" if vote is None else None)
+        out["D_vote"] = result(
+            vote, d.snapshots[d.rounds_run], d.used_fallback(d.rounds_run, judge=False), vnote
+        )
     return out
 
 

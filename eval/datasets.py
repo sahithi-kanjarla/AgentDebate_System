@@ -71,6 +71,12 @@ class Dataset(ABC):
     prompt_suffix: ClassVar[str] = ""
     label: ClassVar[str] = ""  # human name used in the report
     profile: ClassVar[RunProfile] = RunProfile()
+    # Experiment shape. The defaults are the original design (conditions A-D and D-vote, numeric
+    # answers, exploratory tests); a dataset overrides them when its experiment differs.
+    runs_c: ClassVar[bool] = True  # False: only A1-A3, B and D are run and reported
+    exploratory_tests: ClassVar[bool] = True  # False: D vs B is the only test
+    answer_letters: ClassVar[bool] = False  # multiple choice: report the letter distribution
+    invalid_label: ClassVar[str] = "Non-numeric answers"  # report column for status "non_numeric"
 
     @abstractmethod
     def load(self) -> list[Question]:
@@ -92,9 +98,23 @@ class Dataset(ABC):
         """One line for `sample`: how many questions are eligible."""
         return f"{len(questions)} questions"
 
+    def normalize_answer(self, answer: str, question: Question | None = None) -> str:
+        """Reduce a model's final_answer to the form that is compared and voted on. Applied by
+        the orchestrator to every debater and judge answer; the default leaves it unchanged."""
+        return answer
+
+    def is_valid_answer(self, answer: str, question: Question | None = None) -> bool:
+        """Whether a (normalised) answer may vote in a plurality. Invalid answers still score."""
+        return True
+
+    def suffix_for(self, question: Question) -> str:
+        """The line appended to this question; the same for every question unless overridden."""
+        return self.prompt_suffix
+
     def prompt(self, question: Question) -> str:
         """The question text exactly as the dataset has it (LaTeX included) plus the suffix."""
-        return f"{question.text}\n\n{self.prompt_suffix}" if self.prompt_suffix else question.text
+        suffix = self.suffix_for(question)
+        return f"{question.text}\n\n{suffix}" if suffix else question.text
 
 
 class GSM8K(Dataset):
@@ -223,7 +243,24 @@ class MATH45(Dataset):
         )
 
 
-DATASETS: dict[str, Callable[[], Dataset]] = {"gsm8k": GSM8K, "math45": MATH45}
+def _mmlupro_screen() -> Dataset:
+    from eval.mmlupro import MMLUProScreen  # lazy: mmlupro builds on this module
+
+    return MMLUProScreen()
+
+
+def _mmlupro_holdout() -> Dataset:
+    from eval.mmlupro import MMLUProHoldout
+
+    return MMLUProHoldout()
+
+
+DATASETS: dict[str, Callable[[], Dataset]] = {
+    "gsm8k": GSM8K,
+    "math45": MATH45,
+    "mmlupro-screen": _mmlupro_screen,
+    "mmlupro-holdout": _mmlupro_holdout,
+}
 
 
 def get_dataset(name: str) -> Dataset:
@@ -270,7 +307,10 @@ def main(argv: list[str] | None = None, *, data_dir: Path = DATA_DIR) -> int:
         dataset = get_dataset(args.dataset)
         if args.command == "fetch":
             if not isinstance(dataset, GSM8K | MATH45):
-                raise DatasetError(f"{args.dataset} has no fetch step")
+                raise DatasetError(
+                    f"{args.dataset} has no fetch step here"
+                    + (" (use: python -m eval.mmlupro fetch)" if "mmlupro" in args.dataset else "")
+                )
             print(f"downloaded {dataset.fetch()} rows to {dataset.path}")
             print(f"sha256 {dataset.source_sha256()}")
             print(dataset.describe(dataset.load()))

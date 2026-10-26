@@ -76,6 +76,7 @@ class EvalSettings:
     rounds: int = 3
     min_critique_rounds: int = 1  # the app default; rounds => early stop disabled
     early_stop: bool = True
+    include_c: bool = True  # False: no C run and no C / D_vote conditions
 
     @property
     def d_min_critique(self) -> int:
@@ -225,6 +226,7 @@ class Runner:
             providers=self.providers,
             seed=self.settings.seed,
             min_critique_rounds=min_critique,
+            answer_normalizer=lambda a: self.dataset.normalize_answer(a, q),
         )
 
     async def run_question(self, q: Question) -> dict[str, Any]:
@@ -233,11 +235,19 @@ class Runner:
         d = await drive(self._orchestrator(q, "d", s.rounds, s.d_min_critique), self.agents)
         c: RunData | None = None
         consistent = True
-        if d.rounds_run > 1:
+        if s.include_c and d.rounds_run > 1:
             c = await drive(self._orchestrator(q, "c", 1, 1), self.agents)
             consistent = prefix_consistent(d, c)
 
-        results = derive(q.qid, s.seed, lambda a: self.dataset.score(q, a), d, c)
+        results = derive(
+            q.qid,
+            s.seed,
+            lambda a: self.dataset.score(q, a),
+            d,
+            c,
+            include_c=s.include_c,
+            valid=lambda a: self.dataset.is_valid_answer(a, q),
+        )
         facts = QuestionFacts(
             rounds_run=d.rounds_run,
             early_stopped=d.rounds_run < s.rounds,
@@ -296,7 +306,10 @@ async def run_session(
     summary = SessionSummary()
     agents, s = runner.agents, runner.settings
     estimate = {
-        p: lo for p, (lo, _hi) in estimate_per_question(agents, s.rounds, s.d_min_critique).items()
+        p: lo
+        for p, (lo, _hi) in estimate_per_question(
+            agents, s.rounds, s.d_min_critique, s.include_c
+        ).items()
     }
     total = total_questions or len(todo) + already_done
 
@@ -347,7 +360,7 @@ def _stop_message(kind: str, where: str, budget: Budget, detail: str) -> str:
     return f"provider configuration problem{where}: {detail}"
 
 
-_SYMBOL = {"correct": "ok", "wrong": "no", "non_numeric": "nn", "missing": "ms"}
+_SYMBOL = {"correct": "ok", "wrong": "no", "non_numeric": "nn", "invalid": "iv", "missing": "ms"}
 
 
 def _progress_line(done: int, total: int, rec: dict[str, Any]) -> str:

@@ -3,7 +3,7 @@ import hashlib
 import json
 import logging
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -112,6 +112,7 @@ class Orchestrator:
         providers: dict[str, LLMProvider],
         seed: int,
         min_critique_rounds: int = 1,
+        answer_normalizer: Callable[[str], str] | None = None,
     ) -> None:
         self.debate_id = debate_id
         self.question = question
@@ -122,6 +123,9 @@ class Orchestrator:
         self.seed = seed
         # Never stop before this many critique rounds, even if round 0 is unanimous.
         self.min_critique_rounds = min(min_critique_rounds, rounds)
+        # Applied once to every debater and judge final_answer right after parsing, so consensus,
+        # early stop, peer prompts and the transcript all see the same form. None = unchanged.
+        self._normalize = answer_normalizer
 
         self.labels = {cfg.id: f"Debater {i + 1}" for i, cfg in enumerate(agents.debaters)}
         self.turns: list[TurnRecord] = []
@@ -317,6 +321,11 @@ class Orchestrator:
             ]
 
         out = parsed.value
+        raw_answer = out.final_answer
+        if self._normalize is not None:
+            normalized = self._normalize(raw_answer)
+            if normalized != raw_answer:
+                out = out.model_copy(update={"final_answer": normalized})
         answers[label] = out.final_answer
         new_latest[cfg.id] = out
         cluster_id = self._cluster_ids.id_for(normalize_answer(out.final_answer))
@@ -360,6 +369,7 @@ class Orchestrator:
             "previous_cluster_id": previous_cluster,
             "critiques": critiques,
             "valid": True,
+            **({"final_answer_raw": raw_answer} if out.final_answer != raw_answer else {}),
             "cluster_id": cluster_id,
             "fallback_used": parsed.fallback_used,
             "label_map": {k: self.labels[v] for k, v in outcome.anon.mapping.items()}
@@ -453,6 +463,10 @@ class Orchestrator:
             self.stats.add(parsed)
         if parsed and parsed.value:
             self.verdict = parsed.value
+            if self._normalize is not None:
+                normalized = self._normalize(self.verdict.final_answer)
+                if normalized != self.verdict.final_answer:
+                    self.verdict = self.verdict.model_copy(update={"final_answer": normalized})
         else:
             yield "error", {"agent": "Judge", "message": error, "recoverable": recoverable}
             self.verdict = self._fallback_verdict(error or "judge unavailable")

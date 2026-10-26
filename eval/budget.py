@@ -155,13 +155,14 @@ class CountingProvider(LLMProvider):
 
 
 def estimate_per_question(
-    agents: AgentsFile, rounds: int, min_critique_rounds: int
+    agents: AgentsFile, rounds: int, min_critique_rounds: int, include_c: bool = True
 ) -> dict[str, tuple[int, int]]:
     """(min, max) HTTP calls per provider for one question that is not cached.
 
     Debaters: one call per round, rounds 0..R. The minimum assumes the debate stops as soon as
     the app allows; the maximum runs every round. Judge: one call for D, plus one for C unless D
-    stopped after round 1 (C then equals D). Repair calls and fallbacks are not included.
+    stopped after round 1 (C then equals D); without C (`include_c=False`) exactly one. Repair
+    calls and fallbacks are not included.
     """
     lo_rounds = min(min_critique_rounds, rounds) + 1
     hi_rounds = rounds + 1
@@ -173,5 +174,5 @@ def estimate_per_question(
 
     for cfg in agents.debaters:
         add(cfg.provider, lo_rounds, hi_rounds)
-    add(agents.judge.provider, 1, 2)
+    add(agents.judge.provider, 1, 2 if include_c else 1)
     return est

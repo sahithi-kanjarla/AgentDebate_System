@@ -136,7 +136,7 @@ def format_estimate(
     applied: dict[str, Any] | None = None,
 ) -> str:
     profile = profile or RunProfile()
-    est = estimate_per_question(agents, es.rounds, es.d_min_critique)
+    est = estimate_per_question(agents, es.rounds, es.d_min_critique, es.include_c)
     lines = [
         f"Run '{run}': {todo} question(s) to do, {done} already done (target n={target}).",
         "Estimated HTTP requests for those questions (cache hits are free; fallbacks not "
@@ -259,6 +259,7 @@ def _main(
         rounds=settings.default_rounds,
         min_critique_rounds=settings.min_critique_rounds,
         early_stop=not args.no_early_stop,
+        include_c=dataset.runs_c,
     )
     config: dict[str, Any] = {
         "dataset": dataset.name,
@@ -271,6 +272,7 @@ def _main(
         "allow_fallback": args.allow_fallback,
         "agents_fingerprint": agents_fingerprint(agents),
         **({"profile": applied} if applied else {}),
+        **({} if es.include_c else {"include_c": False}),
     }
 
     store = ResultStore(results_dir / run)

@@ -5,13 +5,14 @@ equals the gold number by value: 18, 18.0, $18 and 18.00 are equal. "18 dollars"
 "eighteen" are not numbers under that rule, so they are wrong. A missing answer is wrong.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Literal
 
 from app.debate.consensus import is_pure_number, normalize_answer
 
-Status = Literal["correct", "wrong", "non_numeric", "missing"]
+Status = Literal["correct", "wrong", "non_numeric", "invalid", "missing"]
 
 
 @dataclass(frozen=True)
@@ -32,6 +33,16 @@ def parse_gold(answer_text: str) -> Decimal:
         return Decimal(raw)
     except InvalidOperation as e:
         raise ValueError(f"gold answer is not a number: {raw!r}") from e
+
+
+def score_letter(answer: str | None, gold: str, is_letter: Callable[[str], bool]) -> Score:
+    """Compare a multiple-choice answer (already reduced to a letter) with the gold letter.
+    Text that is not an accepted letter is `invalid`, a missing answer is `missing`."""
+    if answer is None:
+        return Score("missing")
+    if not is_letter(answer):
+        return Score("invalid")
+    return Score("correct" if answer == gold else "wrong")
 
 
 def score_number(answer: str | None, gold: Decimal) -> Score:

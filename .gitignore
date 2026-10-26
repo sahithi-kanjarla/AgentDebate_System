@@ -18,3 +18,4 @@ eval/cache/
 .env.*
 !.env.example
 report*.md
+eval/data/.mmlupro_pages/

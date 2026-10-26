@@ -1,0 +1,66 @@
+# Eval-only agent config for the MMLU-Pro experiment. backend/config/agents.yaml is NOT changed and
+# is not read by this experiment. Use it with:  python -m eval.run --config eval/config/mmlupro_agents.yaml
+# and  python -m eval.screen --config eval/config/mmlupro_agents.yaml
+#
+# Fallbacks are deliberately absent (and stripped at run time anyway). Backups for debater_3, in
+# order, if the primary proves flaky in the smoke test (change the `model` line, then re-run the
+# smoke test and start a new run name, the fingerprint will differ):
+#   1. liquid/lfm-2.5-2.6b:free
+#   2. nvidia/nemotron-3-super-120b-a12b:free
+#
+# The judge is the same model as debater_2 (openai/gpt-oss-20b), so both Groq agents share one
+# provider quota. This is disclosed in the report and DECISIONS.md.
+providers:
+  gemini:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_setting: gemini_api_key
+    max_concurrency: 2
+    json_mode: json_object  # auto-disabled on a 400; Gemma support is checked by the smoke test
+    timeout_s: 90
+  groq:
+    base_url: https://api.groq.com/openai/v1
+    api_key_setting: groq_api_key
+    max_concurrency: 2
+    json_mode: json_object
+    timeout_s: 60
+    token_param: max_completion_tokens  # Groq deprecated max_tokens
+    # gpt-oss reasons before answering; "low" keeps room for the JSON and saves tokens/minute.
+    model_options:
+      openai/gpt-oss-20b: {extra_body: {reasoning_effort: low}}
+  openrouter:
+    base_url: https://openrouter.ai/api/v1
+    api_key_setting: openrouter_api_key
+    max_concurrency: 1  # free models: about 20 requests/minute
+    json_mode: json_object
+    timeout_s: 90
+
+debaters:
+  - id: debater_1
+    persona: Solver
+    provider: gemini
+    model: gemma-4-26b-a4b-it
+    temperature: 0.6
+    max_tokens: 2048
+    persona_prompt: Methodical and step-by-step; show your work.
+  - id: debater_2
+    persona: Skeptic
+    provider: groq
+    model: openai/gpt-oss-20b
+    temperature: 0.6
+    max_tokens: 2048
+    persona_prompt: Assume something is wrong; hunt for errors, edge cases and hidden assumptions.
+  - id: debater_3
+    persona: Fact-Checker
+    provider: openrouter
+    model: xingchen-agi/xing4.0-29b-a4b:free
+    temperature: 0.6
+    max_tokens: 2048
+    persona_prompt: Focus on factual claims, units, arithmetic and logical validity.
+judge:
+  id: judge
+  persona: Judge
+  provider: groq
+  model: openai/gpt-oss-20b  # same model as debater_2 (disclosed)
+  temperature: 0.2
+  max_tokens: 2048
+  persona_prompt: Weigh the full anonymized transcript and deliver a structured verdict.
