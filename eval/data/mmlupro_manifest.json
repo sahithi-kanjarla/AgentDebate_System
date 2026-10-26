@@ -1,0 +1,9 @@
+{
+ "dataset": "TIGER-Lab/MMLU-Pro",
+ "split": "test",
+ "rows": 12032,
+ "source_sha256": "1d89dfbfa174b2be5e99663d11b2d11a46ec94d74883b52da09f5edc6214f966",
+ "normalisation": "keys question_id, question, options, answer, category, src; sort_keys, compact separators, ensure_ascii=False, one row per line in row_idx order",
+ "revision": "b189ec765aa7ed75c8acfea42df31fdae71f97be",
+ "fetched": "2026-10-26"
+}
