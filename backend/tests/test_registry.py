@@ -2,11 +2,13 @@ import json
 
 import httpx
 import pytest
+from pydantic import BaseModel
 
 from app.core.settings import AgentConfig, AgentsFile, ProviderConfig, Settings, load_agents
 from app.db.session import init_db, make_engine
+from app.debate.parsing import parse_with_repair
 from app.main import create_app
-from app.providers.base import ProviderError
+from app.providers.base import Message, ProviderError
 from app.providers.cached import CachedProvider
 from app.providers.fallback import FallbackProvider, UnavailableProvider
 from app.providers.openai_compat import OpenAICompatibleProvider
@@ -20,6 +22,10 @@ KEYS = {
     "openrouter_api_key": "test-key-or",
     "mistral_api_key": "test-key-mistral",
 }
+
+
+class _Ok(BaseModel):
+    ok: bool
 
 
 def settings_for(tmp_path, *, keys=KEYS, **kw) -> Settings:
@@ -358,6 +364,27 @@ async def test_mistral_json_mode_is_sent_to_the_mistral_endpoint(tmp_path):
     assert host == "api.mistral.ai" and auth == "Bearer test-key-mistral"
     assert body["response_format"] == {"type": "json_object"}
     assert body["model"] == "mistral-medium-3.5" and "max_tokens" in body
+
+
+async def test_provider_json_mode_none_sends_no_response_format_but_default_does(tmp_path):
+    bodies = []
+
+    def handler(request):
+        bodies.append(json.loads(request.content))
+        return ok_response('Sure! Here it is:\n```json\n{"ok": true}\n```')
+
+    reg = registry(tmp_path, handler)
+    d1 = agent(reg, "debater_1")
+    reg.agents.providers["gemini"].json_mode = "none"
+    off = reg.build_leg("gemini", d1.model, d1)
+    reg.agents.providers["gemini"].json_mode = "json_object"
+    on = reg.build_leg("gemini", d1.model, d1)
+    system = [Message(role="system", content="JSON only."), Message(role="user", content="go")]
+    outcome = await parse_with_repair(off, system, _Ok)  # plain-text reply, still parsed
+    await on.complete(system)
+    assert outcome.valid and outcome.calls == 1
+    assert "response_format" not in bodies[0] and bodies[0]["messages"][0]["role"] == "system"
+    assert bodies[1]["response_format"] == {"type": "json_object"}
 
 
 async def test_rpm_spaces_calls_instead_of_hitting_429(tmp_path):

@@ -15,7 +15,10 @@ providers:
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     api_key_setting: gemini_api_key
     max_concurrency: 2
-    json_mode: json_object  # auto-disabled on a 400; Gemma support is checked by the smoke test
+    # Gemini returns HTTP 500 for Gemma when a system message AND response_format are both sent
+    # (scripts/probe_gemma.py). debater_1 is the only agent on this provider; the parser extracts
+    # the JSON from plain text.
+    json_mode: none
     timeout_s: 90
   groq:
     base_url: https://api.groq.com/openai/v1

@@ -235,6 +235,13 @@ def test_the_eval_config_is_what_the_plan_says():
     assert opts.extra_body == {"reasoning_effort": "low"}
 
 
+def test_json_mode_is_off_only_for_debater_1s_provider():
+    agents = load_agents(CONFIG)
+    off = {name for name, p in agents.providers.items() if p.json_mode == "none"}
+    assert off == {"gemini"}
+    assert [a.id for a in agents.all_agents() if a.provider in off] == ["debater_1"]
+
+
 def test_the_app_config_is_untouched():
     app = load_agents(mmlupro.DATA_DIR.parents[1] / "backend" / "config" / "agents.yaml")
     assert app.debaters[0].model != "gemma-4-26b-a4b-it"
