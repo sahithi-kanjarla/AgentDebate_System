@@ -29,6 +29,7 @@ from eval.budget import (
     utc_today,
 )
 from eval.datasets import Dataset, DatasetError, RunProfile, get_dataset, load_order
+from eval.holdout import HOLDOUT_NAME, HoldoutRefused, check_holdout_ready, render_pin
 from eval.runner import EvalSettings, Runner, agents_fingerprint, run_session, wrap_providers
 from eval.store import ManifestMismatch, ResultStore
 
@@ -73,6 +74,17 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--dry-run", action="store_true", help="print the call estimate and exit")
     ap.add_argument("--yes", action="store_true", help="skip the confirmation prompt")
     ap.add_argument("--force", action="store_true", help="resume although settings changed")
+    ap.add_argument(
+        "--screen-run",
+        help="mmlupro-holdout only: the finished screen's results folder (default: "
+        "mmlupro-screen-s<screen seed>)",
+    )
+    ap.add_argument("--screen-seed", type=int, default=42, help="mmlupro-holdout only")
+    ap.add_argument(
+        "--accept-missed-screen",
+        action="store_true",
+        help="mmlupro-holdout only: start although the screen missed its target (recorded)",
+    )
     return ap
 
 
@@ -251,6 +263,27 @@ def _main(
     except (DatasetError, ValueError) as e:
         out(f"error: {e}")
         return 1
+    screen_pin: dict[str, Any] | None = None
+    if dataset.name == HOLDOUT_NAME:
+        try:
+            screen_pin = check_holdout_ready(
+                dataset,
+                agents,
+                applied,
+                results_dir=results_dir,
+                data_dir=data_dir,
+                screen_run=args.screen_run,
+                screen_seed=args.screen_seed,
+                allow_fallback=args.allow_fallback,
+                accept_missed=args.accept_missed_screen,
+            )
+        except HoldoutRefused as e:
+            if not args.dry_run:
+                out(e.render())
+                return 1
+            out("Dry run, so only noting it: a real run would be refused.\n" + e.render())
+        else:
+            out(render_pin(screen_pin))
     sleep_s = dataset.profile.sleep_s if args.sleep_between_s is None else args.sleep_between_s
     n = min(args.n, len(order))
     run = args.run or f"{dataset.name}-s{args.seed}"
@@ -325,6 +358,7 @@ def _main(
             "created": manifest["created"] if manifest else now,
             "config": config,
             "order": order,
+            **({"screen_pin": screen_pin} if screen_pin else {}),
             "sessions": [*(manifest or {}).get("sessions", []), {"started": now, "n": n}],
         }
     )
