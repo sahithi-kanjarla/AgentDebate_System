@@ -2,11 +2,10 @@
 # is not read by this experiment. Use it with:  python -m eval.run --config eval/config/mmlupro_agents.yaml
 # and  python -m eval.screen --config eval/config/mmlupro_agents.yaml
 #
-# Fallbacks are deliberately absent (and stripped at run time anyway). Backups for debater_3, in
-# order, if the primary proves flaky in the smoke test (change the `model` line, then re-run the
-# smoke test and start a new run name, the fingerprint will differ):
-#   1. liquid/lfm-2.5-2.6b:free
-#   2. nvidia/nemotron-3-super-120b-a12b:free
+# Fallbacks are deliberately absent (and stripped at run time anyway). debater_3 history (DECISIONS.md):
+# OpenRouter xingchen (empty_response, then 429s) -> Mistral ministral-14b-2512 (10 of 60 missing
+# in the m14b screen) -> mistral-small-2603. If mistral-small-2603 also has more than 6 of 60 missing,
+# stop and ask before changing anything else.
 #
 # The judge is the same model as debater_2 (openai/gpt-oss-20b), so both Groq agents share one
 # provider quota. This is disclosed in the report and DECISIONS.md.
@@ -30,18 +29,19 @@ providers:
     # gpt-oss reasons before answering; "low" keeps room for the JSON and saves tokens/minute.
     model_options:
       openai/gpt-oss-20b: {extra_body: {reasoning_effort: low}}
-  openrouter:
-    base_url: https://openrouter.ai/api/v1
-    api_key_setting: openrouter_api_key
-    max_concurrency: 1  # free models: about 20 requests/minute
-    json_mode: json_object
+  mistral:
+    base_url: https://api.mistral.ai/v1
+    api_key_setting: mistral_api_key
+    max_concurrency: 1
+    json_mode: json_object  # documented: response_format {"type": "json_object"}
     timeout_s: 90
+    rpm: 2  # free tier is about 2 requests/minute (same figure as backend/config/agents.yaml)
 
 debaters:
   - id: debater_1
     persona: Solver
     provider: gemini
-    model: gemma-4-26b-a4b-it
+    model: gemini-3.1-flash-lite
     temperature: 0.6
     max_tokens: 2048
     persona_prompt: Methodical and step-by-step; show your work.
@@ -54,8 +54,8 @@ debaters:
     persona_prompt: Assume something is wrong; hunt for errors, edge cases and hidden assumptions.
   - id: debater_3
     persona: Fact-Checker
-    provider: openrouter
-    model: xingchen-agi/xing4.0-29b-a4b:free
+    provider: mistral
+    model: mistral-small-2603
     temperature: 0.6
     max_tokens: 2048
     persona_prompt: Focus on factual claims, units, arithmetic and logical validity.

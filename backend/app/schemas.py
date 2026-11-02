@@ -25,6 +25,26 @@ class DebaterOutput(BaseModel):
     final_answer: str
     confidence: int = Field(ge=0, le=100)
 
+    @field_validator("reasoning", mode="before")
+    @classmethod
+    def _join_reasoning_list(cls, v: Any) -> Any:
+        """Some models write the reasoning as a list of steps instead of one string.
+
+        A list of strings, or of dicts (their "description", else the dict as text), is joined with
+        newlines. A string and any other type pass through, so the normal type check still applies.
+        final_answer has no such leniency.
+        """
+        if not isinstance(v, list):
+            return v
+        parts = []
+        for item in v:
+            if isinstance(item, dict):
+                desc = item.get("description")
+                parts.append(desc if isinstance(desc, str) and desc else str(item))
+            else:
+                parts.append(item if isinstance(item, str) else str(item))
+        return "\n".join(parts)
+
 
 class MistakeCaught(BaseModel):
     """Built by the server from recorded critiques and answers (see debate/mistakes.py)."""

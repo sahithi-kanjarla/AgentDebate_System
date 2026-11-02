@@ -17,12 +17,12 @@ import asyncio
 import hashlib
 import sys
 from collections import Counter
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from app.core.logging import configure_logging
+from app.core.logging import configure_logging, scrub_text
 from app.core.settings import AgentConfig, AgentsFile, Settings, get_settings, load_agents
 from app.debate.orchestrator import TurnRecord
 from app.debate.parsing import ParseOutcome, parse_with_repair
@@ -54,7 +54,7 @@ from eval.store import ManifestMismatch, ResultStore
 
 TARGET_LOW, TARGET_HIGH = 0.40, 0.70
 CATEGORY_FLOOR = 0.25
-DEFAULT_AGENTS = ("debater_1", "debater_2")  # Gemma (floor) and gpt-oss-20b (ceiling)
+DEFAULT_AGENTS = ("debater_1", "debater_2")  # Gemini 3.1 Flash-Lite (floor), gpt-oss-20b (ceiling)
 DEFAULT_SLEEP_S = 5.0  # one call per question; Groq is paced by the config's rpm
 
 
@@ -162,6 +162,11 @@ class Stop(Exception):
         self.kind, self.message = kind, message
 
 
+def describe(e: BaseException, secrets: Iterable[str] = ()) -> str:
+    """The exception's type and message, with configured secrets scrubbed out."""
+    return scrub_text(f"{type(e).__name__}: {e}", secrets)
+
+
 async def screen_agent(
     cfg: AgentConfig,
     provider: LLMProvider,
@@ -174,8 +179,12 @@ async def screen_agent(
     out: Callable[[str], None],
     already_done: int,
     total: int,
+    secrets: Iterable[str] = (),
 ) -> int:
-    """Screen `todo` with one agent. Returns how many finished; raises Stop at a cap or limit."""
+    """Screen `todo` with one agent. Returns how many finished; raises Stop at a cap or limit.
+
+    A question that keeps failing is recorded as skipped (and retried on the next run); the
+    remaining questions continue."""
     done = 0
     skipped: dict[str, str] = {}
     for i, q in enumerate(todo):
@@ -194,6 +203,9 @@ async def screen_agent(
                 if kind in ("budget", "quota", "config"):
                     raise Stop(kind, f"{cfg.provider}: {e}") from e
                 last_error = str(e)
+                out(f"  {q.qid}: attempt {attempt}/{MAX_ATTEMPTS} failed: {last_error}")
+            except Exception as e:  # noqa: BLE001 - one bad question must not end the run
+                last_error = describe(e, secrets)
                 out(f"  {q.qid}: attempt {attempt}/{MAX_ATTEMPTS} failed: {last_error}")
         if record is None:
             skipped[q.qid] = last_error
@@ -309,6 +321,7 @@ def main(
     out: Callable[[str], None] = print,
 ) -> int:
     args = build_parser().parse_args(argv)
+    settings = settings or get_settings()
     try:
         return _main(
             args, provider_factory, dataset, settings, input_fn, sleep, today,
@@ -317,6 +330,18 @@ def main(
     except KeyboardInterrupt:
         out("Interrupted. Finished questions are saved; re-run the same command to continue.")
         return 130
+    except asyncio.CancelledError:
+        out(
+            "Cancelled (not a keypress): the run's task was cancelled. Finished questions are "
+            "saved; re-run the same command to continue."
+        )
+        return 1
+    except Exception as e:  # noqa: BLE001 - show the real error, never mislabel it
+        out(
+            f"error: {describe(e, settings.secret_values())}. Finished questions are saved; "
+            "re-run the same command to continue."
+        )
+        return 1
 
 
 def _main(
@@ -459,7 +484,7 @@ def _main(
     stop = asyncio.run(
         _run(
             agents, settings, provider_factory, dataset, wanted, by_id, todo, stores, budget,
-            args.sleep_between_s, sleep, out, len(questions), cache_dir,
+            args.sleep_between_s, sleep, out, len(questions), cache_dir, settings.secret_values(),
         )
     )  # fmt: skip
     if stop:
@@ -483,7 +508,10 @@ async def _run(
     out: Callable[[str], None],
     total: int,
     cache_dir: Path,
+    secrets: Iterable[str] = (),
 ) -> Stop | None:
+    """Screen each agent in turn. One agent's stop or failure never prevents the others from
+    running; returns the first stop, if any."""
     from eval.budget import CountingProvider
 
     registry = None
@@ -493,17 +521,23 @@ async def _run(
     else:
         providers = provider_factory(agents)
     try:
+        first: Stop | None = None
         for a in wanted:
             cfg = by_id[a]
             counted = CountingProvider(providers[a], budget, cfg.provider)
             try:
                 await screen_agent(
                     cfg, counted, dataset, todo[a], stores[a], budget, sleep_s, sleep, out,
-                    total - len(todo[a]), total,
+                    total - len(todo[a]), total, secrets,
                 )  # fmt: skip
             except Stop as stop:
-                return stop
-        return None
+                out(f"  {a} stopped: {stop.kind} - {stop.message}")
+                first = first or stop
+            except Exception as e:  # noqa: BLE001 - report it and still run the other agents
+                msg = describe(e, secrets)
+                out(f"  {a} failed: {msg}")
+                first = first or Stop("error", f"{a}: {msg}")
+        return first
     finally:
         if registry is not None:
             await registry.aclose()

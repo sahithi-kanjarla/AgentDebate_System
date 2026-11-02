@@ -14,7 +14,12 @@ from pathlib import Path
 from app.core.settings import AgentsFile
 from app.providers.base import CompletionResult, LLMProvider, Message, ProviderError
 
-DEFAULT_PROVIDER_CAPS: dict[str, int] = {"openrouter": 40, "groq": 500, "gemini": 200}
+DEFAULT_PROVIDER_CAPS: dict[str, int] = {
+    "openrouter": 40,
+    "groq": 500,
+    "gemini": 200,
+    "mistral": 200,
+}
 # Seconds between questions. Groq's gpt-oss free tier is about 8K tokens per minute per model
 # (unverified) and one question puts roughly 6 to 8K tokens through each Groq model.
 DEFAULT_SLEEP_BETWEEN_S = 60.0

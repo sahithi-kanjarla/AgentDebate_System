@@ -18,7 +18,7 @@ from eval.tests.helpers import factory
 from eval.tests.mmlu_helpers import mmlu_rows, write_mmlu_data
 
 CONFIG = Path(mmlupro.__file__).parent / "config" / "mmlupro_agents.yaml"
-GEMMA = "debater_1-gemma-4-26b-a4b-it"
+FLOOR = "debater_1-gemini-3.1-flash-lite"
 GPT = "debater_2-openai_gpt-oss-20b"
 
 
@@ -130,7 +130,7 @@ def test_a_missing_agent_folder_is_refused(screened, tmp_path):
 
 def test_an_unfinished_screen_is_refused(screened, tmp_path):
     victim = next(
-        (tmp_path / "results" / "mmlupro-screen-s42" / GEMMA / "questions").glob("*.json")
+        (tmp_path / "results" / "mmlupro-screen-s42" / FLOOR / "questions").glob("*.json")
     )
     victim.unlink()
     text = screened.refusal()
@@ -159,7 +159,7 @@ def test_a_partial_result_file_does_not_count(screened, tmp_path):
     ],
 )
 def test_every_pinned_hash_and_setting_must_match(screened, tmp_path, key, value):
-    edit_manifest(tmp_path, GEMMA, **{key: value})
+    edit_manifest(tmp_path, FLOOR, **{key: value})
     text = screened.refusal()
     assert f"debater_1: screen {key} was" in text and "the holdout would use" in text
 
@@ -182,7 +182,7 @@ def test_a_different_extractor_is_refused(screened, monkeypatch):
 
 
 def test_every_problem_is_listed_not_just_the_first(screened, tmp_path):
-    edit_manifest(tmp_path, GEMMA, extractor="x")
+    edit_manifest(tmp_path, FLOOR, extractor="x")
     edit_manifest(tmp_path, GPT, prompt_suffix_sha256="y")
     text = screened.refusal()
     assert (
@@ -213,7 +213,7 @@ def test_the_cli_check_prints_the_verdict(screened, tmp_path):
         out=out.append,
     )
     assert code == 0 and "finished and matches" in out[0]
-    (screen_manifest(tmp_path, GEMMA)).unlink()
+    (screen_manifest(tmp_path, FLOOR)).unlink()
     out.clear()
     code = holdout_main(
         ["check", "--config", str(CONFIG)],
@@ -301,7 +301,7 @@ def test_a_matching_screen_lets_the_holdout_run_and_the_manifest_keeps_the_pin(
 def test_the_holdout_run_is_resumable_and_rechecks_the_guard(screened, tmp_path, settings, world):
     first = HoldoutRun(tmp_path, settings, world)
     assert first("--n", "1", "--sleep-between-s", "1") == 0
-    edit_manifest(tmp_path, GEMMA, agents_fingerprint="changed-since")
+    edit_manifest(tmp_path, FLOOR, agents_fingerprint="changed-since")
     again = HoldoutRun(tmp_path, settings, world)
     assert again("--n", "2", "--sleep-between-s", "1") == 1 and again.sent_nothing()
 

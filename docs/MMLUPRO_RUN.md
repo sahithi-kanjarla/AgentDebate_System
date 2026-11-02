@@ -42,7 +42,7 @@ seed or folder: `--screen-seed 43 --screen-run mmlupro-screen-s43`.
   re-checks on every resume. `--force` does not bypass it.
 - Results go to `eval/results/mmlupro-holdout-s42/`; the manifest stores a `screen_pin` (which screen, hashes, accuracies).
 - About 7-13 requests per question, so it takes several days at the free-tier caps (openrouter 40, groq 500, gemini
-  200 per UTC day). Same command again each day. Add `--dry-run` first to see the estimate; it also shows whether
+  200, mistral 200 per UTC day). Same command again each day. Add `--dry-run` first to see the estimate; it also shows whether
   the guard would refuse.
 - `Ctrl+C` is safe: finished questions are saved.
 

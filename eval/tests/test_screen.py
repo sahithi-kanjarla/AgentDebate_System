@@ -1,19 +1,21 @@
 """The difficulty screen on scripted providers and a generated 5 x 40 MMLU-Pro file. No network."""
 
+import asyncio
 import json
 from pathlib import Path
 
 import pytest
 
 from app.core.settings import load_agents
-from eval import mmlupro
+from app.providers.base import ProviderError
+from eval import mmlupro, screen
 from eval.mmlupro import MMLUProScreen, select, selection_path
 from eval.screen import interleaved, main, summarize, verdict
 from eval.tests.helpers import factory
 from eval.tests.mmlu_helpers import MMLU_CATEGORIES, mmlu_rows, write_mmlu_data
 
 CONFIG = Path(mmlupro.__file__).parent / "config" / "mmlupro_agents.yaml"
-GEMMA = "debater_1-gemma-4-26b-a4b-it"
+FLOOR = "debater_1-gemini-3.1-flash-lite"
 GPT = "debater_2-openai_gpt-oss-20b"
 
 
@@ -102,7 +104,7 @@ def run(tmp_path, settings, world):
 
 def test_both_models_screen_all_sixty_questions_one_call_each(run):
     assert run() == 0, run.text
-    assert len(run.records(GEMMA)) == 60 and len(run.records(GPT)) == 60
+    assert len(run.records(FLOOR)) == 60 and len(run.records(GPT)) == 60
     # one call per question per model; no repair needed; the other seats are never called
     assert len(run.calls("debater_1")) == 60 and len(run.calls("debater_2")) == 60
     assert run.calls("debater_3") == [] and run.calls("judge") == []
@@ -113,15 +115,15 @@ def test_both_models_screen_all_sixty_questions_one_call_each(run):
 
 def test_per_model_and_per_category_accuracy_invalid_and_truncated_are_reported(run):
     run()
-    gemma, gpt = summarize(run.records(GEMMA)), summarize(run.records(GPT))
-    assert gemma["n"] == 60 and gemma["correct"] == sum(r["correct"] for r in run.records(GEMMA))
-    assert all(v["n"] == 12 for v in gemma["categories"].values())
+    floor, gpt = summarize(run.records(FLOOR)), summarize(run.records(GPT))
+    assert floor["n"] == 60 and floor["correct"] == sum(r["correct"] for r in run.records(FLOOR))
+    assert all(v["n"] == 12 for v in floor["categories"].values())
     assert gpt["categories"]["physics"]["correct"] == 0
     assert gpt["categories"]["law"]["correct"] > 0
     assert gpt["invalid"] == sum(r["status"] == "invalid" for r in run.records(GPT)) > 0
     assert gpt["truncated"] == 0
     assert "Per category: chemistry" in run.text and "Invalid answers:" in run.text
-    assert "debater_1: gemini/gemma-4-26b-a4b-it" in run.text
+    assert "debater_1: gemini/gemini-3.1-flash-lite" in run.text
     assert "debater_2: groq/openai/gpt-oss-20b" in run.text
 
 
@@ -158,7 +160,7 @@ def test_a_cut_off_reply_is_counted_as_truncated_and_wrong(tmp_path, settings, w
 
     r = Run(tmp_path, settings, world, cut)
     r()
-    recs = r.records(GEMMA)
+    recs = r.records(FLOOR)
     bad = [x for x in recs if x["truncated"]]
     assert bad and all(not x["correct"] and x["status"] == "missing" for x in bad)
     assert all(x["repair_used"] for x in bad)  # it asked once more, then counted it wrong
@@ -178,12 +180,12 @@ def test_a_cap_stops_the_screen_cleanly_and_a_rerun_continues(tmp_path, settings
     first = Run(tmp_path, settings, world)
     assert first("--max-calls-per-provider", "mock=70") == 0
     assert "Stopped: budget" in first.text
-    done = len(first.records(GEMMA)) + len(first.records(GPT))
+    done = len(first.records(FLOOR)) + len(first.records(GPT))
     assert 0 < done < 120
     # nothing is lost: the next day, with a higher cap, finishes exactly the rest
     second = Run(tmp_path, settings, world)
     assert second("--max-calls-per-provider", "mock=0") == 0
-    assert len(second.records(GEMMA)) == 60 and len(second.records(GPT)) == 60
+    assert len(second.records(FLOOR)) == 60 and len(second.records(GPT)) == 60
     sent = len(second.calls("debater_1")) + len(second.calls("debater_2"))
     assert sent == 120 - done
 
@@ -225,14 +227,22 @@ def test_the_eval_config_is_what_the_plan_says():
     agents = load_agents(CONFIG)
     got = {a.id: (a.provider, a.model) for a in agents.all_agents()}
     assert got == {
-        "debater_1": ("gemini", "gemma-4-26b-a4b-it"),
+        "debater_1": ("gemini", "gemini-3.1-flash-lite"),
         "debater_2": ("groq", "openai/gpt-oss-20b"),
-        "debater_3": ("openrouter", "xingchen-agi/xing4.0-29b-a4b:free"),
+        "debater_3": ("mistral", "mistral-small-2603"),
         "judge": ("groq", "openai/gpt-oss-20b"),
     }
     assert all(not a.fallbacks for a in agents.all_agents())
     opts = agents.providers["groq"].model_options["openai/gpt-oss-20b"]
     assert opts.extra_body == {"reasoning_effort": "low"}
+
+
+def test_debater_3_is_paced_and_capped_on_mistral():
+    from eval.budget import DEFAULT_PROVIDER_CAPS
+
+    mistral = load_agents(CONFIG).providers["mistral"]
+    assert mistral.rpm == 2 and mistral.json_mode == "json_object" and mistral.max_concurrency == 1
+    assert DEFAULT_PROVIDER_CAPS["mistral"] > 0  # an unlisted provider would be uncapped
 
 
 def test_json_mode_is_off_only_for_debater_1s_provider():
@@ -244,4 +254,89 @@ def test_json_mode_is_off_only_for_debater_1s_provider():
 
 def test_the_app_config_is_untouched():
     app = load_agents(mmlupro.DATA_DIR.parents[1] / "backend" / "config" / "agents.yaml")
-    assert app.debaters[0].model != "gemma-4-26b-a4b-it"
+    assert app.debaters[0].model != "gemini-3.1-flash-lite"
+
+
+# --- failures: the real error is shown, and one failure never aborts the rest ---
+
+
+def flaky(first_failure):
+    """debater_1 raises `first_failure()` on questions 0 mod 7 and answers the rest."""
+
+    def f(c):
+        if c.agent_id == "debater_1" and c.q % 7 == 0:
+            return first_failure()
+        return behave(c)
+
+    return f
+
+
+def test_a_failing_question_is_skipped_not_fatal_and_the_error_is_shown(tmp_path, settings, world):
+    r = Run(tmp_path, settings, world, flaky(lambda: ProviderError("Gemini HTTP 500 upstream")))
+    assert r() == 0, r.text
+    bad = {q for q in range(1000 * 5) if q % 7 == 0}
+    skipped = json.loads((r.root / FLOOR / "skipped.json").read_text("utf-8"))
+    assert skipped and all("Gemini HTTP 500 upstream" in v for v in skipped.values())
+    assert "attempt 3/3 failed: Gemini HTTP 500 upstream" in r.text
+    assert "Interrupted" not in r.text
+    done = len(r.records(FLOOR))
+    assert 0 < done < 60 and done + len(skipped) == 60 and bad  # the rest carried on
+    assert len(r.records(GPT)) == 60  # and the other agent was not touched
+    # the failed questions are retried on the next run, and only those
+    again = Run(tmp_path, settings, world, behave)
+    assert again() == 0
+    assert len(again.records(FLOOR)) == 60
+    assert len(again.calls("debater_1")) == len(skipped) and again.calls("debater_2") == []
+
+
+def test_an_unexpected_exception_shows_its_type_and_message_and_spares_the_other_agent(
+    tmp_path, settings, world
+):
+    r = Run(tmp_path, settings, world, flaky(lambda: RuntimeError("kaboom")))
+    assert r() == 0, r.text
+    assert "RuntimeError: kaboom" in r.text and "Interrupted" not in r.text
+    assert len(r.records(GPT)) == 60
+
+
+def test_an_agent_that_dies_outright_does_not_stop_the_next_one(
+    tmp_path, settings, world, monkeypatch
+):
+    real = screen.screen_agent
+
+    async def dying(cfg, *a, **kw):
+        if cfg.id == "debater_1":
+            raise ValueError("provider exploded")
+        return await real(cfg, *a, **kw)
+
+    monkeypatch.setattr(screen, "screen_agent", dying)
+    r = Run(tmp_path, settings, world)
+    assert r() == 0, r.text
+    assert "debater_1 failed: ValueError: provider exploded" in r.text
+    assert "Stopped: error" in r.text
+    assert len(r.records(GPT)) == 60
+
+
+def test_only_a_real_keyboard_interrupt_is_reported_as_interrupted(tmp_path, settings, world):
+    def boom(exc):
+        def make(agents):
+            raise exc
+
+        return make
+
+    real = Run(tmp_path, settings, world)
+    real.factory = boom(KeyboardInterrupt())
+    assert real() == 130 and "Interrupted" in real.text
+
+    other_exc = Run(tmp_path, settings, world)
+    other_exc.factory = boom(OSError("socket closed"))
+    assert other_exc() == 1
+    assert "OSError: socket closed" in other_exc.text and "Interrupted" not in other_exc.text
+
+    cancelled = Run(tmp_path, settings, world)
+    cancelled.factory = boom(asyncio.CancelledError())
+    assert cancelled() == 1 and "not a keypress" in cancelled.text
+
+
+def test_describe_scrubs_secrets():
+    msg = screen.describe(RuntimeError("bad key sk-secret-123 here"), ["sk-secret-123"])
+    assert msg.startswith("RuntimeError:") and "sk-secret-123" not in msg
