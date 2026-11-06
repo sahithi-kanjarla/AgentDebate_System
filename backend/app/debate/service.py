@@ -101,7 +101,7 @@ class DebateService:
     async def billable_today(self, now: float) -> int:
         return await asyncio.to_thread(repo.count_billable_since, self.engine, utc_midnight(now))
 
-    async def start(self, req: CreateDebateRequest) -> str:
+    async def start(self, req: CreateDebateRequest, owner_hash: str | None = None) -> str:
         debate_id = uuid.uuid4().hex
         rounds = req.rounds or self.settings.default_rounds
         # Registered before the DB write so the concurrency cap sees it immediately.
@@ -115,6 +115,7 @@ class DebateService:
                 question=req.question,
                 mode=req.mode,
                 config=self._config(rounds),
+                owner_hash=owner_hash,
             )
         except BaseException:
             self._channels.pop(debate_id, None)
@@ -235,5 +236,7 @@ class DebateService:
             raise DebateRunning(debate_id)
         return build_reveal(debate)
 
-    async def recent(self, limit: int) -> list[dict[str, Any]]:
-        return await asyncio.to_thread(repo.list_debates, self.engine, limit)
+    async def recent(self, limit: int, owner_hash: str | None) -> list[dict[str, Any]]:
+        if owner_hash is None:
+            return []
+        return await asyncio.to_thread(repo.list_debates, self.engine, limit, owner_hash)

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { getClientId } from '../lib/clientId'
 import { stubFetch } from '../test/http'
 import { History } from './History'
 
@@ -41,6 +42,9 @@ describe('History', () => {
     const links = await screen.findAllByRole('link')
     expect(links.map((l) => l.getAttribute('href'))).toEqual(['/debate/abc', '/debate/def'])
     expect(fetchMock.mock.calls[0]![0]).toBe('/api/debates?limit=20')
+    const headers = fetchMock.mock.calls[0]![1]?.headers as Record<string, string>
+    expect(headers['X-Client-Id']).toMatch(/^[A-Za-z0-9_-]{16,128}$/)
+    expect(headers['X-Client-Id']).toBe(getClientId())
   })
 
   it('shows status, ruling and confidence, and the full question text', async () => {

@@ -19,10 +19,24 @@ def _iso(dt) -> str:
 
 
 def create_debate(
-    engine: Engine, *, debate_id: str, question: str, mode: str, config: dict[str, Any]
+    engine: Engine,
+    *,
+    debate_id: str,
+    question: str,
+    mode: str,
+    config: dict[str, Any],
+    owner_hash: str | None = None,
 ) -> None:
     with _session(engine) as s:
-        s.add(Debate(id=debate_id, question=question, mode=mode, config_json=config))
+        s.add(
+            Debate(
+                id=debate_id,
+                question=question,
+                mode=mode,
+                config_json=config,
+                owner_hash=owner_hash,
+            )
+        )
         s.commit()
 
 
@@ -150,9 +164,15 @@ def find_replayable(
         return False
 
 
-def list_debates(engine: Engine, limit: int) -> list[dict[str, Any]]:
+def list_debates(engine: Engine, limit: int, owner_hash: str) -> list[dict[str, Any]]:
+    """Only this owner's debates. Rows with no owner match nothing."""
     with _session(engine) as s:
-        rows = s.exec(select(Debate).order_by(col(Debate.created_at).desc()).limit(limit)).all()
+        rows = s.exec(
+            select(Debate)
+            .where(Debate.owner_hash == owner_hash)
+            .order_by(col(Debate.created_at).desc())
+            .limit(limit)
+        ).all()
         return [
             {
                 "id": d.id,

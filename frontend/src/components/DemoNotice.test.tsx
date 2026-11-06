@@ -40,7 +40,7 @@ describe('demo notices in a development or test build', () => {
     )
     await screen.findByText('No debates yet.', { exact: false })
     expect(screen.queryByText(/free-tier demo/i)).toBeNull()
-    expect(screen.queryByText(/kept only until/i)).toBeNull()
+    expect(screen.queryByText(/stored per browser/i)).toBeNull()
   })
 })
 
@@ -95,8 +95,11 @@ describe('demo notices in a production build', () => {
     const footer = screen.getByRole('contentinfo')
     expect(footer).toHaveAttribute('id', 'privacy')
     for (const name of PROVIDER_NAMES) expect(footer).toHaveTextContent(name)
-    expect(footer).toHaveTextContent(/anyone with\s+the link can read/i)
-    expect(footer).toHaveTextContent(/disappear\s+when the demo restarts/i)
+    expect(footer).toHaveTextContent(/history is stored per\s+browser/i)
+    expect(footer).toHaveTextContent(/anyone with a debate link can read that\s+debate/i)
+    expect(footer).toHaveTextContent(
+      /stored on\s+the demo's server and may be deleted when the host restarts/i,
+    )
     expect(footer).toHaveTextContent(/not saved with your\s+debate/i)
   })
 
@@ -120,7 +123,9 @@ describe('demo notices in a production build', () => {
         </Routes>
       </MemoryRouter>,
     )
-    expect(await screen.findByRole('note')).toHaveTextContent(/kept only until this demo restarts/i)
+    expect(await screen.findByRole('note')).toHaveTextContent(
+      /stored per browser.*anyone with a debate link can read that debate.*may\s+be deleted when the host restarts/is,
+    )
   })
 
   it('the whole app has the banner before the header and the footer after the content', async () => {

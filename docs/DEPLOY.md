@@ -45,6 +45,9 @@ Spaces storage is ephemeral. After every restart, rebuild or wake from sleep:
 
 - the SQLite database is empty: the History page, every `/debate/{id}` share link and the stored
   event logs are gone;
+- History is per browser (an `X-Client-Id` header; the server stores only its hash as `owner_hash`),
+  while `/debate/{id}` links stay readable by anyone who has them; an older database gets the
+  column added at startup, and its ownerless rows appear in no list;
 - the response cache is gone, so repeating a question uses provider quota again, and the "rerun
   costs nothing" exemption (which reads the database) is gone with it;
 - the in-memory per-IP limits start from zero;

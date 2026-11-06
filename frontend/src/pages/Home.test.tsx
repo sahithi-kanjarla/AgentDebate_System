@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { EXAMPLES } from '../lib/examples'
 import { resetStoredMemory } from '../lib/safeStorage'
+import { getClientId } from '../lib/clientId'
 import { stubFetch } from '../test/http'
 import { Home } from './Home'
 
@@ -40,6 +41,7 @@ describe('Home', () => {
     const [url, init] = fetchMock.mock.calls.find(([u]) => u === '/api/debates')!
     expect(url).toBe('/api/debates')
     expect(JSON.parse(init!.body as string)).toEqual({ question: code, mode: 'answer' })
+    expect((init!.headers as Record<string, string>)['X-Client-Id']).toBe(getClientId())
   })
 
   it('disables Start for an empty or whitespace-only question', () => {

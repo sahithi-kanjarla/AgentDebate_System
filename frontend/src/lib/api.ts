@@ -1,3 +1,4 @@
+import { clientIdHeaders } from './clientId'
 import { parseReveal, type Reveal } from './reveal'
 import type { DebateDetail, DebateHeader, DebateListItem, Mode, RawEvent } from './types'
 
@@ -66,7 +67,7 @@ async function request(input: string, init?: RequestInit): Promise<Response> {
 export async function createDebate(question: string, mode: Mode): Promise<string> {
   const res = await request('/api/debates', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...clientIdHeaders() },
     body: JSON.stringify({ question, mode }),
   })
   if (res.status === 429) {
@@ -110,7 +111,7 @@ export async function getReveal(id: string): Promise<Reveal> {
 }
 
 export async function listDebates(limit = 20): Promise<DebateListItem[]> {
-  const res = await request(`/api/debates?limit=${limit}`)
+  const res = await request(`/api/debates?limit=${limit}`, { headers: clientIdHeaders() })
   if (!res.ok) throw new ApiError(res.status, friendly(res.status))
   return (await res.json()) as DebateListItem[]
 }

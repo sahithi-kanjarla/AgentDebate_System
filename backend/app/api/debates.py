@@ -1,4 +1,6 @@
+import hashlib
 import json
+import re
 from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
@@ -9,6 +11,19 @@ from app.debate.service import DebateRunning, DebateService
 from app.schemas import CreateDebateRequest, CreateDebateResponse
 
 router = APIRouter(prefix="/api/debates", tags=["debates"])
+
+
+_CLIENT_ID = re.compile(r"[A-Za-z0-9_-]{16,128}")
+
+
+def _owner_hash(request: Request) -> str | None:
+    """Hash of the X-Client-Id header, or None if it is missing or malformed. The ID itself is
+    never stored or logged. It only separates one browser's History from another's; it is not
+    authentication, and a debate stays readable by anyone who has its link."""
+    value = request.headers.get("x-client-id", "")
+    if not _CLIENT_ID.fullmatch(value):
+        return None
+    return hashlib.sha256(value.encode()).hexdigest()
 
 
 def _service(request: Request) -> DebateService:
@@ -34,14 +49,14 @@ async def create_debate(body: CreateDebateRequest, request: Request) -> CreateDe
     )
     # Raises AdmissionDenied (429, handled in main.py); counts the IP only if it passes.
     admission.admit(ip=ip, exempt=exempt, running=service.running_count, billable_today=billable)
-    return CreateDebateResponse(id=await service.start(body))
+    return CreateDebateResponse(id=await service.start(body, _owner_hash(request)))
 
 
 @router.get("")
 async def list_debates(
     request: Request, limit: Annotated[int, Query(ge=1, le=100)] = 20
 ) -> list[dict[str, Any]]:
-    return await _service(request).recent(limit)
+    return await _service(request).recent(limit, _owner_hash(request))
 
 
 @router.get("/{debate_id}")

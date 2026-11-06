@@ -1,9 +1,14 @@
 import asyncio
+import hashlib
 import time
 
 import pytest
+from sqlalchemy import text
+from sqlmodel import Session
 
 from app.db import repo
+from app.db.models import Debate
+from app.db.session import init_db, make_engine
 from app.providers.base import LLMProvider
 from tests.conftest import demo_factory, parse_sse, wait_until
 
@@ -18,8 +23,14 @@ EXPECTED_TYPES = (
 )
 
 
-async def create(client, **body) -> str:
-    resp = await client.post("/api/debates", json={"question": "What is 17 * 24?", **body})
+CLIENT_A = {"X-Client-Id": "a" * 32}
+CLIENT_B = {"X-Client-Id": "b" * 32}
+
+
+async def create(client, headers=None, **body) -> str:
+    resp = await client.post(
+        "/api/debates", json={"question": "What is 17 * 24?", **body}, headers=headers
+    )
     assert resp.status_code == 201
     return resp.json()["id"]
 
@@ -171,14 +182,90 @@ async def test_history_lists_recent_debates_newest_first(make_client):
     async with make_client() as (client, app):
         ids = []
         for q in ("first?", "second?", "third?"):
-            ids.append(await create(client, question=q))
+            ids.append(await create(client, CLIENT_A, question=q))
             await stream(client, ids[-1])
             await wait_until(lambda: not app.state.service._channels)
             await asyncio.sleep(0.01)
-        listing = (await client.get("/api/debates?limit=2")).json()
+        listing = (await client.get("/api/debates?limit=2", headers=CLIENT_A)).json()
         assert [d["id"] for d in listing] == [ids[2], ids[1]]
         assert listing[0]["final_answer"] == "408" and listing[0]["status"] == "completed"
-        assert (await client.get("/api/debates?limit=0")).status_code == 422
+        assert (await client.get("/api/debates?limit=0", headers=CLIENT_A)).status_code == 422
+
+
+async def test_history_is_private_to_each_client_id(make_client):
+    async with make_client() as (client, _):
+        a_id = await create(client, CLIENT_A, question="mine?")
+        b_id = await create(client, CLIENT_B, question="yours?")
+        anon_id = await create(client, question="nobody's?")
+        a = (await client.get("/api/debates", headers=CLIENT_A)).json()
+        b = (await client.get("/api/debates", headers=CLIENT_B)).json()
+    assert [d["id"] for d in a] == [a_id]
+    assert [d["id"] for d in b] == [b_id]
+    assert anon_id not in {d["id"] for d in a + b}
+
+
+async def test_history_without_a_usable_client_id_is_empty(make_client):
+    async with make_client() as (client, _):
+        await create(client, CLIENT_A)
+        assert (await client.get("/api/debates")).json() == []
+        for bad in ("", "short", "x" * 200, "has spaces and !! " * 3):
+            resp = await client.get("/api/debates", headers={"X-Client-Id": bad})
+            assert resp.json() == []
+
+
+async def test_debates_stay_open_by_id_for_any_client(make_client):
+    async with make_client() as (client, _):
+        debate_id = await create(client, CLIENT_A)
+        events = await stream(client, debate_id, **CLIENT_B)
+        assert events[-1]["event"] == "done"
+        await wait_until(lambda: True)
+        assert (await client.get(f"/api/debates/{debate_id}", headers=CLIENT_B)).status_code == 200
+        assert (await client.get(f"/api/debates/{debate_id}")).status_code == 200
+        assert (await client.get(f"/api/debates/{debate_id}/stream")).status_code == 200
+
+
+async def test_only_a_hash_of_the_client_id_is_stored(make_client):
+    async with make_client() as (client, app):
+        debate_id = await create(client, CLIENT_A)
+        await stream(client, debate_id)
+        with Session(app.state.service.engine) as s:
+            row = s.get(Debate, debate_id)
+    expected = hashlib.sha256(CLIENT_A["X-Client-Id"].encode()).hexdigest()
+    assert row.owner_hash == expected
+    assert CLIENT_A["X-Client-Id"] not in (row.owner_hash or "")
+
+
+def test_init_db_adds_owner_hash_to_an_old_database_and_keeps_its_rows(tmp_path):
+    url = f"sqlite:///{tmp_path / 'old.db'}"
+    old = make_engine(url)
+    with old.begin() as conn:
+        conn.execute(
+            text(
+                "CREATE TABLE debate (id VARCHAR PRIMARY KEY, question VARCHAR, mode VARCHAR, "
+                "status VARCHAR, created_at DATETIME, config_json JSON, verdict_json JSON, "
+                "stats_json JSON)"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO debate (id, question, mode, status, created_at, config_json) "
+                "VALUES ('old1', 'q?', 'answer', 'completed', '2026-01-01 00:00:00', '{}')"
+            )
+        )
+    old.dispose()
+
+    engine = make_engine(url)
+    init_db(engine)
+    init_db(engine)  # safe to run on every start
+    assert repo.debate_exists(engine, "old1")
+    assert repo.get_debate(engine, "old1")["question"] == "q?"
+    digest = hashlib.sha256(b"c" * 32).hexdigest()
+    assert repo.list_debates(engine, 20, digest) == []
+    repo.create_debate(
+        engine, debate_id="new1", question="n?", mode="answer", config={}, owner_hash=digest
+    )
+    assert [d["id"] for d in repo.list_debates(engine, 20, digest)] == ["new1"]
+    engine.dispose()
 
 
 async def test_unfinished_debates_are_marked_interrupted_on_startup(make_client, settings):

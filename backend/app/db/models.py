@@ -15,6 +15,8 @@ class Debate(SQLModel, table=True):
     mode: str
     status: str = "running"  # running | completed | failed | interrupted
     created_at: datetime = Field(default_factory=_now)
+    # SHA-256 of the creating browser's client ID; never the ID itself. NULL for older rows.
+    owner_hash: str | None = Field(default=None, index=True)
     config_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
     verdict_json: dict[str, Any] | None = Field(default=None, sa_column=Column(JSON))
     stats_json: dict[str, Any] | None = Field(default=None, sa_column=Column(JSON))

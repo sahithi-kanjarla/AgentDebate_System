@@ -60,9 +60,10 @@ export function DemoFooter() {
             may keep or use free-tier inputs under their own terms; check their policies.
           </li>
           <li>
-            Debates are stored on this demo's server so that you can reopen them, and anyone with
-            the link can read a debate. Storage is temporary: History and shared links disappear
-            when the demo restarts, which can happen at any time.
+            History is stored per browser: it lists only the debates started from this browser.
+            Anyone with a debate link can read that debate. The question and answers are stored on
+            the demo's server and may be deleted when the host restarts, which can happen at any
+            time.
           </li>
           <li>
             Your network address is used in memory to apply usage limits and is not saved with your
@@ -92,8 +93,9 @@ export function HistoryNotice() {
   if (!demoNoticeEnabled()) return null
   return (
     <p role="note" className="mb-4 rounded-card border border-rule-strong bg-vellum p-3 text-sm">
-      History is kept only until this demo restarts. Debates, and links you have shared, are then
-      gone. The recorded examples on the home page are not affected.
+      History is stored per browser: it shows only debates started from this browser. Anyone with a
+      debate link can read that debate. The question and answers are stored on the server and may be
+      deleted when the host restarts. The recorded examples on the home page are not affected.
     </p>
   )
 }
