@@ -172,6 +172,11 @@ results report; it is empty until a run has finished, and nothing here is a resu
 - **Whether debate beats a single model or a vote is still being measured.** This README makes no
   claim either way. The evaluation uses small samples, one run per question, a free-tier lineup and
   strict answer matching, and its report lists its own caveats.
+- **MMLU-Pro evaluation caveats.** The judge (`gpt-oss-20b`) is the same model as debater 2, so the
+  debate result may favour that debater's answer. The screen of debater 1 (85%) missed the pre-set
+  40-70% target and the holdout is run anyway by explicit, recorded override (`DECISIONS.md`). The
+  panel is a weak free-tier lineup, the debate is not compute-matched with the vote, n = 60, and
+  D vs B is the only pre-declared comparison; the report's by-subset table is post-hoc.
 - **Anonymity is partial.** Debaters are not told who wrote what, but writing style can give a model
   away, models of one family can resemble each other, and the reveal is public once a debate ends.
 - **Exact matching has costs.** Equivalent answers written differently do not agree, so debates run

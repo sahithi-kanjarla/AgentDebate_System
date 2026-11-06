@@ -443,6 +443,41 @@ def category_section(records: list[dict[str, Any]]) -> str:
 # --- assembly ---
 
 
+def exploratory_section(records: list[dict[str, Any]]) -> str:
+    """B and D where the round-0 answers had no majority or the majority was wrong. Descriptive."""
+    groups: dict[str, list[dict[str, Any]]] = {"no_majority": [], "majority_wrong": []}
+    for r in records:
+        votes = Counter(
+            cond(r, k)["answer"]
+            for k in ("A1", "A2", "A3")
+            if cond(r, k)["status"] in ("correct", "wrong")
+        )
+        if not votes or max(votes.values()) < 2:
+            groups["no_majority"].append(r)
+        elif not cond(r, "B")["correct"]:
+            groups["majority_wrong"].append(r)
+    both = groups["no_majority"] + groups["majority_wrong"]
+    rows = []
+    for title, part in (
+        ("No majority (fewer than 2 matching valid round-0 answers)", groups["no_majority"]),
+        ("Majority wrong", groups["majority_wrong"]),
+        ("Either of the above", both),
+    ):
+        rows.append(
+            [title, str(len(part))]
+            + [f"{sum(cond(r, k)['correct'] for r in part)}/{len(part)}" for k in ("B", "D")]
+        )
+    return (
+        "**Exploratory, descriptive and post-hoc.** These subsets were defined after seeing the "
+        "results. No test is run. D vs B on all questions stays the only pre-declared comparison.\n\n"
+        + table(["Round-0 outcome", "n", "B correct", "D correct"], rows)
+        + "\n\nThe subsets are chosen by how B did, so B is wrong on every question in the "
+        "'majority wrong' row by construction, and on 'no majority' B is a tie-break pick. "
+        "Read D against B here with that selection in mind; the counts are small and say "
+        "nothing about whether debate helps."
+    )
+
+
 def build_report(
     records: list[dict[str, Any]],
     manifest: dict[str, Any] | None = None,

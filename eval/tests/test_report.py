@@ -300,3 +300,39 @@ def test_end_to_end_from_real_harness_output(tmp_path, settings):
     fixed = text.split("Debate fixed: majority vote (B) wrong, debate (D) right")[1]
     assert "`gsm8k-test-0`" in fixed.split("Debate broke")[0]
     assert json.loads((env.run_dir / "manifest.json").read_text())["config"]["agents_fingerprint"]
+
+
+def _letters(rec, a1, a2, a3, b_correct, d_correct):
+    for key, ans in (("A1", a1), ("A2", a2), ("A3", a3)):
+        rec["conditions"][key]["answer"] = ans
+        rec["conditions"][key]["status"] = "missing" if ans is None else "wrong"
+    rec["conditions"]["B"]["correct"] = b_correct
+    rec["conditions"]["D"]["correct"] = d_correct
+    return rec
+
+
+def test_exploratory_section_splits_no_majority_and_wrong_majority_and_is_labelled():
+    recs = [
+        _letters(record("q0", {}), "A", "A", "B", True, True),  # majority right: excluded
+        _letters(record("q1", {}), "A", "B", "C", False, True),  # no majority
+        _letters(record("q2", {}), "A", None, "B", False, False),  # one vote each: no majority
+        _letters(record("q3", {}), "C", "C", "D", False, True),  # majority wrong
+        _letters(record("q4", {}), "C", "C", None, False, False),  # majority wrong
+    ]
+    text = report.exploratory_section(recs)
+    rows = {
+        ln.split("|")[1].strip(): [c.strip() for c in ln.strip("|").split("|")[1:]]
+        for ln in text.splitlines()
+        if ln.startswith("| ") and "Round-0" not in ln
+    }
+    no_majority = "No majority (fewer than 2 matching valid round-0 answers)"
+    assert rows[no_majority] == ["2", "0/2", "1/2"]
+    assert rows["Majority wrong"] == ["2", "0/2", "1/2"]
+    assert rows["Either of the above"] == ["4", "0/4", "2/4"]
+    assert "descriptive and post-hoc" in text
+    assert "only pre-declared comparison" in text
+
+
+def test_exploratory_section_is_not_added_to_a_numeric_dataset_report():
+    text = build_report([record("q0", {})], MANIFEST)
+    assert "Exploratory, descriptive and post-hoc" not in text
