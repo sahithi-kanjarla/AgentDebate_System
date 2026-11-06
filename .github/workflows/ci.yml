@@ -55,3 +55,47 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build:check
+
+  docker:
+    name: Docker (build, boot without keys, smoke test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # actions/checkout v7.0.1, pinned to its commit SHA.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build image
+        run: docker build -t tribunal:ci .
+      - name: Start container (no API keys)
+        run: docker run -d --name tribunal -p 7860:7860 -e PORT=7860 tribunal:ci
+      - name: Wait for health check (up to 60 s)
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:7860/api/health >/dev/null; then
+              echo "healthy after about $((i * 2)) s"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "health check did not pass within 60 s" >&2
+          exit 1
+      - name: Smoke test pages
+        run: |
+          set -euo pipefail
+          base=http://127.0.0.1:7860
+          for p in / /app; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$base$p")
+            echo "GET $p -> $code"
+            [ "$code" = "200" ]
+          done
+          # An unknown client-side route must get the SPA shell (same page as /app), not a 404.
+          code=$(curl -s -o fallback.html -w '%{http_code}' "$base/debate/doesnotexist")
+          echo "GET /debate/doesnotexist -> $code"
+          [ "$code" = "200" ]
+          curl -fsS "$base/app" -o app.html
+          cmp app.html fallback.html
+      - name: Container logs
+        if: always()
+        run: docker logs tribunal || true
+      - name: Stop container
+        if: always()
+        run: docker stop tribunal || true
