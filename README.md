@@ -57,7 +57,6 @@ flowchart LR
         CHAIN["Per-agent fallback chain<br/>retries, rate spacing, cache"]
         GEM["Gemini"]
         GRQ["Groq"]
-        OR["OpenRouter"]
         MIS["Mistral"]
         OLL["Ollama (local runs only)"]
     end
@@ -70,7 +69,6 @@ flowchart LR
     ORCH --> CHAIN
     CHAIN --> GEM
     CHAIN --> GRQ
-    CHAIN --> OR
     CHAIN --> MIS
     CHAIN -.-> OLL
     ORCH -->|"every event, in order"| DB
@@ -184,7 +182,6 @@ results report; it is empty until a run has finished, and nothing here is a resu
   a wrong ruling credits the wrong critics.
 - **Output limits can cut an answer off.** Long reasoning can exhaust a model's token budget; that
   turn counts as invalid.
-- **Review mode is not available yet** (it is disabled in the interface).
 - **Per-IP limits are per process.** They reset on restart, and behind a proxy they depend on a
   correct proxy count. That count is checked after each deployment, not assumed.
 - **The graph is a visualization of the exchange**, not of model internals, and it has not had a

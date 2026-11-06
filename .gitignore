@@ -21,3 +21,5 @@ report*.md
 eval/data/.mmlupro_pages/
 
 .claude/
+CLAUDE.md
+PRD.md

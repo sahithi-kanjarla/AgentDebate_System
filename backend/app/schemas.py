@@ -13,7 +13,7 @@ Mode = Literal["answer", "review"]
 FIRST_ROUND = {"first_round": True}
 
 
-# --- Agent outputs (PRD section 6) ---
+# --- Agent outputs (original spec section 6) ---
 
 
 class Critique(BaseModel):
@@ -102,7 +102,7 @@ class CreateDebateResponse(BaseModel):
     id: str
 
 
-# --- SSE event payloads (PRD FR2) ---
+# --- SSE event payloads (original spec FR2) ---
 
 
 class AgentInfo(BaseModel):
