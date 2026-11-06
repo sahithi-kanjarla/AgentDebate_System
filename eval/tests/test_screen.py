@@ -253,8 +253,16 @@ def test_json_mode_is_off_only_for_debater_1s_provider():
 
 
 def test_the_app_config_is_untouched():
-    app = load_agents(mmlupro.DATA_DIR.parents[1] / "backend" / "config" / "agents.yaml")
-    assert app.debaters[0].model != "gemini-3.1-flash-lite"
+    # The app panel was changed to match the evaluated panel (DECISIONS.md), so the README results
+    # describe the deployed app. The eval config stays separate: app keeps fallbacks, eval has none.
+    root = mmlupro.DATA_DIR.parents[1]
+    app = load_agents(root / "backend" / "config" / "agents.yaml")
+    ev = load_agents(root / "eval" / "config" / "mmlupro_agents.yaml")
+    assert [(a.provider, a.model) for a in app.all_agents()] == [
+        (a.provider, a.model) for a in ev.all_agents()
+    ]
+    assert all(a.fallbacks for a in app.all_agents())
+    assert not any(a.fallbacks for a in ev.all_agents())
 
 
 # --- failures: the real error is shown, and one failure never aborts the rest ---

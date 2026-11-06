@@ -136,12 +136,13 @@ async def test_all_providers_healthy(run_world):
     world, [(events, stored, _)] = await run_world(fake)
     assert [e["event"] for e in events][-2:] == ["judge_verdict", "done"]
     assert stored["status"] == "completed" and stored["verdict"]["final_answer"] == "408"
-    assert world.sleeps.delays == []
+    # Mistral answers debater_3 twice; rpm 20 spaces those calls 3s apart: the only sleep.
+    assert len(world.sleeps.delays) == 1 and world.sleeps.delays[0] <= 3.0
     primaries = {t["agent_id"]: (t["provider"], t["fallback_used"]) for t in stored["turns"]}
     assert primaries == {
         "debater_1": ("gemini", False),
         "debater_2": ("groq", False),
-        "debater_3": ("openrouter", False),
+        "debater_3": ("mistral", False),
         "judge": ("groq", False),
     }
     assert events[-1]["data"]["stats"]["fallbacks"] == 0
@@ -158,7 +159,8 @@ async def test_killing_groq_triggers_fallback_and_the_debate_still_completes(run
     assert not [e for e in events if e["event"] == "error"]  # fallback is not an error
 
     # Groq was retried (3 attempts per call) before giving up: 2 debater_2 rounds + the judge.
-    assert fake.count(GROQ) == 9 and len(world.sleeps.delays) == 6
+    # Plus 2 rpm waits (3s each) spacing Mistral's three calls: debater_3 twice, then the judge.
+    assert fake.count(GROQ) == 9 and len(world.sleeps.delays) == 6 + 2
     assert fake.count(OLLAMA) == 2  # debater_2's two turns, answered locally
 
     # The transcript records who really answered.
@@ -179,7 +181,18 @@ async def test_killing_groq_triggers_fallback_and_the_debate_still_completes(run
         assert payloads["Debater 1"]["fallback_used"] is False
         assert payloads["Debater 3"]["fallback_used"] is False
     lowered = raw.lower()
-    for name in ("groq", "gemini", "openrouter", "ollama", "gpt-oss", "llama", "nemotron", "gemma"):
+    hidden = (
+        "groq",
+        "gemini",
+        "openrouter",
+        "ollama",
+        "gpt-oss",
+        "llama",
+        "mistral",
+        "ministral",
+        "gemma",
+    )
+    for name in hidden:
         assert name not in lowered
 
     # Quota accounting counts the failed attempts too: 7 completions + 9 failed groq requests.
@@ -188,18 +201,17 @@ async def test_killing_groq_triggers_fallback_and_the_debate_still_completes(run
 
 
 async def test_unauthorized_provider_falls_back_without_retrying(run_world):
-    fake = FakeProviders(unauthorized=[OPENROUTER])
+    fake = FakeProviders(unauthorized=[MISTRAL])
     world, [(events, stored, _)] = await run_world(fake)
     assert stored["status"] == "completed"
-    assert fake.count(OPENROUTER) == 2  # one try per call, no retries
+    assert fake.count(MISTRAL) == 2  # one try per call, no retries
     d3 = turns_of(stored, "debater_3")
     assert [(t["provider"], t["model"], t["fallback_used"]) for t in d3] == [
-        ("mistral", "mistral-medium-3.5", True)
+        ("ollama", "gemma4:e4b", True)
     ] * 2
-    # Mistral answers debater_3 twice; rpm 2 spaces those calls, so the only sleep is one
-    # rate-limit wait (about 30s), not a retry backoff.
-    assert fake.count(MISTRAL) == 2 and len(world.sleeps.delays) == 1
-    assert world.sleeps.delays[0] > 25
+    assert fake.count(OLLAMA) == 2
+    # The only sleep is the rpm 20 spacing (3s) between the two Mistral calls, not a retry backoff.
+    assert len(world.sleeps.delays) <= 1 and all(d <= 3.0 for d in world.sleeps.delays)
 
 
 async def test_missing_gemini_key_means_gemini_is_never_contacted(run_world):
@@ -258,7 +270,7 @@ async def test_groq_requests_use_the_current_token_param_and_low_reasoning(run_w
     groq = [b for host, b in fake.bodies if host == GROQ]
     assert groq and all(b["model"].startswith("openai/gpt-oss") for b in groq)
     for body in groq:
-        assert body["max_completion_tokens"] == 1536 and "max_tokens" not in body
+        assert body["max_completion_tokens"] == 2048 and "max_tokens" not in body
         assert body["reasoning_effort"] == "low"
     # providers without special options still use plain max_tokens and no extras
     other = [b for host, b in fake.bodies if host != GROQ]
@@ -271,7 +283,7 @@ async def test_serve_paths_hide_the_real_lineup_even_after_fallbacks(run_world):
     fake = FakeProviders(down=[GROQ])
     world, _ = await run_world(fake)
     terms = config_terms(REAL_AGENTS)
-    assert {"groq", "ollama", "openai/gpt-oss-120b"} <= terms
+    assert {"groq", "ollama", "openai/gpt-oss-20b"} <= terms
     assert len(world.public_raw) == 2
     for raw in world.public_raw:
         assert_anonymous(raw, terms)

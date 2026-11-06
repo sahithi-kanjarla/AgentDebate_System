@@ -18,7 +18,7 @@ smoke = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(smoke)
 
 KEYS = {"gemini_api_key": FAKE_KEY, "groq_api_key": FAKE_KEY, "openrouter_api_key": FAKE_KEY}
-GPT_OSS_120B = "openai/gpt-oss-120b"
+GPT_OSS_120B = "openai/gpt-oss-20b"  # the panel now uses 20b for debater_2 and the judge
 
 
 def setup(handler, keys=KEYS):
@@ -82,7 +82,7 @@ async def test_smoke_builds_the_leg_like_a_real_debate():
     handler = groq_server()
     assert await run_check(handler, "groq", GPT_OSS_120B)
     body = handler.seen[0]
-    assert body["max_completion_tokens"] == 1536 and "max_tokens" not in body  # token_param
+    assert body["max_completion_tokens"] == 2048 and "max_tokens" not in body  # token_param
     assert body["reasoning_effort"] == "low"  # per-model options
     assert body["temperature"] == 0.6  # the agent's own setting
     assert body["response_format"] == {"type": "json_object"}
@@ -169,7 +169,7 @@ def test_pairs_cover_every_configured_model_once():
     agents = load_agents(REAL_AGENTS)
     pairs = [(p, m) for p, m, _ in smoke.pairs_to_check(agents, [])]
     assert len(pairs) == len(set(pairs))
-    assert ("groq", "openai/gpt-oss-20b") in pairs and ("groq", GPT_OSS_120B) in pairs
+    assert ("groq", GPT_OSS_120B) in pairs
     assert all(p != "groq" or m.startswith("openai/gpt-oss") for p, m in pairs)
     assert {p for p, _, _ in smoke.pairs_to_check(agents, ["ollama"])} == {"ollama"}
 
@@ -182,10 +182,11 @@ def test_script_source_never_prints_response_bodies_or_headers():
 MISTRAL_MODEL = "mistral-medium-3.5"
 
 
-def test_only_mistral_selects_just_the_mistral_model():
+def test_only_mistral_selects_just_the_mistral_models():
     agents = load_agents(REAL_AGENTS)
-    assert [(p, m) for p, m, _ in smoke.pairs_to_check(agents, ["mistral"])] == [
-        ("mistral", MISTRAL_MODEL)
+    assert sorted((p, m) for p, m, _ in smoke.pairs_to_check(agents, ["mistral"])) == [
+        ("mistral", "ministral-14b-2512"),
+        ("mistral", MISTRAL_MODEL),
     ]
 
 

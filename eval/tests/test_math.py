@@ -287,12 +287,13 @@ def test_profile_changes_only_the_eval_copy_never_agents_yaml():
     ds = get_dataset("math45")
     copy, applied = apply_profile(agents, ds.profile, None, {})
     assert agents.model_dump_json() == before  # the app's config object is untouched
-    assert all(a.max_tokens == 1536 for a in agents.all_agents())
+    # debater_3 already has 4096 (like the MMLU-Pro eval); a profile never lowers a limit.
+    assert [a.max_tokens for a in agents.all_agents()] == [2048, 2048, 4096, 2048]
     assert all(a.max_tokens == 4096 for a in copy.all_agents())
     assert copy.providers["groq"].rpm == 2 and agents.providers["groq"].rpm is None
     assert applied == {"max_tokens": 4096, "rpm": {"groq": 2}}
     yaml_text = (BACKEND_DIR / "config" / "agents.yaml").read_text(encoding="utf-8")
-    assert "max_tokens: 1536" in yaml_text and "4096" not in yaml_text
+    assert "max_tokens: 2048" in yaml_text and yaml_text.count("4096") == 1  # debater_3 only
 
 
 def test_profile_overrides_never_lower_a_limit_and_zero_means_off():
@@ -304,7 +305,8 @@ def test_profile_overrides_never_lower_a_limit_and_zero_means_off():
     kept, _ = apply_profile(agents, ds.profile, 4096, {})
     assert kept.judge.max_tokens == 9000  # never lowered
     off, applied = apply_profile(agents, ds.profile, 0, {"groq": 0})
-    assert all(a.max_tokens == 1536 or a.id == "judge" for a in off.all_agents())
+    expected = {"debater_3": 4096, "judge": 9000}
+    assert all(a.max_tokens == expected.get(a.id, 2048) for a in off.all_agents())
     assert off.providers["groq"].rpm is None and "max_tokens" not in applied
     plain, none = apply_profile(agents, get_dataset("gsm8k").profile, None, {})
     assert none == {} and plain.model_dump_json() == agents.model_dump_json()

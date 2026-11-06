@@ -6,7 +6,9 @@ providers:
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     api_key_setting: gemini_api_key
     max_concurrency: 2
-    json_mode: json_object  # not confirmed in Google's docs; auto-disabled on a 400
+    # Gemini returns HTTP 500 for Gemma when a system message AND response_format are both sent;
+    # the parser extracts the JSON from plain text (same as the evaluated panel).
+    json_mode: none
     timeout_s: 60
   groq:
     base_url: https://api.groq.com/openai/v1
@@ -32,7 +34,7 @@ providers:
     max_concurrency: 1
     json_mode: json_object  # documented: response_format {"type": "json_object"}
     timeout_s: 90
-    rpm: 2  # free tier is about 2 requests/minute; replace with the figure from the Mistral console
+    rpm: 20  # measured on this account: ministral-14b 30/min, ministral-8b 188/min; 20 fits both
   ollama:
     base_url: http://localhost:11434/v1/
     api_key_setting: null  # local server, no key
@@ -44,30 +46,29 @@ debaters:
   - id: debater_1
     persona: Solver
     provider: gemini
-    model: gemini-3.5-flash-lite
+    model: gemini-3.1-flash-lite
     temperature: 0.6
-    max_tokens: 1536
+    max_tokens: 2048
     persona_prompt: Methodical and step-by-step; show your work.
     fallbacks:
       - {provider: ollama, model: "gemma4:e4b"}
   - id: debater_2
     persona: Skeptic
     provider: groq
-    model: openai/gpt-oss-120b
+    model: openai/gpt-oss-20b
     temperature: 0.6
-    max_tokens: 1536
+    max_tokens: 2048
     persona_prompt: Assume something is wrong; hunt for errors, edge cases and hidden assumptions.
     fallbacks:
       - {provider: ollama, model: "gemma4:e4b"}
   - id: debater_3
     persona: Fact-Checker
-    provider: openrouter
-    model: nvidia/nemotron-3-super-120b-a12b:free
+    provider: mistral
+    model: ministral-14b-2512
     temperature: 0.6
-    max_tokens: 1536
+    max_tokens: 4096  # matches the MMLU-Pro eval: 2048 cut long reasoning off mid-JSON
     persona_prompt: Focus on factual claims, units, arithmetic and logical validity.
     fallbacks:
-      - {provider: mistral, model: mistral-medium-3.5}
       - {provider: ollama, model: "gemma4:e4b"}
 judge:
   id: judge
@@ -75,7 +76,7 @@ judge:
   provider: groq
   model: openai/gpt-oss-20b  # separate Groq model => separate quota from debater_2
   temperature: 0.2
-  max_tokens: 1536
+  max_tokens: 2048
   persona_prompt: Weigh the full anonymized transcript and deliver a structured verdict.
   fallbacks:
     - {provider: mistral, model: mistral-medium-3.5}  # free tier (429s) was too strict as primary

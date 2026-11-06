@@ -65,12 +65,11 @@ def test_real_config_builds_fallback_chains_with_shared_semaphores(tmp_path):
     providers = reg.providers()
     d2, judge = providers["debater_2"], providers["judge"]
     assert isinstance(d2, FallbackProvider) and [leg.name for leg in d2.chain] == ["groq", "ollama"]
-    assert [leg.name for leg in providers["debater_3"].chain] == ["openrouter", "mistral", "ollama"]
+    assert [leg.name for leg in providers["debater_3"].chain] == ["mistral", "ollama"]
     assert [leg.name for leg in judge.chain] == ["groq", "mistral", "gemini", "ollama"]
-    # debater_2 and the judge use different Groq models but share one concurrency limit.
-    assert d2.chain[0].model != judge.chain[0].model
+    # debater_2 and the judge share one Groq concurrency limit (they use the same model now).
     assert d2.chain[0]._semaphore is judge.chain[0]._semaphore
-    assert set(reg._semaphores) == {"gemini", "groq", "openrouter", "mistral", "ollama"}
+    assert set(reg._semaphores) == {"gemini", "groq", "mistral", "ollama"}
     assert reg.for_agent(agent(reg, "debater_2")) is d2  # built once, reused by every debate
 
 
@@ -136,7 +135,7 @@ def test_cache_wrapping_follows_settings_and_engine(tmp_path):
 def test_per_agent_generation_settings_come_from_yaml(tmp_path):
     reg = registry(tmp_path, chat_ok)
     judge_leg = reg.for_agent(agent(reg, "judge")).chain[0]
-    assert judge_leg.temperature == 0.2 and judge_leg.max_tokens == 1536
+    assert judge_leg.temperature == 0.2 and judge_leg.max_tokens == 2048
 
 
 # --- health ---
@@ -144,10 +143,12 @@ def test_per_agent_generation_settings_come_from_yaml(tmp_path):
 
 def models_handler(overrides: dict[str, httpx.Response | Exception] | None = None):
     listings = {
-        "generativelanguage.googleapis.com": ["models/gemini-3.5-flash-lite"],
+        "generativelanguage.googleapis.com": [
+            "models/gemini-3.1-flash-lite",
+            "models/gemini-3.5-flash-lite",
+        ],
         "api.groq.com": ["openai/gpt-oss-120b", "openai/gpt-oss-20b"],
-        "openrouter.ai": ["nvidia/nemotron-3-super-120b-a12b:free"],
-        "api.mistral.ai": ["mistral-medium-3.5"],
+        "api.mistral.ai": ["ministral-14b-2512", "mistral-medium-3.5"],
         "localhost": ["gemma4:e4b"],
     }
     calls: list[str] = []
@@ -178,17 +179,14 @@ async def test_health_reports_ok_when_everything_is_listed(tmp_path):
     }
     assert all(h["reachable"] for h in health)
     d3 = next(h for h in health if h["id"] == "debater_3")
-    assert [(f["provider"], f["status"]) for f in d3["fallbacks"]] == [
-        ("mistral", "ok"),
-        ("ollama", "ok"),
-    ]
+    assert [(f["provider"], f["status"]) for f in d3["fallbacks"]] == [("ollama", "ok")]
 
 
 async def test_health_distinguishes_failure_modes(tmp_path):
     handler = models_handler(
         {
             "api.groq.com": httpx.Response(401),
-            "openrouter.ai": httpx.Response(200, json={"data": [{"id": "some/other-model"}]}),
+            "api.mistral.ai": httpx.Response(200, json={"data": [{"id": "some/other-model"}]}),
             "localhost": httpx.ConnectError("refused"),
         }
     )
@@ -198,7 +196,7 @@ async def test_health_distinguishes_failure_modes(tmp_path):
     assert health["debater_2"]["status"] == "unauthorized" and not health["debater_2"]["reachable"]
     assert health["debater_3"]["status"] == "model_not_found"
     assert health["judge"]["status"] == "unauthorized"  # Groq
-    assert health["judge"]["fallbacks"][0]["status"] == "ok"  # Mistral
+    assert health["judge"]["fallbacks"][0]["status"] == "model_not_found"  # Mistral
     assert health["judge"]["fallbacks"][1] == {
         "provider": "gemini",
         "model": "gemini-3.5-flash-lite",
@@ -265,8 +263,8 @@ async def test_agents_endpoint_uses_real_health(tmp_path):
             resp = await client.get("/api/agents")
     agents = resp.json()
     assert [a["id"] for a in agents] == ["debater_1", "debater_2", "debater_3", "judge"]
-    assert agents[1]["model"] == "openai/gpt-oss-120b" and agents[1]["status"] == "ok"
-    assert agents[2]["fallbacks"][0]["provider"] == "mistral"
+    assert agents[1]["model"] == "openai/gpt-oss-20b" and agents[1]["status"] == "ok"
+    assert agents[2]["provider"] == "mistral" and agents[2]["fallbacks"][0]["provider"] == "ollama"
     assert not any(key in resp.text for key in KEYS.values())
 
 
@@ -322,7 +320,7 @@ def test_registry_build_leg_applies_a_policy_override(tmp_path):
         http_client=http_client(chat_ok),
         policy=RetryPolicy(max_attempts=1),
     )
-    leg = reg.build_leg("groq", "openai/gpt-oss-120b", agent(reg, "debater_2"))
+    leg = reg.build_leg("groq", "openai/gpt-oss-20b", agent(reg, "debater_2"))
     assert leg._policy.max_attempts == 1
     assert reg.build_leg("gemini", "x", agent(reg, "debater_1")) is not None
     no_key = ProviderRegistry(load_agents(REAL_AGENTS), settings_for(tmp_path, keys={}))
@@ -335,16 +333,16 @@ def test_registry_build_leg_applies_a_policy_override(tmp_path):
 def test_mistral_is_pinned_and_rate_limited_in_the_real_config(tmp_path):
     cfg = load_agents(REAL_AGENTS)
     mistral = cfg.providers["mistral"]
-    assert mistral.base_url == "https://api.mistral.ai/v1" and mistral.rpm == 2
+    assert mistral.base_url == "https://api.mistral.ai/v1" and mistral.rpm == 20
     models = {m for a in cfg.all_agents() for p, m in _pairs(a) if p == "mistral"}
     assert models and not any("latest" in m for m in models)
-    assert [a.provider for a in cfg.debaters] == ["gemini", "groq", "openrouter"]
+    assert [a.provider for a in cfg.debaters] == ["gemini", "groq", "mistral"]
     assert cfg.judge.provider == "groq"
     assert [f.provider for f in cfg.judge.fallbacks] == ["mistral", "gemini", "ollama"]
     reg = registry(tmp_path, chat_ok)
     d3 = reg.for_agent(agent(reg, "debater_3"))
     judge = reg.for_agent(agent(reg, "judge"))
-    assert d3.chain[1]._rate_limiter is judge.chain[1]._rate_limiter is not None
+    assert d3.chain[0]._rate_limiter is judge.chain[1]._rate_limiter is not None
     assert reg.for_agent(agent(reg, "debater_1")).chain[0]._rate_limiter is None
 
 
@@ -402,10 +400,10 @@ async def test_rpm_spaces_calls_instead_of_hitting_429(tmp_path):
         sleep=sleep,
         clock=lambda: now[0],
     )
-    leg = reg.build_leg("mistral", "mistral-medium-3.5", agent(reg, "debater_3"))
+    leg = reg.build_leg("mistral", "ministral-14b-2512", agent(reg, "debater_3"))
     for _ in range(3):
         await leg.complete(MSGS)
-    assert sleeps.delays == [30.0, 30.0]  # rpm 2 => first call free, then one per 30s
+    assert sleeps.delays == [3.0, 3.0]  # rpm 20 => first call free, then one per 3s
     now[0] += 120  # idle for a while: the next call is immediate again
     await leg.complete(MSGS)
-    assert sleeps.delays == [30.0, 30.0]
+    assert sleeps.delays == [3.0, 3.0]

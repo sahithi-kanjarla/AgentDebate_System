@@ -117,7 +117,7 @@ def test_estimate_per_question_for_the_real_lineup():
 
     agents = load_agents(BACKEND_DIR / "config" / "agents.yaml")
     est = estimate_per_question(agents, rounds=3, min_critique_rounds=1)
-    assert est["gemini"] == (2, 4) and est["openrouter"] == (2, 4)
+    assert est["gemini"] == (2, 4) and est["mistral"] == (2, 4)
     assert est["groq"] == (2 + 1, 4 + 2)  # debater_2 rounds + the judge (C and D)
 
 
