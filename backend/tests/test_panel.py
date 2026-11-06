@@ -2,7 +2,14 @@
 
 import json
 
-from app.debate.panel import DEFAULT_CONFIG, DEFAULT_OUTPUT, build_panel, lab_for, render
+from app.debate.panel import (
+    DEFAULT_CONFIG,
+    DEFAULT_OUTPUT,
+    build_panel,
+    lab_for,
+    providers_for,
+    render,
+)
 
 
 def test_committed_panel_file_matches_the_config():
@@ -31,6 +38,15 @@ def test_committed_file_is_byte_identical_to_the_prettier_style_render():
     assert "\r" not in text
     assert text == render(build_panel(DEFAULT_CONFIG))
     assert '"personas": ["' in text  # short scalar arrays stay on one line, as Prettier does
+
+
+def test_providers_come_from_the_config_and_exclude_local_ollama():
+    assert build_panel(DEFAULT_CONFIG)["providers"] == ["Google Gemini", "Groq", "Mistral"]
+    cfg = {
+        "debaters": [{"provider": "openrouter", "fallbacks": [{"provider": "ollama"}]}],
+        "judge": {"provider": "groq"},
+    }
+    assert providers_for(cfg) == ["Groq", "OpenRouter"]
 
 
 def test_render_ends_with_newline():

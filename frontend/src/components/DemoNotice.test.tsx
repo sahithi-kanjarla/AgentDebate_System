@@ -1,12 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { App } from '../App'
-import { BANNER_KEY, PROVIDER_NAMES } from '../lib/demoNotice'
+import { BANNER_KEY, joinNames, providerParen } from '../lib/demoNotice'
 import { readStored, resetStoredMemory } from '../lib/safeStorage'
 import { History } from '../pages/History'
 import { Home } from '../pages/Home'
 import { stubFetch } from '../test/http'
+import panelJson from '../../public/panel.json'
 import { DemoBanner, DemoFooter, HistoryNotice, StartNotice } from './DemoNotice'
 
 afterEach(() => {
@@ -17,6 +18,8 @@ afterEach(() => {
 })
 
 const production = () => vi.stubEnv('PROD', true)
+const PROVIDERS = panelJson.providers
+const stubPanel = () => stubFetch(() => ({ body: panelJson }))
 
 describe('demo notices in a development or test build', () => {
   it('renders nothing', () => {
@@ -45,14 +48,19 @@ describe('demo notices in a development or test build', () => {
 })
 
 describe('demo notices in a production build', () => {
-  it('banner says: free tier, no personal data, third-party providers by name, slow or unavailable', () => {
+  it('banner says: free tier, no personal data, third-party providers by name, slow or unavailable', async () => {
     production()
+    stubPanel()
     render(<DemoBanner />)
     const banner = screen.getByRole('region', { name: 'About this demo' })
     expect(banner).toHaveTextContent(/free-tier demo/i)
     expect(banner).toHaveTextContent(/slow or unavailable/i)
     expect(banner).toHaveTextContent(/personal or confidential/i)
-    for (const name of PROVIDER_NAMES) expect(banner).toHaveTextContent(name)
+    await waitFor(() => expect(banner).toHaveTextContent(joinNames(PROVIDERS)))
+    expect(banner).toHaveTextContent(
+      `Your question is sent to third-party model providers (Google Gemini, Groq and Mistral).`,
+    )
+    expect(banner).not.toHaveTextContent(/openrouter/i)
     expect(screen.getByRole('link', { name: 'Details' })).toHaveAttribute('href', '#privacy')
   })
 
@@ -89,18 +97,35 @@ describe('demo notices in a production build', () => {
     vi.restoreAllMocks()
   })
 
-  it('footer: privacy anchor, providers, temporary storage, shared links, address use', () => {
+  it('footer: privacy anchor, providers, temporary storage, shared links, address use', async () => {
     production()
+    stubPanel()
     render(<DemoFooter />)
     const footer = screen.getByRole('contentinfo')
     expect(footer).toHaveAttribute('id', 'privacy')
-    for (const name of PROVIDER_NAMES) expect(footer).toHaveTextContent(name)
-    expect(footer).toHaveTextContent(/history is stored per\s+browser/i)
+    await waitFor(() => expect(footer).toHaveTextContent(joinNames(PROVIDERS)))
+    expect(footer).not.toHaveTextContent(/openrouter/i)
+    expect(footer).toHaveTextContent(/history is kept per\s+browser/i)
     expect(footer).toHaveTextContent(/anyone with a debate link can read that\s+debate/i)
     expect(footer).toHaveTextContent(
-      /stored on\s+the demo's server and may be deleted when the host restarts/i,
+      /saved on\s+the demo's server and may be deleted when the host restarts/i,
     )
     expect(footer).toHaveTextContent(/not saved with your\s+debate/i)
+  })
+
+  it('names no provider when panel.json is unavailable', async () => {
+    production()
+    stubFetch(() => ({ status: 404 }))
+    render(<DemoBanner />)
+    const banner = screen.getByRole('region', { name: 'About this demo' })
+    await waitFor(() => expect(fetch).toHaveBeenCalled())
+    expect(banner).toHaveTextContent('third-party model providers. Do not enter')
+  })
+
+  it('joins names for display', () => {
+    expect(joinNames(['A'])).toBe('A')
+    expect(joinNames(['A', 'B', 'C'])).toBe('A, B and C')
+    expect(providerParen([])).toBe('')
   })
 
   it('shows the line beside the Start button and the History note', async () => {

@@ -1,10 +1,17 @@
 import { useState } from 'react'
-import { BANNER_KEY, PRIVACY_ANCHOR, PROVIDER_LIST, demoNoticeEnabled } from '../lib/demoNotice'
+import {
+  BANNER_KEY,
+  PRIVACY_ANCHOR,
+  demoNoticeEnabled,
+  providerParen,
+  useProviderNames,
+} from '../lib/demoNotice'
 import { readStored, writeStored } from '../lib/safeStorage'
 
 /** Slim bar above the header. Dismissible; the footer note below stays on every page. */
 export function DemoBanner() {
   const [dismissed, setDismissed] = useState(() => readStored(BANNER_KEY) === 'dismissed')
+  const providers = useProviderNames()
   if (!demoNoticeEnabled() || dismissed) return null
   return (
     <div
@@ -15,8 +22,8 @@ export function DemoBanner() {
       <div className="mx-auto flex max-w-6xl items-start gap-3 px-4 py-2 text-sm sm:px-6">
         <p className="flex-1">
           <strong className="font-semibold">Free-tier demo.</strong> Models may be slow or
-          unavailable. Do not enter personal or confidential information: your question is sent to
-          third-party model providers ({PROVIDER_LIST}).{' '}
+          unavailable. Your question is sent to third-party model providers
+          {providerParen(providers)}. Do not enter personal or confidential information.{' '}
           <a href={`#${PRIVACY_ANCHOR}`} className="font-medium underline">
             Details
           </a>
@@ -38,6 +45,7 @@ export function DemoBanner() {
 
 /** The full note. Always present in production builds, so dismissing the banner hides nothing. */
 export function DemoFooter() {
+  const providers = useProviderNames()
   if (!demoNoticeEnabled()) return null
   return (
     <footer
@@ -55,16 +63,16 @@ export function DemoFooter() {
             lineup may change.
           </li>
           <li>
-            Do not enter personal or confidential information. Your question, and the debaters'
-            answers to each other, are sent to third-party model providers: {PROVIDER_LIST}. They
-            may keep or use free-tier inputs under their own terms; check their policies.
+            Your question, and the debaters' answers to each other, are sent to third-party model
+            providers{providerParen(providers)}. Do not enter personal or confidential information.
+            They may keep or use free-tier inputs under their own terms; check their policies.
           </li>
           <li>
-            History is stored per browser: it lists only the debates started from this browser.
-            Anyone with a debate link can read that debate. The question and answers are stored on
-            the demo's server and may be deleted when the host restarts, which can happen at any
-            time.
+            What is stored: the question and the answers are saved on the demo's server and may be
+            deleted when the host restarts, which can happen at any time. Anyone with a debate link
+            can read that debate.
           </li>
+          <li>History is kept per browser: it lists only the debates started from this browser.</li>
           <li>
             Your network address is used in memory to apply usage limits and is not saved with your
             debate.

@@ -13,6 +13,8 @@ export interface PanelModel {
   lab: string
 }
 export interface Panel {
+  /** Hosted providers that can receive a question (generated from the agents config). */
+  providers: string[]
   debaters: PanelModel[]
   personas: string[]
   judge: PanelModel
@@ -34,6 +36,9 @@ export function parsePanel(raw: unknown): Panel | null {
   const judge = toModel(raw.judge)
   if (judge === null || debaters.length === 0 || debaters.some((d) => d === null)) return null
   return {
+    providers: Array.isArray(raw.providers)
+      ? raw.providers.filter((p): p is string => typeof p === 'string')
+      : [],
     debaters: debaters as PanelModel[],
     personas: raw.personas.filter((p): p is string => typeof p === 'string'),
     judge,

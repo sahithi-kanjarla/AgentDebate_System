@@ -42,6 +42,24 @@ def lab_for(model: str) -> str:
     return "Unknown"
 
 
+# Provider key -> name shown to visitors. Hosted providers only; local Ollama gets no data off-box.
+_PROVIDER_NAMES = {
+    "gemini": "Google Gemini",
+    "groq": "Groq",
+    "mistral": "Mistral",
+    "openrouter": "OpenRouter",
+}
+
+
+def providers_for(cfg: dict[str, Any]) -> list[str]:
+    """Hosted providers that can receive a question: every primary and fallback in the lineup."""
+    keys: set[str] = set()
+    for agent in [*cfg["debaters"], cfg["judge"]]:
+        keys.add(agent["provider"])
+        keys.update(fb["provider"] for fb in agent.get("fallbacks", []))
+    return sorted(_PROVIDER_NAMES[k] for k in keys if k in _PROVIDER_NAMES)
+
+
 def build_panel(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     cfg = yaml.safe_load(config_path.read_text(encoding="utf-8"))
     debaters = cfg["debaters"]
@@ -49,6 +67,7 @@ def build_panel(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     models = sorted({d["model"] for d in debaters})
     return {
         "format": PANEL_FORMAT,
+        "providers": providers_for(cfg),
         "debaters": [{"model": m, "lab": lab_for(m)} for m in models],
         "personas": [d["persona"] for d in debaters],
         "judge": {"model": judge["model"], "lab": lab_for(judge["model"])},
