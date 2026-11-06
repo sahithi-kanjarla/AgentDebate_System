@@ -336,3 +336,156 @@ def test_exploratory_section_splits_no_majority_and_wrong_majority_and_is_labell
 def test_exploratory_section_is_not_added_to_a_numeric_dataset_report():
     text = build_report([record("q0", {})], MANIFEST)
     assert "Exploratory, descriptive and post-hoc" not in text
+
+
+# --- exploratory debate dynamics (post-hoc) ---
+
+
+def _turns(rec, rounds):
+    """rounds: list of (a1, a2, a3) letters per round."""
+    rec["turns"] = [
+        {
+            "round": r,
+            "label": f"Debater {i}",
+            "provider": "p",
+            "model": f"m{i}",
+            "fallback_used": False,
+            "answer": ans,
+        }
+        for r, answers in enumerate(rounds)
+        for i, ans in enumerate(answers, start=1)
+    ]
+    return rec
+
+
+def _judge(rec, letter, d_correct, b_correct=False):
+    rec["conditions"]["D"].update(answer=letter, correct=d_correct)
+    rec["conditions"]["B"].update(correct=b_correct)
+    return rec
+
+
+def test_swap_and_oscillation_detection():
+    swap = _turns(record("s", {}), [("A", "B", "C"), ("B", "A", "C")])
+    osc = _turns(record("o", {}), [("A", "B", "B"), ("C", "B", "B"), ("A", "B", "B")])
+    one_change = _turns(record("c", {}), [("A", "B", "B"), ("B", "B", "B")])
+    stable = _turns(record("t", {}), [("A", "B", "C"), ("A", "B", "C")])
+    invalid = _turns(record("i", {}), [("A", None, "C"), (None, "A", "C")])
+    assert report.swap_or_oscillation(swap) == (True, False)
+    assert report.swap_or_oscillation(osc) == (False, True)
+    assert report.swap_or_oscillation(one_change) == (False, False)
+    assert report.swap_or_oscillation(stable) == (False, False)
+    assert report.swap_or_oscillation(invalid) == (False, False)
+
+
+def test_final_plurality_flags_ties_and_ignores_invalid():
+    def plurality(rounds):
+        return report.final_plurality(_turns(record("x", {}), rounds))
+
+    assert plurality([("A", "B", "C"), ("B", "B", "C")]) == ("B", False)
+    assert plurality([("A", "B", "C")]) == ("A", True)
+    assert plurality([("A", "B", "B"), (None, None, "D")]) == ("D", False)
+    assert plurality([("A", "B", "C"), (None, None, None)]) == (None, False)
+    assert report.final_plurality(record("e", {})) == (None, False)  # no saved turns
+
+
+def test_dynamics_section_counts_and_is_labelled_exploratory():
+    recs = [
+        # swap (also q1); unique plurality B (gold B); judge says B: agrees
+        _judge(_turns(record("q0", {}, gold="B"), [("A", "B", "C"), ("B", "A", "B")]), "B", True),
+        # plurality C wrong (gold A); judge A right and differs
+        _judge(_turns(record("q1", {}, gold="A"), [("A", "C", "C"), ("C", "C", "A")]), "A", True),
+        # tie in last round; judge differs but not scored
+        _judge(_turns(record("q2", {}, gold="A"), [("A", "B", "C")]), "A", True),
+        # plurality D (gold D) right; judge C wrong and differs
+        _judge(_turns(record("q3", {}, gold="D"), [("D", "D", "C"), ("D", "D", "C")]), "C", False),
+        # plurality and judge both wrong and different
+        _judge(_turns(record("q4", {}, gold="A"), [("B", "B", "C"), ("B", "B", "C")]), "C", False),
+    ]
+    text = report.exploratory_dynamics_section(recs)
+    assert "Exploratory, post-hoc, not pre-declared" in text
+    assert "only pre-declared comparison" in text
+    assert "with a swap" in text and "swap" in text
+    assert "exchange two different valid answers between consecutive rounds): 2/5" in text
+    # q0 last round is (B, A, B): plurality B right; q1 (C, C, A): C wrong; q3 D right; q4 B wrong
+    plural_row = next(ln for ln in text.splitlines() if ln.startswith("| Plurality unique"))
+    cells = [c.strip() for c in plural_row.strip("|").split("|")]
+    assert cells[1:] == ["4", "2/4", "2/4", "0/4"]
+    tied_row = next(ln for ln in text.splitlines() if ln.startswith("| Plurality tied"))
+    assert [c.strip() for c in tied_row.strip("|").split("|")][1] == "1"
+    # judge differs from plurality on q1, q3, q4 (3 of 4); judge right q1, plurality right q3
+    assert "differed from the plurality on 3/4" in text
+    assert "judge right 1, plurality right 1, neither 1" in text
+
+
+def test_dynamics_sections_only_in_letter_dataset_report():
+    numeric = build_report([record("q0", {})], MANIFEST)
+    assert "debate dynamics" not in numeric
+    letters = {"config": {**MANIFEST["config"], "dataset": "mmlupro-holdout"}}
+    recs = [
+        _judge(_turns(record("q0", {}), [("A", "B", "C"), ("B", "A", "C")]), "A", True),
+    ]
+    for r in recs:
+        for k in ("A1", "A2", "A3"):
+            r["conditions"][k]["answer"] = "A"
+    text = build_report(recs, letters)
+    assert "#### Exploratory: debate dynamics (post-hoc)" in text
+    assert "#### Exploratory: disagreement by round-0 outcome" in text
+
+
+# --- report text: output limits and joined words ---
+
+MMLU_CONFIG = Path(report.__file__).parent / "config" / "mmlupro_agents.yaml"
+MMLU_MANIFEST = {
+    "config": {
+        "dataset": "mmlupro-holdout",
+        "seed": 42,
+        "prompt_suffix": "Answer with only the letter (A to {last}) of the correct option.",
+        "agents_fingerprint": "abc123",
+        "allow_fallback": False,
+        "early_stop": True,
+        "profile": {"max_tokens": 2048, "rpm": {"groq": 4}},
+    }
+}
+
+
+def test_limit_text_states_the_headline_and_the_exceptions():
+    limits = {"debater_1": 2048, "debater_2": 2048, "debater_3": 4096, "judge": 2048}
+    assert report.limit_text(2048, limits) == "2048 tokens per answer (4096 for Debater 3)"
+    assert report.limit_text(2048, {"debater_1": 2048, "judge": 2048}) == "2048 tokens per answer"
+    assert report.limit_text(2048, None) == "2048 tokens per answer"
+
+
+def test_effective_limits_are_a_floor_over_the_config(tmp_path):
+    limits = report.effective_limits(MMLU_CONFIG, {"max_tokens": 2048})
+    assert limits == {"debater_1": 2048, "debater_2": 2048, "debater_3": 4096, "judge": 2048}
+    # a higher floor lifts everyone; an agent set above the floor keeps its own value
+    assert set(report.effective_limits(MMLU_CONFIG, {"max_tokens": 8192}).values()) == {8192}
+    assert report.effective_limits(MMLU_CONFIG, {}) is None
+    assert report.effective_limits(tmp_path / "missing.yaml", {"max_tokens": 2048}) is None
+
+
+def test_header_and_cut_off_limitation_state_per_agent_limits():
+    text = build_report([record("q0", {})], MMLU_MANIFEST, agents_config=MMLU_CONFIG)
+    assert "output limit 2048 tokens per answer (4096 for Debater 3)" in text
+    assert "raised to 2048 tokens per answer (4096 for Debater 3) in the eval's own" in text
+    assert "2048 tokens per answer in the eval" not in text
+
+
+def test_limit_text_falls_back_to_the_floor_when_the_config_is_unreadable(tmp_path):
+    text = build_report([record("q0", {})], MMLU_MANIFEST, agents_config=tmp_path / "missing.yaml")
+    assert "output limit 2048 tokens per answer," in text
+    assert "raised to 2048 tokens per answer in the eval" in text
+
+
+def test_limitations_text_has_balanced_parentheses_and_no_joined_words():
+    import re
+
+    for dataset in ("gsm8k", "math45", "mmlupro-holdout"):
+        block = report.limitations(
+            dataset, "Answer with only the letter (A to D).", {"max_tokens": 2048}, True
+        )
+        for line in block.splitlines():
+            assert line.count("(") == line.count(")"), line
+        assert not re.findall(r"[a-z][.;:,)][A-Za-z]", block.replace("e.g.", ""))
+    text = build_report([record("q0", {})], MMLU_MANIFEST, agents_config=MMLU_CONFIG)
+    assert not re.findall(r"[a-z][;:,][A-Za-z0-9]", text)

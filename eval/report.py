@@ -14,6 +14,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from app.core.settings import load_agents
 from eval import EVAL_DIR, RESULTS_DIR
 from eval.datasets import DATASETS, Dataset
 from eval.stats import Comparison, compare, reading, wilson
@@ -77,12 +78,12 @@ MATH_EXTRA = [
 ]
 CUT_OFF = (
     "- **Cut-off outputs.** Harder problems need longer reasoning. For this run the output limit was "
-    "raised to {limit} tokens per answer in the eval's own config copy (the app is unchanged). An "
+    "raised to {limit} in the eval's own config copy (the app is unchanged). An "
     "answer whose output looks cut off by the limit is counted as wrong and shown in the "
     '"Cut off" column; the detection is a heuristic, not a measurement: any reply of the turn '
     "(the first or the repair) counts if the provider reported finish_reason=length, if its JSON "
     "opens more braces than it closes, or, when no stop reason was stored, if its output reached "
-    "95% of the limit. It can miss a cut-off or flag a reply that ended near the limit by chance)."
+    "95% of the limit. It can miss a cut-off or flag a reply that ended near the limit by chance."
 )
 STRICT_LETTER = (
     "- **Strict answer matching.** An answer counts only if it reduces to one letter that is "
@@ -101,7 +102,11 @@ STRICT = (
 
 
 def limitations(
-    dataset: str, suffix: str, profile: dict[str, Any] | None = None, has_c: bool = True
+    dataset: str,
+    suffix: str,
+    profile: dict[str, Any] | None = None,
+    has_c: bool = True,
+    limits: dict[str, int] | None = None,
 ) -> str:
     """The limitations block for a run; fixed text apart from the dataset-specific bullets."""
     key = "mmlupro" if dataset.startswith("mmlupro") else dataset
@@ -116,7 +121,7 @@ def limitations(
     strict = STRICT_LETTER if key == "mmlupro" else STRICT
     out += [FREE_TIER, FALLBACKS, strict.format(suffix=suffix or "(none recorded)")]
     if profile and profile.get("max_tokens"):
-        out.append(CUT_OFF.format(limit=profile["max_tokens"]))
+        out.append(CUT_OFF.format(limit=limit_text(profile["max_tokens"], limits)))
     out += [JUDGE if has_c else JUDGE_D_ONLY, EARLY_STOP if has_c else EARLY_STOP_D_ONLY]
     out += [ONE_SAMPLE, COSTS]
     return "\n".join(out) + "\n"
@@ -130,13 +135,57 @@ def dataset_label(name: str) -> str:
     return (cls().label if cls else "") or name
 
 
-def profile_text(profile: dict[str, Any] | None) -> str:
+def agent_label(agent_id: str) -> str:
+    return agent_id.replace("_", " ").capitalize()
+
+
+def limit_text(floor: int, limits: dict[str, int] | None = None) -> str:
+    """'2048 tokens per answer (4096 for Debater 3)': the effective per-agent output limits.
+
+    `limits` maps agent id -> effective max_tokens (insertion order = config order). The most
+    common value is the headline (the smaller on a tie); agents that differ are listed after it.
+    Without `limits` only the profile's floor is known and is stated alone.
+    """
+    if not limits:
+        return f"{floor} tokens per answer"
+    counts = Counter(limits.values())
+    base = min(counts, key=lambda v: (-counts[v], v))
+    others = [f"{v} for {agent_label(a)}" for a, v in limits.items() if v != base]
+    return f"{base} tokens per answer" + (f" ({', '.join(others)})" if others else "")
+
+
+def effective_limits(
+    config_path: Path | None, profile: dict[str, Any] | None
+) -> dict[str, int] | None:
+    """Per-agent output limits the run used: the agents config raised to the profile's floor.
+
+    The same rule as the eval's dry-run text (a floor: an agent set higher keeps its own limit).
+    None if the config cannot be read, so the report then states the floor alone.
+    """
+    floor = (profile or {}).get("max_tokens")
+    if not floor or config_path is None:
+        return None
+    try:
+        agents = load_agents(config_path)
+    except (OSError, ValueError):
+        return None
+    return {a.id: max(a.max_tokens or 0, floor) for a in agents.all_agents()}
+
+
+def default_config_path(dataset: str) -> Path:
+    """The agents file the dataset's runs use: the MMLU-Pro eval copy, else the app's."""
+    if dataset.startswith("mmlupro"):
+        return EVAL_DIR / "config" / "mmlupro_agents.yaml"
+    return EVAL_DIR.parent / "backend" / "config" / "agents.yaml"
+
+
+def profile_text(profile: dict[str, Any] | None, limits: dict[str, int] | None = None) -> str:
     """Eval-only settings that differ from the app's (output limit, request pacing)."""
     if not profile:
         return ""
     parts = []
     if profile.get("max_tokens"):
-        parts.append(f"output limit {profile['max_tokens']} tokens per answer")
+        parts.append(f"output limit {limit_text(profile['max_tokens'], limits)}")
     for provider, value in sorted((profile.get("rpm") or {}).items()):
         parts.append(f"{provider} paced at {value:g} request(s)/min")
     return "Eval-only settings: " + ", ".join(parts) + ". " if parts else ""
@@ -478,11 +527,132 @@ def exploratory_section(records: list[dict[str, Any]]) -> str:
     )
 
 
+def _round_letters(rec: dict[str, Any]) -> dict[int, dict[str, str | None]]:
+    """round -> {debater label -> valid option letter or None}, from the saved debater turns."""
+    out: dict[int, dict[str, str | None]] = {}
+    for t in rec.get("turns", []):
+        if "round" not in t or "label" not in t:
+            continue
+        a = t.get("answer")
+        out.setdefault(int(t["round"]), {})[t["label"]] = a if a in tuple(LETTERS) else None
+    return out
+
+
+def swap_or_oscillation(rec: dict[str, Any]) -> tuple[bool, bool]:
+    """(swap, oscillation) for one question, from valid letters only.
+
+    Swap: two debaters exchange two different answers between consecutive rounds.
+    Oscillation: one debater changes answer in two consecutive round steps (r to r+1 to r+2).
+    """
+    by_round = _round_letters(rec)
+    swap = osc = False
+    for r in sorted(by_round):
+        cur, nxt = by_round[r], by_round.get(r + 1)
+        if nxt is None:
+            continue
+        labels = sorted(cur)
+        for i, a in enumerate(labels):
+            for b in labels[i + 1 :]:
+                x, y = cur[a], cur[b]
+                if x and y and x != y and nxt.get(a) == y and nxt.get(b) == x:
+                    swap = True
+        after = by_round.get(r + 2)
+        if after is not None:
+            for lab in cur:
+                p, q, s = cur[lab], nxt.get(lab), after.get(lab)
+                if p and q and s and p != q and q != s:
+                    osc = True
+    return swap, osc
+
+
+def final_plurality(rec: dict[str, Any]) -> tuple[str | None, bool]:
+    """(most common valid letter in the last debate round, tied). (None, False) if no valid letter."""
+    by_round = _round_letters(rec)
+    if not by_round:
+        return None, False
+    votes = Counter(a for a in by_round[max(by_round)].values() if a)
+    if not votes:
+        return None, False
+    top = max(votes.values())
+    leaders = sorted(k for k, v in votes.items() if v == top)
+    return (leaders[0], len(leaders) > 1)
+
+
+def exploratory_dynamics_section(records: list[dict[str, Any]]) -> str:
+    """Post-hoc diagnostics from the saved turns: swaps, final-round plurality, judge vs plurality."""
+    n = len(records)
+    flags = [swap_or_oscillation(r) for r in records]
+    n_swap = sum(s for s, _ in flags)
+    n_osc = sum(o for _, o in flags)
+    n_any = sum(s or o for s, o in flags)
+    pl = [final_plurality(r) for r in records]
+
+    def acc(vals: list[bool]) -> str:
+        return f"{sum(vals)}/{len(vals)}"
+
+    untied = [(r, p) for r, (p, tied) in zip(records, pl, strict=True) if p and not tied]
+    tied = [r for r, (p, t) in zip(records, pl, strict=True) if p and t]
+    none = [r for r, (p, _t) in zip(records, pl, strict=True) if p is None]
+    rows = [
+        [
+            "All questions",
+            str(n),
+            "-",
+            acc([bool(cond(r, "D")["correct"]) for r in records]),
+            acc([bool(cond(r, "B")["correct"]) for r in records]),
+        ],
+        [
+            "Plurality unique",
+            str(len(untied)),
+            acc([p == r["gold"] for r, p in untied]),
+            acc([bool(cond(r, "D")["correct"]) for r, _ in untied]),
+            acc([bool(cond(r, "B")["correct"]) for r, _ in untied]),
+        ],
+        [
+            "Plurality tied (flagged, plurality not scored)",
+            str(len(tied)),
+            "-",
+            acc([bool(cond(r, "D")["correct"]) for r in tied]),
+            acc([bool(cond(r, "B")["correct"]) for r in tied]),
+        ],
+        [
+            "No valid last-round letter",
+            str(len(none)),
+            "-",
+            acc([bool(cond(r, "D")["correct"]) for r in none]),
+            acc([bool(cond(r, "B")["correct"]) for r in none]),
+        ],
+    ]
+    # Judge vs plurality, on questions with a unique plurality and a valid judge letter.
+    paired = [(r, p) for r, p in untied if cond(r, "D")["answer"] in tuple(LETTERS)]
+    differ = [(r, p) for r, p in paired if cond(r, "D")["answer"] != p]
+    j_right = sum(cond(r, "D")["answer"] == r["gold"] for r, _ in differ)
+    p_right = sum(p == r["gold"] for r, p in differ)
+    neither = len(differ) - j_right - p_right
+    return (
+        "**Exploratory, post-hoc, not pre-declared.** Everything below was chosen after seeing the "
+        "results, is computed only from the saved per-question records, and has no test. "
+        "D vs B on all questions stays the only pre-declared comparison.\n\n"
+        f"**1. Swap / oscillation.** Questions with a swap (two debaters exchange two different "
+        f"valid answers between consecutive rounds): {n_swap}/{n}. Questions where a debater "
+        f"changed answer in two consecutive round steps: {n_osc}/{n}. Either: {n_any}/{n}.\n\n"
+        "**2. Final-round plurality** (most common valid letter among the debaters in the last "
+        "round; ties are not scored), next to D and B on the same questions:\n\n"
+        + table(["Questions", "n", "Plurality correct", "D correct", "B correct"], rows)
+        + f"\n\n**3. Judge vs plurality** (questions with a unique plurality and a valid judge "
+        f"letter: {len(paired)}). The judge's letter differed from the plurality on "
+        f"{len(differ)}/{len(paired)}. On those {len(differ)}: judge right {j_right}, plurality "
+        f"right {p_right}, neither {neither}."
+    )
+
+
 def build_report(
     records: list[dict[str, Any]],
     manifest: dict[str, Any] | None = None,
     skipped: dict[str, str] | None = None,
+    agents_config: Path | None = None,
 ) -> str:
+    """`agents_config` is the agents yaml the run used (default: by dataset, see above)."""
     if not records:
         return "No finished questions yet, so there is nothing to report."
     manifest = manifest or {}
@@ -496,6 +666,10 @@ def build_report(
     exploratory = dataset.exploratory_tests if dataset else True
     invalid_label = dataset.invalid_label if dataset else "Non-numeric answers"
     has_c = "C" in present_rows(records)
+    profile = config.get("profile")
+    limits = effective_limits(
+        agents_config or default_config_path(config.get("dataset", "gsm8k")), profile
+    )
     head = (
         f"_Generated by `python -m eval.report` from {n} finished question(s) of "
         f"{dataset_label(config.get('dataset', 'gsm8k'))} (seed {seed}), run {span}. "
@@ -503,7 +677,7 @@ def build_report(
         f"fallbacks {'allowed' if config.get('allow_fallback') else 'off'}, "
         f"early stop {'on' if config.get('early_stop', True) else 'off'}. "
         + (f'Each question was sent with the added line: "{suffix}". ' if suffix else "")
-        + profile_text(config.get("profile"))
+        + profile_text(profile, limits)
         + "Do not edit by hand._"
     )
     parts = [
@@ -529,11 +703,19 @@ def build_report(
             else []
         ),
         "#### Debate fixed / broke\n\n" + fixed_broke_section(records),
+        *(
+            [
+                "#### Exploratory: disagreement by round-0 outcome\n\n"
+                + exploratory_section(records),
+                "#### Exploratory: debate dynamics (post-hoc)\n\n"
+                + exploratory_dynamics_section(records),
+            ]
+            if dataset and dataset.answer_letters
+            else []
+        ),
         "#### How the debate ran\n\n" + debate_behaviour_section(records, skipped or {}),
         "#### Limitations\n\n"
-        + limitations(
-            config.get("dataset", "gsm8k"), suffix, config.get("profile"), has_c
-        ).rstrip(),
+        + limitations(config.get("dataset", "gsm8k"), suffix, profile, has_c, limits).rstrip(),
     ]
     return "\n\n".join(parts) + "\n"
 
@@ -578,6 +760,9 @@ def main(
     ap.add_argument("--run", help="results folder name (default: <dataset>-s<seed>)")
     ap.add_argument("--readme", type=Path, default=readme)
     ap.add_argument(
+        "--config", type=Path, help="agents yaml the run used (default: by dataset, as in the run)"
+    )
+    ap.add_argument(
         "--write-readme",
         action="store_true",
         help=f"rewrite the README between {START_MARKER} and {END_MARKER}",
@@ -591,7 +776,7 @@ def main(
         emit(f"error: no results folder at {run_dir}")
         return 1
     records, manifest, skipped = load_run(run_dir)
-    report = build_report(records, manifest, skipped)
+    report = build_report(records, manifest, skipped, args.config)
     emit(report)
     if args.write_readme:
         if not records:
