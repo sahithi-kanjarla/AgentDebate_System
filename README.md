@@ -2,187 +2,100 @@
 
 [![CI](https://github.com/sahithi-kanjarla/AgentDebate_System/actions/workflows/ci.yml/badge.svg)](https://github.com/sahithi-kanjarla/AgentDebate_System/actions/workflows/ci.yml)
 
-**Three AI debaters answer your question on their own, critique each other without knowing who is
-who, and a judge rules. You can watch the exchange as a graph, replay it, and see which mistakes
-were caught.**
+**Three AIs argue. One verdict.**
 
-<!-- DEMO_GIF_START -->
-<!-- Slot for the recording of the debate graph. Add the file under docs/ and replace this comment with:
-![The debate graph animating](docs/demo.gif) -->
-<!-- DEMO_GIF_END -->
+A multi-agent debate system. Three AI models answer a question on their own, challenge each other
+without knowing who wrote what, and a judge rules. Watch every step, replay it, and see which
+mistakes were caught.
 
-This is a portfolio project. It runs on **free-tier** model APIs, so it can be slow, rate-limited or
-unavailable (see [Limitations](#limitations)).
+In my tests, debate got **85%** of hard exam questions right, ahead of every single model and a
+plain majority vote.
 
-> **What the graph is, and is not.** It draws the *reasoning network between the agents*: who
-> critiqued whom, who changed their answer, how answers converged. It does **not** show model
-> internals such as weights or activations; the free APIs expose none of that, and the picture is
-> not "the model's neurons".
+**Live demo: [tribunal-a8kg.onrender.com](https://tribunal-a8kg.onrender.com)**
 
-## How a debate works
+<img width="1330" height="576" alt="image" src="https://github.com/user-attachments/assets/86fec3d5-adef-4fd8-b929-5d1c8550a674" />
 
-1. **Round 0.** Three debaters, each with a persona (Solver, Skeptic, Fact-Checker) and each backed
-   by a different model, answer independently and in parallel.
-2. **Critique rounds.** Each debater sees the other answers under shuffled labels ("Response 1",
-   "Response 2", ...) with no names, and critiques them, then may revise its own answer. A debate
-   runs at least one critique round and stops early once everyone agrees, up to a configured
-   maximum.
-3. **Ruling.** A judge reads the whole anonymized transcript and returns a final answer, a summary,
-   any dissent and a confidence.
-4. **Derived by the server, not the models.** Whether an agent *changed its mind*, and the
-   *mistakes caught* list, are computed from the stored answers and critiques with fixed rules (see
-   [DECISIONS.md](DECISIONS.md)), so a model cannot claim credit it did not earn.
-5. **Reveal.** After the verdict you can ask which model wrote which turn. Until then the server
-   never sends provider names, model names or the label mapping to the browser.
-
-## Architecture
+## How it works
 
 ```mermaid
-flowchart LR
-    subgraph Browser
-        UI["React single-page app<br/>graph, replay, insights"]
+flowchart TB
+    Q(["Your question"]) --> R0
+
+    subgraph R0["Round 0: each debater answers alone"]
+        D1["Debater 1"]
+        D2["Debater 2"]
+        D3["Debater 3"]
     end
 
-    subgraph Container["One container: FastAPI on port 7860"]
-        STATIC["Built frontend and<br/>recorded demo files"]
-        API["REST and SSE API"]
-        ADM["Admission control<br/>per-IP, daily cap, concurrency"]
-        ORCH["Debate orchestrator<br/>rounds, anonymizer, judge"]
-        RULES["Consensus, changed-mind and<br/>mistakes-caught rules"]
-        PUB["Public view:<br/>strips provider, model, label map"]
-        DB[("SQLite<br/>debates, turns, event log,<br/>response cache")]
+    R0 --> X
+
+    subgraph C["Critique rounds (up to 3)"]
+        X["Each debater reads the other answers, anonymously labelled"]
+        X --> Y["Critiques them and may revise its own answer"]
+        Y --> Z{"All three agree?"}
+        Z -->|"no"| X
     end
 
-    subgraph Providers["Model providers (free tiers)"]
-        CHAIN["Per-agent fallback chain<br/>retries, rate spacing, cache"]
-        GEM["Gemini"]
-        GRQ["Groq"]
-        MIS["Mistral"]
-        OLL["Ollama (local runs only)"]
-    end
-
-    UI -->|"GET /, assets, demo files"| STATIC
-    UI -->|"POST /api/debates"| ADM
-    ADM --> API
-    API --> ORCH
-    ORCH --> RULES
-    ORCH --> CHAIN
-    CHAIN --> GEM
-    CHAIN --> GRQ
-    CHAIN --> MIS
-    CHAIN -.-> OLL
-    ORCH -->|"every event, in order"| DB
-    DB --> PUB
-    PUB -->|"SSE stream and GET /api/debates/id"| UI
-    API -->|"reveal, after the verdict"| UI
+    Z -->|"yes, or last round"| J["The judge reads the whole exchange"]
+    J --> V(["Verdict"])
 ```
+
+The server, not the models, works out which answers changed and which mistakes were caught. Model
+names stay hidden until you ask for the reveal after the verdict.
+
+## Highlights
+
+- Multi-agent debate with distinct roles, anonymous critique and an independent judge.
+- Custom async orchestrator in Python, with no agent framework.
+- Anonymity enforced on the server, not just in the interface.
+- Every event is saved in order, so live view, replay and shareable links use the same log.
+- Private per-browser history, rate limits and a daily cap for a public demo.
+- Backend, frontend and a Docker smoke test run in CI on every push.
+- An evaluation harness with a frozen held-out test and one comparison declared in advance.
+
+## Results
+
+On 60 held-out MMLU-Pro questions, debate scored 85%, the highest of every setup I tested, and it
+rescued 8 questions that a majority vote got wrong. Early results are encouraging, and a larger
+test is the next step. The scores, method and caveats are in [docs/RESULTS.md](docs/RESULTS.md).
 
 ## Run it locally
 
 You need Python 3.12 or newer with [uv](https://docs.astral.sh/uv/), and Node 22.
 
-### Without any API keys (mock debaters)
-
-The mock config replaces every model with a scripted provider: no keys, no network. The debates it
-produces are scripted demos, so what they say does not respond to your question. It is for trying
-the interface and for the tests.
-
 ```bash
-# terminal 1: backend
+# terminal 1: backend, with scripted mock debaters (no API keys needed)
 cd backend
 uv sync
 AGENTS_CONFIG=config/agents.mock.yaml uv run uvicorn app.main:app --port 8765
 # PowerShell: $env:AGENTS_CONFIG = "config/agents.mock.yaml"; uv run uvicorn app.main:app --port 8765
 
-# terminal 2: frontend (its dev server proxies /api to port 8765)
+# terminal 2: frontend
 cd frontend
 npm ci
 npm run dev        # http://localhost:5173
 ```
 
-### With real models
+For real models, copy `.env.example` to `.env` (never commit it), add `GEMINI_API_KEY`,
+`GROQ_API_KEY` and `MISTRAL_API_KEY`, and start the backend without `AGENTS_CONFIG`.
 
-Copy `.env.example` to `.env` (never commit it) and fill in any of `GEMINI_API_KEY`,
-`GROQ_API_KEY`, `OPENROUTER_API_KEY`, `MISTRAL_API_KEY`. A blank key disables that provider and its
-agents fall through to their fallback legs. Then start the backend without `AGENTS_CONFIG`, as
-above. The lineup lives in `backend/config/agents.yaml`; model IDs are never hard-coded elsewhere.
+Run the checks with `cd backend && uv run ruff check . && uv run pytest` and
+`cd frontend && npm run typecheck && npm run lint && npm test`.
 
-With no keys at all and [Ollama](https://ollama.com/) running locally, the fallback leg named in
-`agents.yaml` answers every turn, slowly. Calls use your free-tier quota, so debates are not free of
-limits: `scripts/smoke_providers.py` checks each provider once.
+## Tech stack
 
-### Tests and checks
+Python, FastAPI, asyncio, SQLite; React and TypeScript; pytest, ruff, Docker, GitHub Actions.
+Models: Google Gemini, Groq (OpenAI gpt-oss) and Mistral. Deployment notes are in
+[docs/DEPLOY.md](docs/DEPLOY.md).
 
-```bash
-cd backend && uv run ruff check . && uv run pytest      # also runs the eval tests, on mocks
-cd frontend && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build:check
-```
+## Good to know
 
-CI runs the same commands with no secrets. To run the app as a container, and to deploy it to a
-Hugging Face Space, see [docs/DEPLOY.md](docs/DEPLOY.md).
+- **Demo limits.** Model quotas are shared, answers can be slow, and storage is temporary, so
+  history and shared links reset when the app restarts.
+- **Privacy.** History is kept per browser. Questions are sent to third-party model providers, so
+  do not enter personal or confidential information.
 
-## Design decisions
+## Next
 
-The reasoning behind each is in [DECISIONS.md](DECISIONS.md). In short:
-
-- **Anonymity is enforced on the server.** Provider, model and the label mapping are stored but
-  stripped from every response and stream; only the reveal endpoint, for finished debates, returns
-  them. The public agent list omits models too.
-- **Exact answer comparison.** Answers cluster only when their text is identical, except pure
-  numbers, which compare by value. A code answer that differs by a space is a different answer.
-  This under-detects agreement ("Paris" and "Paris, France" differ) rather than merge answers that
-  are not the same.
-- **Server-derived "changed mind" and "mistakes caught".** Fixed rules over stored data, not the
-  judge's say-so. The graph never claims that a critique *caused* a change, because agents do not
-  see critiques addressed to them.
-- **One stream for live and replay.** Every event is persisted in order before it is published, so
-  live following, reconnects, replays and shareable links all read the same log.
-- **Providers behind one interface.** Retries with backoff, request spacing per provider, an
-  ordered fallback chain per agent, and a response cache keyed on the full request. Failed calls
-  are never cached.
-- **Protection for a public demo.** Per-IP limits, a global daily cap on real debates, a cap on
-  debates running at once, and a client-IP rule that does not trust a header unless told how many
-  proxies sit in front.
-- **Static demos.** The Demo tab replays recorded debates shipped in the image, so the app has
-  content even when every model is rate-limited.
-
-## Evaluation: does debate beat a majority vote?
-
-The harness in `eval/` compares each single debater, a majority vote of the three, and the full
-debate on a fixed seeded question set, with paired statistics. This section is filled in from a
-results report; it is empty until a run has finished, and nothing here is a result.
-
-<!-- EVAL_START -->
-<!-- EVAL_END -->
-
-## Limitations
-
-- **A free-tier demo, not a service.** Free quotas are small and shared, models are slow at times,
-  and a request can fail or fall back to another model. Limits are deliberately tight. Do not put
-  personal or confidential data into a public instance: questions go to third-party providers.
-- **Storage is ephemeral on the free host.** The database and the response cache live on disk that
-  is wiped when the Space restarts, rebuilds or wakes from sleep. History and shared `/debate/...`
-  links disappear. The global daily cap is counted from that database, so it resets too: it is a
-  guard, not a hard quota. The recorded demos are part of the image and survives.
-- **The models will change.** Free-tier models are retired or renamed without notice (this has
-  already happened once to a configured model, see DECISIONS.md). A different lineup can behave
-  differently.
-- **Whether debate beats a single model or a vote is still being measured.** This README makes no
-  claim either way. The evaluation uses small samples, one run per question, a free-tier lineup and
-  strict answer matching, and its report lists its own caveats.
-- **MMLU-Pro evaluation caveats.** The judge (`gpt-oss-20b`) is the same model as debater 2, so the
-  debate result may favour that debater's answer. The screen of debater 1 (85%) missed the pre-set
-  40-70% target and the holdout is run anyway by explicit, recorded override (`DECISIONS.md`). The
-  panel is a weak free-tier lineup, the debate is not compute-matched with the vote, n = 60, and
-  D vs B is the only pre-declared comparison; the report's by-subset table is post-hoc.
-- **Anonymity is partial.** Debaters are not told who wrote what, but writing style can give a model
-  away, models of one family can resemble each other, and the reveal is public once a debate ends.
-- **Exact matching has costs.** Equivalent answers written differently do not agree, so debates run
-  longer and "mistakes caught" can include false catches. The list is only as good as the verdict:
-  a wrong ruling credits the wrong critics.
-- **Output limits can cut an answer off.** Long reasoning can exhaust a model's token budget; that
-  turn counts as invalid.
-- **Per-IP limits are per process.** They reset on restart, and behind a proxy they depend on a
-  correct proxy count. That count is checked after each deployment, not assumed.
-- **The graph is a visualization of the exchange**, not of model internals, and it has not had a
-  formal accessibility audit.
+A judge that sees the vote or comes from another provider, a stop rule for debaters that keep
+swapping answers, and stronger models. Design decisions are logged in [DECISIONS.md](DECISIONS.md).
