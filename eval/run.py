@@ -177,9 +177,12 @@ def format_estimate(
     )
     applied = applied or {}
     if applied.get("max_tokens"):
+        per_agent = ", ".join(f"{a.id} {a.max_tokens}" for a in agents.all_agents())
         lines.append(
-            f"Eval-only output limit: {applied['max_tokens']} tokens per answer for every agent "
-            "(the app's agents.yaml is unchanged). It does not change how many requests are sent."
+            f"Eval-only output limit: {applied['max_tokens']} tokens per answer, as a floor: an "
+            "agent configured higher keeps its own limit (the app's agents.yaml is unchanged). "
+            f"Effective max_tokens: {per_agent}. "
+            "It does not change how many requests are sent."
         )
     for provider, value in sorted(applied.get("rpm", {}).items()):
         if value:

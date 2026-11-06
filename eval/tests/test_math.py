@@ -339,6 +339,7 @@ def test_dry_run_for_math45_shows_the_longer_pause_pacing_and_repair_allowance(t
     assert "120s each" in text and "about 6 min total" in text
     assert "1.3x for repair calls" in text
     assert "Eval-only output limit: 4096 tokens" in text and "agents.yaml is unchanged" in text
+    assert "Effective max_tokens:" in text and "judge 4096" in text
     assert "groq paced at 2 request(s)/min: at least 30s between calls" in text
     assert "Dry run: nothing was sent." in text
     assert not (env.run_dir / "manifest.json").exists()
