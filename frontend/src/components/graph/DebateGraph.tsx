@@ -36,8 +36,8 @@ const LEGEND_KEY = 'tribunal.graph.legend'
 function readLegendPref(): boolean {
   const stored = readStored(LEGEND_KEY)
   if (stored) return stored === 'shown'
-  // First visit: open on wide screens, closed on narrow ones so the graph comes first.
-  return typeof window.matchMedia !== 'function' || !window.matchMedia('(max-width: 639px)').matches
+  // First visit: closed, so the graph comes first. The Legend button opens it.
+  return false
 }
 function writeLegendPref(open: boolean) {
   writeStored(LEGEND_KEY, open ? 'shown' : 'hidden')

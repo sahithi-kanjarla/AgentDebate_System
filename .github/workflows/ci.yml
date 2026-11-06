@@ -54,5 +54,4 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm test
-      # Not strict: placeholder showcase files only warn here. The Docker build is strict.
       - run: npm run build:check

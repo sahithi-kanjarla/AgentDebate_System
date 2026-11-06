@@ -155,6 +155,8 @@ describe('Debate page: live debate', () => {
       for (const e of events.slice(0, 4)) FakeEventSource.last.emit(e.type, e.data, e.seq)
     })
     expect(await screen.findByTestId('debate-graph')).toBeInTheDocument()
+    if (!screen.queryByTestId('legend'))
+      fireEvent.click(screen.getByRole('button', { name: 'Legend' }))
     expect(screen.getAllByText(/still thinking/).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: 'Columns' }))
     expect(await screen.findAllByText(/is thinking…/)).toHaveLength(3)
@@ -189,6 +191,12 @@ describe('Debate page: live debate', () => {
       es.emit('error', { agent: D2, message: 'invalid JSON from agent', recoverable: true }, 99)
     })
     expect(await screen.findByText('1 problem during this debate')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'This model gave an answer that could not be read, so the debate continued without it.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/invalid JSON from agent/)).not.toBeInTheDocument()
     expect(es.closed).toBe(false)
   })
 

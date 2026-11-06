@@ -10,6 +10,7 @@ import type { DebateHeader, RawEvent } from '../lib/types'
 import { DebateBoard } from './DebateBoard'
 import { ErrorNotes } from './ErrorNotes'
 import { QuestionPlate } from './QuestionPlate'
+import { SlowNotice } from './SlowNotice'
 import { VerdictCard, VerdictMissing, VerdictPending } from './VerdictCard'
 import { DebateGraph, type GraphHighlight } from './graph/DebateGraph'
 import { Insights } from './insights/Insights'
@@ -170,6 +171,8 @@ export function DebateScreen({
             This debate stopped before it finished. Showing everything that was received.
           </p>
         )}
+
+        {!finished && !recorded && <SlowNotice />}
 
         {rounds.length === 0 && !finished && <p role="status">Waiting for the debaters…</p>}
 

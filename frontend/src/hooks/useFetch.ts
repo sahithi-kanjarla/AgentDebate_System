@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { friendlyMessage } from '../lib/friendly'
 
 export type Fetched<T> =
   { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; data: T }
@@ -18,7 +19,7 @@ export function useFetch<T>(load: () => Promise<T>, key: string): Fetched<T> {
       },
       (err: unknown) => {
         if (!cancelled) {
-          const message = err instanceof Error ? err.message : 'Something went wrong.'
+          const message = friendlyMessage(err, 'Something went wrong. Try again in a moment.')
           setResult({ key, value: { status: 'error', message } })
         }
       },

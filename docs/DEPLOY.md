@@ -5,39 +5,97 @@ SDK, expects). This file covers building and testing the image, the Space setup,
 run after a deploy, and the [pre-deploy checklist](#pre-deploy-checklist) to complete before the
 Space is made public.
 
+## Deploy on Render (Docker web service, free plan)
+
+The Dockerfile listens on the `PORT` environment variable (Render sets it, normally `10000`; the
+image default is `7860`), binds `0.0.0.0` and runs as the non-root user `user`. The health check
+path is `/api/health` (returns `{"status":"ok"}`). A `render.yaml` Blueprint in the repository root
+describes the same service.
+
+### Click-by-click
+
+1. Push the repository (a commit, not the working tree) to GitHub. Check that `.env` is not in it.
+2. render.com > sign in > **New +** > **Web Service** > connect GitHub and pick the repository.
+3. **Language / Runtime:** Docker. Branch: `main`. Root directory: leave empty. Dockerfile path:
+   `./Dockerfile`. **Instance type: Free**. Name: `tribunal`.
+4. Open **Advanced**. Set **Health Check Path** to `/api/health`. Leave Auto-Deploy as you prefer.
+5. Under **Environment Variables** add these names (type the values yourself in the dashboard):
+   - `GEMINI_API_KEY`
+   - `GROQ_API_KEY`
+   - `MISTRAL_API_KEY`
+   - `TRUSTED_PROXY` = `1` (then verify, see below)
+   - `EXPOSE_AGENT_MODELS` = `false` (already the image default; set it explicitly so it is visible)
+
+   `OPENROUTER_API_KEY` is accepted by the app but the current lineup in `config/agents.yaml` does
+   not use it. Do not set `PORT`: Render provides it.
+6. **Create Web Service**. The first build takes several minutes (npm and Python installs). Watch
+   the Logs tab for `Uvicorn running on http://0.0.0.0:...`, `rate limiting ON` and
+   `providers with an API key: gemini, groq, mistral`.
+7. Open the `https://<name>.onrender.com` URL. Do the `TRUSTED_PROXY` check below before sharing it.
+
+Using the Blueprint instead: **New +** > **Blueprint** > pick the repository; Render reads
+`render.yaml` and asks for the three `sync: false` keys.
+
+### Free-plan behaviour
+
+- The service sleeps after about 15 minutes without traffic. The first visit after idle can take
+  about a minute (cold start); the page may show Render's loading screen meanwhile.
+- The disk is temporary. Every restart, redeploy and wake from sleep empties the SQLite database,
+  so **History and `/debate/{id}` share links reset**, and so do the response cache, the per-IP
+  counters and the global daily cap (see "What is lost on a restart" below). The recorded demos are
+  static files in the image and survive.
+
+### Memory (512 MB free limit)
+
+Estimated, not measured: the Python dependencies are light (FastAPI, uvicorn, SQLModel/SQLite, the
+OpenAI SDK used as an HTTP client, slowapi, PyYAML). No ML libraries are loaded, and startup only
+parses the YAML configs and creates the SQLite tables. Expect roughly 100 to 180 MB idle, and more
+while several debates stream at once (`MAX_CONCURRENT_DEBATES=3` bounds this). Check the real number
+in the Render dashboard (Metrics > Memory) after a few debates. If the service is killed for
+out-of-memory ("Ran out of memory" in Events): lower `MAX_CONCURRENT_DEBATES` to `1` or `2`; if it
+still happens, move to a paid instance (Starter, 512 MB is the same, so Standard or higher) or to a
+host with more memory.
+
+### `TRUSTED_PROXY` on Render
+
+Start with `1`. Render's proxy appends the visitor address to `X-Forwarded-For`, but how many
+entries sit to the right of it is **not verified**, so treat `1` as a safe starting point: if it is
+too low, visitors share one limit (safe); never set it higher than the check shows. A header shorter
+than the value falls back to the connecting address. To verify after deploy, follow "Client IP"
+below, with Render's Logs tab instead of the Space's: load the site from your computer and from
+your phone on mobile data, and compare the `resolved` field of the first `client-ip check` lines
+with each device's public address. If `resolved` is the same for both devices, find your own
+address in the `xff` list; if it is second from the right, set `TRUSTED_PROXY=2` and redeploy.
+
 ## What is in the image
 
 `backend/app`, `backend/config` (both agent configs) and the built `frontend/dist` (which includes
-`dist/showcase`, the recorded examples). Nothing else: no `.env`, no tests, no eval data, no git
+the recorded demos in `dist/examples.json`). Nothing else: no `.env`, no tests, no eval data, no git
 history. It runs as uid 1000 (`user`) with one uvicorn worker. Expected size: about 250 to 300 MB on
 disk, about 90 to 110 MB compressed (an estimate until you run `docker images`).
 
 ## Environment variables
 
-Baked into the image as defaults (a Space *variable* with the same name overrides them):
+Baked into the image as defaults (a Space _variable_ with the same name overrides them):
 
-| Variable | Image default | Meaning |
-|---|---|---|
-| `FRONTEND_DIST` | `/app/frontend/dist` | Folder of the built frontend the API serves |
-| `DATABASE_URL` | `sqlite:////home/user/data/tribunal.db` | Debate history. Ephemeral on Spaces |
-| `AGENTS_CONFIG` | `/app/backend/config/agents.yaml` | Real lineup. `config/agents.mock.yaml` = offline mock |
-| `RATE_LIMIT_ENABLED` | `true` | Per-IP and global limits. Leave on |
-| `RATE_LIMIT_PER_HOUR` / `RATE_LIMIT_PER_DAY` | `5` / `20` | Debates per IP |
-| `GLOBAL_DAILY_CAP` | `15` | Real debates per UTC day, all visitors (`0` = off) |
-| `MAX_CONCURRENT_DEBATES` | `3` | Debates running at once (`0` = off) |
-| `TRUSTED_PROXY` | `1` | Proxies in front of the app (see "Client IP" below) |
-| `EXPOSE_AGENT_MODELS` | `false` | Must stay `false`: `true` un-anonymizes every debate |
-| `CACHE_ENABLED` | `true` | Response cache (also ephemeral) |
-| `LOG_LEVEL` | `INFO` | |
+| Variable                                     | Image default                           | Meaning                                               |
+| -------------------------------------------- | --------------------------------------- | ----------------------------------------------------- |
+| `FRONTEND_DIST`                              | `/app/frontend/dist`                    | Folder of the built frontend the API serves           |
+| `DATABASE_URL`                               | `sqlite:////home/user/data/tribunal.db` | Debate history. Ephemeral on Spaces                   |
+| `AGENTS_CONFIG`                              | `/app/backend/config/agents.yaml`       | Real lineup. `config/agents.mock.yaml` = offline mock |
+| `RATE_LIMIT_ENABLED`                         | `true`                                  | Per-IP and global limits. Leave on                    |
+| `RATE_LIMIT_PER_HOUR` / `RATE_LIMIT_PER_DAY` | `5` / `20`                              | Debates per IP                                        |
+| `GLOBAL_DAILY_CAP`                           | `15`                                    | Real debates per UTC day, all visitors (`0` = off)    |
+| `MAX_CONCURRENT_DEBATES`                     | `3`                                     | Debates running at once (`0` = off)                   |
+| `TRUSTED_PROXY`                              | `1`                                     | Proxies in front of the app (see "Client IP" below)   |
+| `EXPOSE_AGENT_MODELS`                        | `false`                                 | Must stay `false`: `true` un-anonymizes every debate  |
+| `CACHE_ENABLED`                              | `true`                                  | Response cache (also ephemeral)                       |
+| `LOG_LEVEL`                                  | `INFO`                                  |                                                       |
 
 Space **Secrets** (never in the image, git or a Variable):
 `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `MISTRAL_API_KEY`. A blank or missing key
 disables that provider, and the debate falls through its fallback chain. The first log lines say
 which providers have a key (names only) and whether rate limiting is ON.
-
-Build argument: `SHOWCASE_STRICT` (default `1`). With `1` the frontend build **fails** while any
-test-only placeholder file is in `frontend/public/showcase`; `0` only warns. Use `0` for a local or
-private test while the placeholders are still there; never for the public Space.
 
 ## What is lost on a restart
 
@@ -55,7 +113,7 @@ Spaces storage is ephemeral. After every restart, rebuild or wake from sleep:
   guard, not a hard quota: a day with several restarts can exceed 15 debates. The providers' own
   429 responses and the fallback chain are the real backstop.
 
-The Showcase is static files inside the image and is unaffected.
+The Demo tab's recorded debates are static files inside the image and are unaffected.
 
 ## Option A: test the image locally with the mock config (Docker Desktop)
 
@@ -67,7 +125,7 @@ No keys, no network: every agent is the deterministic mock provider.
 2. From the repository root (Git Bash or WSL):
 
    ```bash
-   docker build --build-arg SHOWCASE_STRICT=0 -t tribunal .
+   docker build -t tribunal .
    docker images tribunal          # the real image size
    docker run --rm -p 7860:7860 \
      -e AGENTS_CONFIG=/app/backend/config/agents.mock.yaml \
@@ -77,7 +135,8 @@ No keys, no network: every agent is the deterministic mock provider.
 
    In PowerShell put the `docker run` on one line. In Git Bash, prefix it with `MSYS_NO_PATHCONV=1`
    if the `/app/...` path gets rewritten.
-3. Open http://localhost:7860, run a debate, open a showcase example, then reload on
+
+3. Open http://localhost:7860, run a debate, open the Demo tab and play a recording, then reload on
    `/debate/<id>` (the share-link fallback). In another terminal:
 
    ```bash
@@ -98,10 +157,7 @@ the one-entry header a client can set itself.
 1. huggingface.co > New Space > SDK **Docker** > template Blank > hardware CPU basic (free) >
    visibility **Private**.
 2. In Settings > Variables and secrets add the **Variables** `AGENTS_CONFIG=config/agents.mock.yaml`
-   (relative to `/app/backend`) and `SHOWCASE_STRICT=0`. Add no secrets. Spaces are documented to
-   pass Variables to the Docker build as build arguments; if the build still stops on the
-   placeholder check, the build log says so and `SHOWCASE_STRICT` was not passed (check the current
-   Spaces docs).
+   (relative to `/app/backend`). Add no secrets.
 3. Prepare a clean copy without git history, eval data or screenshots, prepend the Space front
    matter (below) to its `README.md`, and push that copy to the Space:
 
@@ -119,6 +175,7 @@ the one-entry header a client can set itself.
    `-co --exclude-standard` takes tracked and untracked files but honours `.gitignore`, so `.env`
    and `*.db` are not copied. Run `ls -a ../tribunal-space` and confirm there is no `.env` before
    pushing anyway.
+
 4. Watch the **Logs** tab: Build (each Dockerfile step), then Container. A good run ends with
    `Uvicorn running on http://0.0.0.0:7860`, a line `rate limiting ON ...` and
    `providers with an API key: none`.
@@ -174,25 +231,6 @@ Addresses are masked: the last IPv4 octet is zeroed and IPv6 is cut to three gro
 The log lines contain no keys, prompts or answers. Uvicorn's access log is off, so addresses and
 URLs are not written to the logs otherwise.
 
-## Showcase: replace the placeholders before a public deploy
-
-`frontend/public/showcase/` ships three test-only placeholder files. `npm run build:check` only
-warns about them; the Docker build fails on them unless `SHOWCASE_STRICT=0`. To replace them with
-real recordings (steps 1 and 2 use your real keys, so you run them):
-
-1. Start the backend on the real config and the frontend (`npm run dev`).
-2. Run three real debates that show something distinct (for example a wrong answer losing support,
-   a mistake caught, an invalid turn or a fallback).
-3. Open `/dev/export/<debateId>` for each (dev server only). It previews the replay with the real
-   player and lists sanitiser warnings, such as a provider or model name in free text. Resolve every
-   warning by hand: warnings are reported, never rewritten.
-4. Download each `<slug>.json` into `frontend/public/showcase/`.
-5. Delete the three `placeholder-*.json` files, then run `npm run showcase:index` to rebuild
-   `index.json`.
-6. From `frontend/`, run `npm run build:check` and then `node scripts/check-bundle.mjs --strict`.
-   Both must pass with no `testOnly` warning. The unit tests also check that every shipped file is
-   sanitised, listed in the index and free of provider and model names.
-
 ## Pre-deploy checklist
 
 Tick every item for the public Space. Commands assume Git Bash at the repository root unless
@@ -217,6 +255,7 @@ instead.
   start of each of your four real keys, in your own terminal and without pasting them anywhere:
   `git log --all --oneline -S'<first 10 characters of the key>'` must print nothing. If anything
   matches, treat that key as leaked and rotate it before doing anything else.
+
 - [ ] `.env` is ignored (`git check-ignore -v .env` names a rule) and not tracked
       (`git ls-files | grep -i '^\.env'` shows only `.env.example`).
 - [ ] `.env.example` contains no values (`grep -E 'KEY=.+' .env.example` prints nothing).
@@ -236,9 +275,9 @@ instead.
 
   Expect only `backend/app`, `backend/config`, `frontend/dist`, `data` and `uid=1000(user)`. No
   `.env`, `*.db`, `eval`, tests or `.git`.
-- [ ] The public image was built **without** `SHOWCASE_STRICT=0`, and
-      `docker run --rm --entrypoint ls tribunal /app/frontend/dist/showcase` lists no
-      `placeholder-*` file.
+
+- [ ] `docker run --rm --entrypoint ls tribunal /app/frontend/dist` lists `examples.json` and no
+      `showcase` folder.
 
 ### Behaviour of the running app (the mock config is enough for these)
 
@@ -255,6 +294,7 @@ Start the image as in Option A, run one debate in the browser, and put its id in
 
   Only `GET /api/debates/$ID/reveal` may return them, and it returns `409` while a debate runs.
   `backend/tests/test_reveal.py` also enforces this in CI.
+
 - [ ] `curl -s localhost:7860/api/agents` returns only `id`, `role`, `persona`, `status` and
       `reachable`, and the Space does **not** set `EXPOSE_AGENT_MODELS=true`.
 - [ ] **Headers.** `curl -si localhost:7860/` shows a `content-security-policy` (with
@@ -279,7 +319,7 @@ Start the image as in Option A, run one debate in the browser, and put its id in
 - [ ] The four keys are Space **Secrets**, not Variables, and none is blank by accident (the
       startup line `providers with an API key:` lists the ones that are set).
 - [ ] The test-only Variables are gone from the public Space: no `AGENTS_CONFIG` pointing at the
-      mock config and no `SHOWCASE_STRICT=0`.
+      mock config.
 - [ ] `TRUSTED_PROXY` was verified from the logs (see "Client IP" above) and its value is set
       deliberately.
 - [ ] The Space's `README.md` carries the front matter and the repository's README does not.

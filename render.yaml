@@ -1,0 +1,20 @@
+# Render Blueprint: Docker web service on the free plan. Secret values are never stored here;
+# `sync: false` makes Render ask for them in the dashboard on first creation.
+services:
+  - type: web
+    name: tribunal
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: TRUSTED_PROXY
+        value: "1"
+      - key: EXPOSE_AGENT_MODELS
+        value: "false"

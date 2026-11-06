@@ -18,7 +18,7 @@ export function Debate({ sourceFactory }: { sourceFactory?: SourceFactory }) {
           Nothing is stored under this link. It may have been mistyped, or the history was reset.
         </p>
         <p className="mt-4">
-          <Link to="/" className="font-medium text-brass underline">
+          <Link to="/app" className="font-medium text-brass underline">
             Start a new debate
           </Link>
         </p>

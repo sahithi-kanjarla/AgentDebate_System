@@ -27,8 +27,8 @@ export const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'legend',
-    title: 'The legend explains every mark',
-    body: 'Colours, letters, patterns and line styles are all listed there. Open it any time with the Legend button above the graph.',
+    title: 'The legend is short',
+    body: 'It lists the five marks you need. Open it any time with the Legend button above the graph.',
     selector: '[data-testid="legend"], [role="toolbar"]',
   },
   {

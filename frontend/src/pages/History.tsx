@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { PageTitle } from '../components/SiteChrome'
 import { HistoryNotice } from '../components/DemoNotice'
 import { useFetch } from '../hooks/useFetch'
 import { listDebates } from '../lib/api'
@@ -20,17 +21,14 @@ function when(iso: string): string {
 export function HistoryItem({ item }: { item: DebateListItem }) {
   return (
     <li>
-      <Link
-        to={`/debate/${item.id}`}
-        className="block rounded-card border border-rule-strong bg-vellum p-4 hover:bg-paper"
-      >
+      <Link to={`/debate/${item.id}`} className="card card-link block">
         <p className="mb-1 flex flex-wrap gap-x-3 text-sm text-ink-soft">
           <span>{item.mode === 'review' ? 'Review' : 'Answer'}</span>
           <span>{STATUS_WORD[item.status] ?? item.status}</span>
           <time dateTime={item.created_at}>{when(item.created_at)}</time>
         </p>
         {/* Clamped by CSS only; the full text stays in the page. */}
-        <p className="line-clamp-2 whitespace-pre-wrap break-words font-serif text-lg text-ink">
+        <p className="line-clamp-2 whitespace-pre-wrap break-words font-sans text-lg text-ink">
           {item.question}
         </p>
         {item.final_answer != null && (
@@ -50,7 +48,7 @@ export function History() {
   const result = useFetch(() => listDebates(20), 'history')
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-6 text-3xl text-ink">Recent debates</h1>
+      <PageTitle title="Recent debates">Debates started from this browser.</PageTitle>
       <HistoryNotice />
       {result.status === 'loading' && <p role="status">Loading…</p>}
       {result.status === 'error' && (
@@ -65,7 +63,7 @@ export function History() {
         (result.data.length === 0 ? (
           <p className="text-ink-soft">
             No debates yet.{' '}
-            <Link to="/" className="font-medium text-brass underline">
+            <Link to="/app" className="font-medium text-brass underline">
               Start the first one
             </Link>
           </p>

@@ -3,7 +3,7 @@
  *
  * This is the only place provider and model names exist in the UI, and only after the person asks
  * for them. The data lives in component state for one page view; it never enters the debate
- * reducer, so the graph, its answer letters and the showcase sanitiser are unaffected.
+ * reducer, so the graph and its answer letters are unaffected.
  */
 
 export interface RevealModel {

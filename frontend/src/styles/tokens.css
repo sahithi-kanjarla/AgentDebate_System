@@ -15,8 +15,12 @@
 
   /* The ruling: brass is used for the verdict, primary actions and the focus ring */
   --color-brass: #8a6a1f;
+  --color-brass-dark: #6f5518;
   --color-brass-fill: #c9a24a;
   --color-brass-tint: #f1e7cb;
+
+  /* The judge: plain ink, the one agent that is not a debater */
+  --color-judge: #17222e;
 
   /* Debaters: a cool family, also told apart by persona glyph and column position */
   --color-debater-1: #3f4fb8;
@@ -64,12 +68,11 @@
   --color-ok-tint: #dcefe2;
 
   /* Type */
-  --font-serif: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
   --font-sans: 'Instrument Sans Variable', system-ui, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 
-  /* Radii: small for chips and badges, a little more for cards */
-  --radius-chip: 2px;
+  /* One radius for chips, buttons and cards */
+  --radius-chip: 6px;
   --radius-card: 6px;
   --radius-pill: 999px;
 

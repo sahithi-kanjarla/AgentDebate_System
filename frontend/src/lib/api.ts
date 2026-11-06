@@ -58,7 +58,7 @@ async function request(input: string, init?: RequestInit): Promise<Response> {
   try {
     res = await fetch(input, init)
   } catch {
-    throw new ApiError(0, 'Could not reach the server. Check that the backend is running.')
+    throw new ApiError(0, 'Could not reach the server. Try again in a moment.')
   }
   return res
 }

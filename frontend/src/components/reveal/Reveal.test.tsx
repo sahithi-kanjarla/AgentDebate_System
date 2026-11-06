@@ -128,6 +128,8 @@ describe('reveal', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
 
+    if (!screen.queryByTestId('legend'))
+      fireEvent.click(screen.getByRole('button', { name: 'Legend' }))
     expect(screen.getByTestId('legend-models')).toHaveTextContent(`${MODEL}-Debater3`)
 
     fireEvent.click(screen.getByRole('button', { name: 'Columns' }))

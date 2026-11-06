@@ -93,19 +93,21 @@ describe('accessibility', () => {
   it('shows the honesty note and a legend that can be dismissed and stays dismissed', () => {
     const { unmount } = renderFixture('two')
     expect(screen.getByTestId('honesty-note')).toHaveTextContent('does not show the models')
-    expect(screen.getByTestId('legend')).toBeInTheDocument()
-    expect(screen.getByTestId('legend')).toHaveTextContent("marker sits at the accuser's end")
-    fireEvent.click(screen.getByRole('button', { name: 'Hide legend' }))
-    expect(screen.queryByTestId('legend')).not.toBeInTheDocument()
-    unmount()
-    renderFixture('two')
     expect(screen.queryByTestId('legend')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Legend' }))
-    expect(screen.getByTestId('legend')).toBeInTheDocument()
+    const legend = screen.getByTestId('legend')
+    expect(legend).toHaveTextContent('Dashed outline: changed its answer.')
+    expect(within(legend).getAllByRole('listitem')).toHaveLength(5)
+    unmount()
+    renderFixture('two')
+    expect(screen.getByTestId('legend')).toBeInTheDocument() // the choice is remembered
+    fireEvent.click(screen.getByRole('button', { name: 'Hide legend' }))
+    expect(screen.queryByTestId('legend')).not.toBeInTheDocument()
   })
 
   it('renders the legend below the canvas, not over it', () => {
     renderFixture('two')
+    fireEvent.click(screen.getByRole('button', { name: 'Legend' }))
     const graph = screen.getByTestId('debate-graph')
     const legend = screen.getByTestId('legend')
     const stage = graph.querySelector('.graph-stage')!

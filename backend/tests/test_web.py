@@ -15,10 +15,9 @@ from tests.conftest import MOCK_AGENTS, demo_factory
 def dist(tmp_path):
     root = tmp_path / "dist"
     (root / "assets").mkdir(parents=True)
-    (root / "showcase").mkdir()
     (root / "index.html").write_text("<!doctype html><title>Tribunal</title>", encoding="utf-8")
     (root / "assets" / "index-abc123.js").write_text("console.log(1)", encoding="utf-8")
-    (root / "showcase" / "index.json").write_text('{"format": 1}', encoding="utf-8")
+    (root / "examples.json").write_text('{"format": 1}', encoding="utf-8")
     (tmp_path / "secret.txt").write_text("outside the build", encoding="utf-8")
     return root
 
@@ -39,7 +38,7 @@ async def web(tmp_path, dist):
 
 
 async def test_index_and_spa_fallback_for_shared_links(web):
-    for path in ("/", "/history", "/debate/abc-123", "/showcase/some-slug"):
+    for path in ("/", "/app", "/history", "/debate/abc-123"):
         r = await web.get(path)
         assert r.status_code == 200 and "<title>Tribunal</title>" in r.text, path
         assert r.headers["cache-control"] == "no-cache"
@@ -48,9 +47,9 @@ async def test_index_and_spa_fallback_for_shared_links(web):
 async def test_built_files_are_served_with_the_right_caching(web):
     hashed = await web.get("/assets/index-abc123.js")
     assert hashed.status_code == 200 and "immutable" in hashed.headers["cache-control"]
-    showcase = await web.get("/showcase/index.json")  # static data shipped in the image
-    assert showcase.json() == {"format": 1}
-    assert showcase.headers["cache-control"] == "no-cache"
+    examples = await web.get("/examples.json")  # static data shipped in the image
+    assert examples.json() == {"format": 1}
+    assert examples.headers["cache-control"] == "no-cache"
 
 
 async def test_missing_files_and_unknown_api_paths_are_404_not_the_html_shell(web):

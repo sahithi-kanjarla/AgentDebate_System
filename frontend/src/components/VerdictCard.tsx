@@ -42,7 +42,7 @@ export function VerdictCard({ verdict, linking }: { verdict: Verdict; linking?: 
       aria-labelledby="verdict-heading"
       className="fade-in rounded-card border border-rule-strong border-t-[6px] border-t-brass-fill bg-paper p-5 sm:p-6"
     >
-      <h2 id="verdict-heading" className="mb-3 font-serif text-2xl text-ink">
+      <h2 id="verdict-heading" className="mb-3 font-sans text-2xl text-ink">
         Verdict
       </h2>
 
@@ -74,7 +74,7 @@ export function VerdictCard({ verdict, linking }: { verdict: Verdict; linking?: 
       </div>
 
       {verdict.summary && (
-        <p className="mt-5 max-w-[68ch] whitespace-pre-wrap font-serif text-lg leading-relaxed text-ink">
+        <p className="mt-5 max-w-[68ch] whitespace-pre-wrap font-sans text-lg leading-relaxed text-ink">
           {verdict.summary}
         </p>
       )}

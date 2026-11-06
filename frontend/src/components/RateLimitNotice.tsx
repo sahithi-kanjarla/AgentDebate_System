@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom'
-import { useFetch } from '../hooks/useFetch'
 import type { LimitScope } from '../lib/api'
 import { clockAfter, formatWait } from '../lib/wait'
-import { loadIndex } from './ShowcaseList'
 
 const COPY: Record<LimitScope, { title: string; body: string }> = {
   ip_hour: {
@@ -35,8 +33,6 @@ export function RateLimitNotice({
   now?: number
 }) {
   const { title, body } = COPY[scope]
-  const index = useFetch(loadIndex, 'index')
-  const first = index.status === 'ready' ? index.data[0] : undefined
   return (
     <div
       role="alert"
@@ -49,13 +45,11 @@ export function RateLimitNotice({
         Try again in {formatWait(retryAfterS)} (around {clockAfter(retryAfterS, now)}). Your
         question is still here.
       </p>
-      {first && (
-        <p className="mt-2 text-sm">
-          <Link to={`/showcase/${first.slug}`} className="font-medium text-brass underline">
-            Watch a recorded debate instead
-          </Link>
-        </p>
-      )}
+      <p className="mt-2 text-sm">
+        <Link to="/app?tab=demo" className="font-medium text-brass underline">
+          Watch a recorded debate instead
+        </Link>
+      </p>
     </div>
   )
 }

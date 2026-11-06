@@ -37,7 +37,7 @@ export function DebateBoard({ state }: { state: DebateState }) {
 
       {rounds.map((r) => (
         <div key={r.round} className="space-y-4">
-          <h2 className="font-serif text-xl text-ink">
+          <h2 className="font-sans text-xl text-ink">
             {r.round === 0
               ? 'Round 0: independent answers'
               : `Round ${r.round}: critique and revise`}

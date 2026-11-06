@@ -1,0 +1,563 @@
+{
+  "format": 1,
+  "source": "mmlupro-holdout-s42",
+  "selection": "Chosen from the test questions where debate's final answer was right and at least two of the three debaters were wrong in round 0. Not a random sample.",
+  "examples": [
+    {
+      "id": "mmlupro-7422",
+      "category": "Economics",
+      "stem": "A dark room technician who develops film into photographs loses his job because few people use film cameras any more. This is an example of which of the following?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Seasonal unemployment"
+        },
+        {
+          "letter": "B",
+          "text": "Casual unemployment"
+        },
+        {
+          "letter": "C",
+          "text": "Cyclical unemployment"
+        },
+        {
+          "letter": "D",
+          "text": "Structural unemployment"
+        },
+        {
+          "letter": "E",
+          "text": "Underemployment"
+        },
+        {
+          "letter": "F",
+          "text": "Involuntary unemployment"
+        },
+        {
+          "letter": "G",
+          "text": "Technological unemployment"
+        },
+        {
+          "letter": "H",
+          "text": "Natural unemployment"
+        },
+        {
+          "letter": "I",
+          "text": "Frictional unemployment"
+        },
+        {
+          "letter": "J",
+          "text": "Traditional unemployment"
+        }
+      ],
+      "gold": "D",
+      "debaters": [
+        {
+          "debater": 1,
+          "persona": "Solver"
+        },
+        {
+          "debater": 2,
+          "persona": "Skeptic"
+        },
+        {
+          "debater": 3,
+          "persona": "Fact-Checker"
+        }
+      ],
+      "round0_correct": 1,
+      "rounds": [
+        {
+          "round": 0,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "D",
+              "confidence": 100
+            },
+            {
+              "debater": 2,
+              "answer": "G",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "G",
+              "confidence": 95
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "G",
+              "confidence": 100
+            },
+            {
+              "debater": 2,
+              "answer": "G",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "D",
+              "confidence": 98
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "D",
+              "confidence": 98
+            },
+            {
+              "debater": 2,
+              "answer": "G",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "G",
+              "confidence": 99
+            }
+          ]
+        },
+        {
+          "round": 3,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "D",
+              "confidence": 95
+            },
+            {
+              "debater": 2,
+              "answer": "G",
+              "confidence": 95
+            },
+            {
+              "debater": 3,
+              "answer": "D",
+              "confidence": 95
+            }
+          ]
+        }
+      ],
+      "final": {
+        "answer": "D",
+        "confidence": 90,
+        "summary": null
+      }
+    },
+    {
+      "id": "mmlupro-3957",
+      "category": "Chemistry",
+      "stem": "What is the average atomic weight for the natural sulfur solid, if the natural abundance of sulfur is 95.0% _10S^22 (31.97207 u) , 0.76% _10S^23(32.97146 u), 4.22% _10S^24 (33.96786 u) and 0.02% _10S^26 (35.96709 u).",
+      "options": [
+        {
+          "letter": "A",
+          "text": "32.07550 u"
+        },
+        {
+          "letter": "B",
+          "text": "32.06469 u"
+        },
+        {
+          "letter": "C",
+          "text": "31.97207 u"
+        },
+        {
+          "letter": "D",
+          "text": "32.50000 u"
+        },
+        {
+          "letter": "E",
+          "text": "31.96355 u"
+        },
+        {
+          "letter": "F",
+          "text": "34.96900 u"
+        },
+        {
+          "letter": "G",
+          "text": "33.98450 u"
+        },
+        {
+          "letter": "H",
+          "text": "32.06540 u"
+        },
+        {
+          "letter": "I",
+          "text": "33.96786 u"
+        },
+        {
+          "letter": "J",
+          "text": "32.97146 u"
+        }
+      ],
+      "gold": "B",
+      "debaters": [
+        {
+          "debater": 1,
+          "persona": "Solver"
+        },
+        {
+          "debater": 2,
+          "persona": "Skeptic"
+        },
+        {
+          "debater": 3,
+          "persona": "Fact-Checker"
+        }
+      ],
+      "round0_correct": 1,
+      "rounds": [
+        {
+          "round": 0,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "B",
+              "confidence": 100
+            },
+            {
+              "debater": 2,
+              "answer": "H",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "H",
+              "confidence": 99
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "B",
+              "confidence": 100
+            },
+            {
+              "debater": 2,
+              "answer": "B",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "B",
+              "confidence": 100
+            }
+          ]
+        }
+      ],
+      "final": {
+        "answer": "B",
+        "confidence": 95,
+        "summary": "The weighted average of the sulfur isotopes using the given abundances yields 32.06469 u, which matches option B."
+      }
+    },
+    {
+      "id": "mmlupro-1056",
+      "category": "Law",
+      "stem": "Which of the following is not a warrantless search exception?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Stop and frisk"
+        },
+        {
+          "letter": "B",
+          "text": "Incident to a lawful arrest"
+        },
+        {
+          "letter": "C",
+          "text": "Emergency situation"
+        },
+        {
+          "letter": "D",
+          "text": "Vehicle exception"
+        },
+        {
+          "letter": "E",
+          "text": "Cold pursuit"
+        },
+        {
+          "letter": "F",
+          "text": "Public place exception"
+        },
+        {
+          "letter": "G",
+          "text": "Consent"
+        },
+        {
+          "letter": "H",
+          "text": "Plain view"
+        },
+        {
+          "letter": "I",
+          "text": "Electronic surveillance"
+        }
+      ],
+      "gold": "E",
+      "debaters": [
+        {
+          "debater": 1,
+          "persona": "Solver"
+        },
+        {
+          "debater": 2,
+          "persona": "Skeptic"
+        },
+        {
+          "debater": 3,
+          "persona": "Fact-Checker"
+        }
+      ],
+      "round0_correct": 1,
+      "rounds": [
+        {
+          "round": 0,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "E",
+              "confidence": 85
+            },
+            {
+              "debater": 2,
+              "answer": "I",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "I",
+              "confidence": 95
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "I",
+              "confidence": 95
+            },
+            {
+              "debater": 2,
+              "answer": "I",
+              "confidence": 100
+            },
+            {
+              "debater": 3,
+              "answer": "E",
+              "confidence": 98
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "I",
+              "confidence": 95
+            },
+            {
+              "debater": 2,
+              "answer": "I",
+              "confidence": 100
+            },
+            {
+              "debater": 3,
+              "answer": "E",
+              "confidence": 99
+            }
+          ]
+        },
+        {
+          "round": 3,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "E",
+              "confidence": 90
+            },
+            {
+              "debater": 2,
+              "answer": "I",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "I",
+              "confidence": 100
+            }
+          ]
+        }
+      ],
+      "final": {
+        "answer": "E",
+        "confidence": 90,
+        "summary": "Cold pursuit is not a recognized warrantless search exception; the other options are standard exceptions or contexts that allow warrantless searches."
+      }
+    },
+    {
+      "id": "mmlupro-1597",
+      "category": "Law",
+      "stem": "There is a voting law that is going to be reviewed by the court. If the law is upheld, what must be true?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "The law is necessary for a legitimate government purpose."
+        },
+        {
+          "letter": "B",
+          "text": "The law is rationally related to an important government purpose."
+        },
+        {
+          "letter": "C",
+          "text": "The law is unnecessarily related to a compelling government purpose."
+        },
+        {
+          "letter": "D",
+          "text": "The law is substantially related to an important government purpose."
+        },
+        {
+          "letter": "E",
+          "text": "The law is necessary to achieve a compelling government purpose."
+        },
+        {
+          "letter": "F",
+          "text": "The law is moderately related to a compelling government purpose."
+        },
+        {
+          "letter": "G",
+          "text": "The law is rationally related to a legitimate government purpose."
+        },
+        {
+          "letter": "H",
+          "text": "The law is vaguely related to a significant government purpose."
+        },
+        {
+          "letter": "I",
+          "text": "The law is substantially unrelated to any government purpose."
+        },
+        {
+          "letter": "J",
+          "text": "The law is substantially related to a legitimate government purpose."
+        }
+      ],
+      "gold": "E",
+      "debaters": [
+        {
+          "debater": 1,
+          "persona": "Solver"
+        },
+        {
+          "debater": 2,
+          "persona": "Skeptic"
+        },
+        {
+          "debater": 3,
+          "persona": "Fact-Checker"
+        }
+      ],
+      "round0_correct": 1,
+      "rounds": [
+        {
+          "round": 0,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "G",
+              "confidence": 95
+            },
+            {
+              "debater": 2,
+              "answer": "B",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "E",
+              "confidence": 100
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "E",
+              "confidence": 100
+            },
+            {
+              "debater": 2,
+              "answer": "E",
+              "confidence": 90
+            },
+            {
+              "debater": 3,
+              "answer": "G",
+              "confidence": 100
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "E",
+              "confidence": 100
+            },
+            {
+              "debater": 2,
+              "answer": "B",
+              "confidence": 100
+            },
+            {
+              "debater": 3,
+              "answer": "E",
+              "confidence": 100
+            }
+          ]
+        },
+        {
+          "round": 3,
+          "answers": [
+            {
+              "debater": 1,
+              "answer": "G",
+              "confidence": 85
+            },
+            {
+              "debater": 2,
+              "answer": "E",
+              "confidence": 100
+            },
+            {
+              "debater": 3,
+              "answer": "E",
+              "confidence": 100
+            }
+          ]
+        }
+      ],
+      "final": {
+        "answer": "E",
+        "confidence": 90,
+        "summary": "The correct standard for voting laws is strict scrutiny, requiring the law to be necessary to achieve a compelling government purpose. Option E states exactly that."
+      }
+    }
+  ]
+}

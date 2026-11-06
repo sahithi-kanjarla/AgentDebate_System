@@ -1,4 +1,5 @@
 import type { DebateError } from '../lib/debateState'
+import { friendlyDebateError } from '../lib/friendly'
 
 export function ErrorNotes({ errors }: { errors: DebateError[] }) {
   if (errors.length === 0) return null
@@ -13,10 +14,7 @@ export function ErrorNotes({ errors }: { errors: DebateError[] }) {
         {errors.map((e, i) => (
           <li key={i} className="text-ink">
             <span className="font-medium">{e.agent ?? 'Debate'}:</span>{' '}
-            <span className="whitespace-pre-wrap break-words">{e.message}</span>{' '}
-            <span className="text-ink-soft">
-              ({e.recoverable ? 'the debate continued' : 'not recoverable'})
-            </span>
+            <span>{friendlyDebateError(e)}</span>
           </li>
         ))}
       </ul>

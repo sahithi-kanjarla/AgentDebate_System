@@ -1,15 +1,13 @@
 import { Link } from 'react-router-dom'
+import { PageTitle } from '../components/SiteChrome'
 
 export function NotFound() {
   return (
     <div className="max-w-xl">
-      <h1 className="text-3xl">Page not found</h1>
-      <p className="mt-2 text-ink-soft">There is nothing at this address.</p>
-      <p className="mt-4">
-        <Link to="/" className="font-medium text-brass underline">
-          Go to the start page
-        </Link>
-      </p>
+      <PageTitle title="Page not found">There is nothing at this address.</PageTitle>
+      <Link to="/" className="font-medium text-brass underline underline-offset-2">
+        Go to the start page
+      </Link>
     </div>
   )
 }

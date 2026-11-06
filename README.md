@@ -44,7 +44,7 @@ flowchart LR
     end
 
     subgraph Container["One container: FastAPI on port 7860"]
-        STATIC["Built frontend and<br/>recorded showcase files"]
+        STATIC["Built frontend and<br/>recorded demo files"]
         API["REST and SSE API"]
         ADM["Admission control<br/>per-IP, daily cap, concurrency"]
         ORCH["Debate orchestrator<br/>rounds, anonymizer, judge"]
@@ -62,7 +62,7 @@ flowchart LR
         OLL["Ollama (local runs only)"]
     end
 
-    UI -->|"GET /, assets, showcase"| STATIC
+    UI -->|"GET /, assets, demo files"| STATIC
     UI -->|"POST /api/debates"| ADM
     ADM --> API
     API --> ORCH
@@ -145,7 +145,7 @@ The reasoning behind each is in [DECISIONS.md](DECISIONS.md). In short:
 - **Protection for a public demo.** Per-IP limits, a global daily cap on real debates, a cap on
   debates running at once, and a client-IP rule that does not trust a header unless told how many
   proxies sit in front.
-- **A static showcase.** Recorded debates ship as sanitized JSON in the image, so the demo has
+- **Static demos.** The Demo tab replays recorded debates shipped in the image, so the app has
   content even when every model is rate-limited.
 
 ## Evaluation: does debate beat a majority vote?
@@ -165,7 +165,7 @@ results report; it is empty until a run has finished, and nothing here is a resu
 - **Storage is ephemeral on the free host.** The database and the response cache live on disk that
   is wiped when the Space restarts, rebuilds or wakes from sleep. History and shared `/debate/...`
   links disappear. The global daily cap is counted from that database, so it resets too: it is a
-  guard, not a hard quota. The recorded showcase is part of the image and survives.
+  guard, not a hard quota. The recorded demos are part of the image and survives.
 - **The models will change.** Free-tier models are retired or renamed without notice (this has
   already happened once to a configured model, see DECISIONS.md). A different lineup can behave
   differently.

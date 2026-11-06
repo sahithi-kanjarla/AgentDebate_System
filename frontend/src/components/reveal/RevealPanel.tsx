@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { getReveal } from '../../lib/api'
+import { friendlyMessage } from '../../lib/friendly'
 import {
   REVEAL_NOTE,
   backupTurns,
@@ -55,7 +56,7 @@ export function RevealPanel({ debateId, reveal, onChange }: Props) {
     try {
       onChange(await getReveal(debateId))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not load the models.')
+      setError(friendlyMessage(err, 'Could not load the models.'))
     } finally {
       setBusy(false)
     }
@@ -67,7 +68,7 @@ export function RevealPanel({ debateId, reveal, onChange }: Props) {
       data-testid="reveal-panel"
       className="rounded-card border border-rule-strong bg-vellum p-4 sm:p-5"
     >
-      <h2 id="reveal-heading" className="font-serif text-xl text-ink">
+      <h2 id="reveal-heading" className="font-sans text-xl text-ink">
         Who was who?
       </h2>
       <p className="mt-1 max-w-[62ch] text-sm text-ink-soft">{REVEAL_NOTE}</p>

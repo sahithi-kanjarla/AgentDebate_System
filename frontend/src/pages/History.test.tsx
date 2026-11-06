@@ -60,7 +60,10 @@ describe('History', () => {
     stubFetch(() => ({ body: [] }))
     renderHistory()
     expect(await screen.findByText(/No debates yet/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Start the first one' })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: 'Start the first one' })).toHaveAttribute(
+      'href',
+      '/app',
+    )
   })
 
   it('reports a load failure', async () => {
