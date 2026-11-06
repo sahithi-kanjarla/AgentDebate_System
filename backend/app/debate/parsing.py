@@ -120,9 +120,11 @@ def extract_json(text: str) -> dict[str, Any]:
     return obj
 
 
-def parse_model[T: BaseModel](text: str, model: type[T]) -> T:
+def parse_model[T: BaseModel](
+    text: str, model: type[T], context: dict[str, Any] | None = None
+) -> T:
     try:
-        return model.model_validate(extract_json(text))
+        return model.model_validate(extract_json(text), context=context)
     except ValidationError as e:
         fields = ", ".join(".".join(map(str, err["loc"])) or "?" for err in e.errors())
         raise ParseError(f"schema validation failed on: {fields}") from e
@@ -133,8 +135,11 @@ async def parse_with_repair[T: BaseModel](
     messages: list[Message],
     model: type[T],
     json_mode: bool = True,
+    context: dict[str, Any] | None = None,
 ) -> ParseOutcome[T]:
     """Call the provider, parse into `model`, and retry once with a repair message on failure.
+
+    `context` is the pydantic validation context (schemas.FIRST_ROUND for a round-0 answer).
 
     A second failure yields an invalid outcome (value=None) rather than raising, so one badly
     behaved agent never crashes the debate. ProviderError from the provider itself propagates.
@@ -162,7 +167,7 @@ async def parse_with_repair[T: BaseModel](
             )
         )
         try:
-            outcome.value = parse_model(result.text, model)
+            outcome.value = parse_model(result.text, model, context)
             outcome.error = None
             return outcome
         except ParseError as e:

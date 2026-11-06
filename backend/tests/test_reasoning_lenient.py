@@ -1,4 +1,4 @@
-"""DebaterOutput.reasoning accepts a list of steps (seen from Mistral); nothing else is loosened."""
+"""DebaterOutput.reasoning accepts a list or dict of steps (Mistral); nothing else is loosened."""
 
 import pytest
 from pydantic import ValidationError
@@ -39,6 +39,37 @@ async def test_dict_without_a_usable_description_falls_back_to_its_text():
     assert value.reasoning == "{'step': 1}\n{'step': 2, 'description': ''}\n7"
 
 
+async def test_a_dict_of_steps_is_joined_from_its_values():
+    steps = {"step1": "Find the molar mass.", "step2": "Divide by it.", "step3": "Round to 2 s.f."}
+    value = await parsed(steps)
+    assert value.reasoning == "Find the molar mass.\nDivide by it.\nRound to 2 s.f."
+    assert value.final_answer == "A"
+
+
+async def test_a_dict_of_step_dicts_uses_their_descriptions():
+    steps = {"legal_analysis": {"step": 1, "description": "The comment was improper."}}
+    assert (await parsed(steps)).reasoning == "The comment was improper."
+
+
+def test_an_empty_dict_gives_an_empty_string():
+    assert DebaterOutput(reasoning={}, final_answer="A", confidence=1).reasoning == ""
+
+
+@pytest.mark.parametrize("output", [{"reasoning": "r", "final_answer": "A"}, {"reasoning": "r"}])
+def test_a_missing_field_is_still_a_failure(output):
+    with pytest.raises(ValidationError):
+        DebaterOutput.model_validate(output)
+
+
+def test_a_missing_confidence_fails_in_round_0_too():
+    from app.schemas import FIRST_ROUND
+
+    with pytest.raises(ValidationError):
+        DebaterOutput.model_validate(
+            {"reasoning": "r", "final_answer": "A", "critiques": []}, context=FIRST_ROUND
+        )
+
+
 async def test_a_plain_string_is_unchanged():
     text = "line one\n  line two, with  spacing"
     assert (await parsed(text)).reasoning == text
@@ -48,7 +79,7 @@ def test_an_empty_list_gives_an_empty_string():
     assert DebaterOutput(reasoning=[], final_answer="A", confidence=1).reasoning == ""
 
 
-@pytest.mark.parametrize("bad", [5, None, {"description": "x"}])
+@pytest.mark.parametrize("bad", [5, None, 3.5, True])
 def test_other_types_for_reasoning_are_still_rejected(bad):
     with pytest.raises(ValidationError):
         DebaterOutput(reasoning=bad, final_answer="A", confidence=1)

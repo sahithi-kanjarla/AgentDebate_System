@@ -15,7 +15,7 @@ from app.debate.mistakes import CritiqueRecord, build_mistakes_caught, received_
 from app.debate.parsing import Attempt, ParseOutcome, parse_with_repair
 from app.debate.prompts import mode_task, render_messages
 from app.providers.base import LLMProvider, Message, ProviderError
-from app.schemas import DebaterOutput, EventType, JudgeOutput, MistakeCaught, Mode
+from app.schemas import FIRST_ROUND, DebaterOutput, EventType, JudgeOutput, MistakeCaught, Mode
 
 log = logging.getLogger(__name__)
 
@@ -263,7 +263,10 @@ class Orchestrator:
                 )
             outcome = _Outcome(cfg, rnd, _hash_messages(messages), anon)
             outcome.parsed = await parse_with_repair(
-                self.providers[cfg.id], messages, DebaterOutput
+                self.providers[cfg.id],
+                messages,
+                DebaterOutput,
+                context=FIRST_ROUND if rnd == 0 else None,
             )
             if outcome.parsed.value is None:
                 outcome.error = f"invalid output after repair: {outcome.parsed.error}"

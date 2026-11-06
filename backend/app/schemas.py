@@ -1,11 +1,16 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 MAX_QUESTION_CHARS = 4000
 
 Severity = Literal["low", "medium", "high"]
 Mode = Literal["answer", "review"]
+
+# Validation context for a round-0 answer: there are no peer responses yet, so the prompt asks for
+# an empty "critiques" list and anything a model puts there is discarded instead of failing the
+# turn. Pass it to parse_with_repair / model_validate only for round 0; later rounds stay strict.
+FIRST_ROUND = {"first_round": True}
 
 
 # --- Agent outputs (PRD section 6) ---
@@ -25,19 +30,33 @@ class DebaterOutput(BaseModel):
     final_answer: str
     confidence: int = Field(ge=0, le=100)
 
+    @field_validator("critiques", mode="before")
+    @classmethod
+    def _drop_first_round_critiques(cls, v: Any, info: ValidationInfo) -> Any:
+        """In round 0 there is nothing to critique, so whatever a model wrote here is dropped.
+
+        Only with the FIRST_ROUND validation context. Without it (every critique round in a real
+        debate) the value is validated as usual, so a malformed critique still fails the turn.
+        """
+        return [] if (info.context or {}).get("first_round") else v
+
     @field_validator("reasoning", mode="before")
     @classmethod
-    def _join_reasoning_list(cls, v: Any) -> Any:
-        """Some models write the reasoning as a list of steps instead of one string.
+    def _join_reasoning_steps(cls, v: Any) -> Any:
+        """Some models write the reasoning as a list of steps, or a dict of them, not one string.
 
-        A list of strings, or of dicts (their "description", else the dict as text), is joined with
-        newlines. A string and any other type pass through, so the normal type check still applies.
-        final_answer has no such leniency.
+        A list, or a dict's values in order, is joined with newlines: strings as they are, dicts by
+        their "description" (else the dict as text), anything else as str(). A string and any other
+        type pass through, so the normal type check still applies. final_answer has no leniency.
         """
-        if not isinstance(v, list):
+        if isinstance(v, dict):
+            items: Any = list(v.values())
+        elif isinstance(v, list):
+            items = v
+        else:
             return v
         parts = []
-        for item in v:
+        for item in items:
             if isinstance(item, dict):
                 desc = item.get("description")
                 parts.append(desc if isinstance(desc, str) and desc else str(item))

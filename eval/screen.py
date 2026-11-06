@@ -28,7 +28,7 @@ from app.debate.orchestrator import TurnRecord
 from app.debate.parsing import ParseOutcome, parse_with_repair
 from app.debate.prompts import mode_task, render_messages
 from app.providers.base import LLMProvider, ProviderError
-from app.schemas import DebaterOutput
+from app.schemas import FIRST_ROUND, DebaterOutput
 from eval import CACHE_DIR, DATA_DIR, RESULTS_DIR
 from eval.budget import DEFAULT_PROVIDER_CAPS, Budget, Ledger, parse_caps, utc_today
 from eval.datasets import DatasetError, Question
@@ -118,7 +118,7 @@ async def ask(
         question=dataset.prompt(q),
     )
     try:
-        outcome = await parse_with_repair(provider, messages, DebaterOutput)
+        outcome = await parse_with_repair(provider, messages, DebaterOutput, context=FIRST_ROUND)
     except ProviderError as e:
         if classify_error(str(e)) != "model":
             raise

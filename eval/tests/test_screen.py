@@ -229,7 +229,7 @@ def test_the_eval_config_is_what_the_plan_says():
     assert got == {
         "debater_1": ("gemini", "gemini-3.1-flash-lite"),
         "debater_2": ("groq", "openai/gpt-oss-20b"),
-        "debater_3": ("mistral", "mistral-small-2603"),
+        "debater_3": ("mistral", "ministral-14b-2512"),
         "judge": ("groq", "openai/gpt-oss-20b"),
     }
     assert all(not a.fallbacks for a in agents.all_agents())
@@ -241,7 +241,7 @@ def test_debater_3_is_paced_and_capped_on_mistral():
     from eval.budget import DEFAULT_PROVIDER_CAPS
 
     mistral = load_agents(CONFIG).providers["mistral"]
-    assert mistral.rpm == 2 and mistral.json_mode == "json_object" and mistral.max_concurrency == 1
+    assert mistral.rpm == 20 and mistral.json_mode == "json_object" and mistral.max_concurrency == 1
     assert DEFAULT_PROVIDER_CAPS["mistral"] > 0  # an unlisted provider would be uncapped
 
 

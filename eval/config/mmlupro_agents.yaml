@@ -3,9 +3,11 @@
 # and  python -m eval.screen --config eval/config/mmlupro_agents.yaml
 #
 # Fallbacks are deliberately absent (and stripped at run time anyway). debater_3 history (DECISIONS.md):
-# OpenRouter xingchen (empty_response, then 429s) -> Mistral ministral-14b-2512 (10 of 60 missing
-# in the m14b screen) -> mistral-small-2603. If mistral-small-2603 also has more than 6 of 60 missing,
-# stop and ask before changing anything else.
+# OpenRouter xingchen (empty_response, then 429s) -> ministral-14b-2512 at max_tokens 2048 (10 of 60
+# missing) -> ministral-8b-2512 (6 of the first 10 missing; mistral-small and mistral-medium return
+# 0 req/min on this account) -> ministral-14b-2512 at max_tokens 4096, the cut-offs being the main
+# cause. If this one also has more than 6 of 60 missing or invalid, stop and ask: the next step is
+# another provider, not another Mistral model.
 #
 # The judge is the same model as debater_2 (openai/gpt-oss-20b), so both Groq agents share one
 # provider quota. This is disclosed in the report and DECISIONS.md.
@@ -35,7 +37,7 @@ providers:
     max_concurrency: 1
     json_mode: json_object  # documented: response_format {"type": "json_object"}
     timeout_s: 90
-    rpm: 2  # free tier is about 2 requests/minute (same figure as backend/config/agents.yaml)
+    rpm: 20  # measured limits on this account: ministral-8b 188/min, ministral-14b 30/min; 20 fits both
 
 debaters:
   - id: debater_1
@@ -55,9 +57,9 @@ debaters:
   - id: debater_3
     persona: Fact-Checker
     provider: mistral
-    model: mistral-small-2603
+    model: ministral-14b-2512
     temperature: 0.6
-    max_tokens: 2048
+    max_tokens: 4096  # debater_3 only: 2048 cut off long reasoning mid-JSON (see DECISIONS.md)
     persona_prompt: Focus on factual claims, units, arithmetic and logical validity.
 judge:
   id: judge
