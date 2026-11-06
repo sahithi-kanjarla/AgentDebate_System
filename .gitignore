@@ -20,4 +20,4 @@ eval/cache/
 report*.md
 eval/data/.mmlupro_pages/
 
-.claude/settings.local.json
+.claude/
