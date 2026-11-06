@@ -26,5 +26,12 @@ def test_lab_comes_from_the_model_not_the_host():
     assert lab_for("something-new") == "Unknown"
 
 
+def test_committed_file_is_byte_identical_to_the_prettier_style_render():
+    text = DEFAULT_OUTPUT.read_bytes().decode("utf-8")
+    assert "\r" not in text
+    assert text == render(build_panel(DEFAULT_CONFIG))
+    assert '"personas": ["' in text  # short scalar arrays stay on one line, as Prettier does
+
+
 def test_render_ends_with_newline():
     assert render(build_panel(DEFAULT_CONFIG)).endswith("}\n")

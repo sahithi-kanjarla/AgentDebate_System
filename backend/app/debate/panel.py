@@ -56,11 +56,40 @@ def build_panel(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     }
 
 
+_PRETTIER_WIDTH = 100  # frontend/.prettierrc printWidth
+
+
+def _prettier_json(value: Any, indent: int = 0) -> str:
+    """JSON laid out the way Prettier formats it (objects always expanded, arrays of scalars on
+    one line when they fit), so `npm run format:check` passes on the generated file."""
+    pad = "  " * indent
+    inner = "  " * (indent + 1)
+    if isinstance(value, dict):
+        if not value:
+            return "{}"
+        items = [
+            f"{inner}{json.dumps(k)}: {_prettier_json(v, indent + 1)}" for k, v in value.items()
+        ]
+        return "{\n" + ",\n".join(items) + f"\n{pad}}}"
+    if isinstance(value, list):
+        if not value:
+            return "[]"
+        if not any(isinstance(v, dict | list) for v in value):
+            flat = "[" + ", ".join(json.dumps(v, ensure_ascii=False) for v in value) + "]"
+            if len(pad) + len(flat) + 1 <= _PRETTIER_WIDTH:  # +1 for a trailing comma
+                return flat
+        items = [f"{inner}{_prettier_json(v, indent + 1)}" for v in value]
+        return "[\n" + ",\n".join(items) + f"\n{pad}]"
+    return json.dumps(value, ensure_ascii=False)
+
+
 def render(panel: dict[str, Any]) -> str:
-    return json.dumps(panel, indent=2, ensure_ascii=False) + "\n"
+    return _prettier_json(panel) + "\n"
 
 
 if __name__ == "__main__":
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_OUTPUT
-    out.write_text(render(build_panel()), encoding="utf-8")
+    # newline="\n": LF on every OS, as Prettier expects.
+    with out.open("w", encoding="utf-8", newline="\n") as f:
+        f.write(render(build_panel()))
     print(f"wrote {out}")

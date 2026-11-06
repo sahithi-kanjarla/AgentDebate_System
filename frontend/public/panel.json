@@ -14,11 +14,7 @@
       "lab": "OpenAI"
     }
   ],
-  "personas": [
-    "Solver",
-    "Skeptic",
-    "Fact-Checker"
-  ],
+  "personas": ["Solver", "Skeptic", "Fact-Checker"],
   "judge": {
     "model": "openai/gpt-oss-20b",
     "lab": "OpenAI"

@@ -13,6 +13,7 @@ dependencies = [
     "pyyaml",
     "openai>=3.35.1",
     "slowapi>=0.1.10",
+    "httpx",  # imported directly by app/providers; must not be dev-only (Docker uses --no-dev)
 ]
 
 [dependency-groups]
@@ -20,7 +21,6 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "httpx",
     "ruff",
 ]
 
