@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-9597",
+ "category": "physics",
+ "gold": "C",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "C",
+ "answer": "C",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 531,
+ "tokens_out": 224,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "nergy K=½Iω². For a solid cylinder I=½mr². Mass m∝r² (same density, same height). Thus I∝r⁴ and K∝r⁴. If one radius is twice the other, ratio K_big/K_small=(2r)⁴/r⁴=16. Option C corresponds to 16:1.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"C\",\"confidence\":100}",
+ "finished_at": "2026-10-28T19:03:22+00:00"
+}

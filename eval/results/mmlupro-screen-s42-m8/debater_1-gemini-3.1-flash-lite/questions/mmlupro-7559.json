@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7559",
+ "category": "economics",
+ "gold": "F",
+ "n_options": 9,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "F",
+ "answer": "F",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 401,
+ "tokens_out": 134,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "nomic theory as the primary risk and the most common concern for policymakers (such as central banks) during the peak phase, as they look to prevent the economy from overheating.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"F\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-11-02T11:16:23+00:00"
+}

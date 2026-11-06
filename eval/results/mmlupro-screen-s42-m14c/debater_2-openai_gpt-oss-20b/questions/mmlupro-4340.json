@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-4340",
+ "category": "chemistry",
+ "gold": "C",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "C",
+ "answer": "C",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 568,
+ "tokens_out": 241,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "{\"reasoning\":\"Half-life formula for first-order: t1/2 = ln2/k. k = 0.693/34 min = 0.02038 min^-1. Convert to s^-1: 0.02038 min^-1 ÷ 60 = 3.393e-4 s^-1, which matches option C.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"C\",\"confidence\":90}",
+ "finished_at": "2026-11-02T11:53:31+00:00"
+}

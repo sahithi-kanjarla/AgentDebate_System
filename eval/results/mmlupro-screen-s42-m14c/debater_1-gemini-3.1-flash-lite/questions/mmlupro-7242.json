@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7242",
+ "category": "economics",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 465,
+ "tokens_out": 196,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "the MFC. Consequently, the firm hires up to the point where the wage equals the MRP, leading to both higher wages and higher employment levels compared to the monopsony outcome.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"B\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-11-02T11:53:31+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-9639",
+ "category": "physics",
+ "gold": "A",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 422,
+ "tokens_out": 158,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "w, the ground exerts an equal and opposite force on the team. Therefore, the team that pushes hardest against the ground (friction) is the one that accelerates forward and wins.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"A\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-11-02T11:16:23+00:00"
+}

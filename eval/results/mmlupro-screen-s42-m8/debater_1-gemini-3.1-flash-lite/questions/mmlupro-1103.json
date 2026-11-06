@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1103",
+ "category": "law",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "G",
+ "answer": "G",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 674,
+ "tokens_out": 253,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "nitor is not a party-opponent, and the statement does not qualify as a business record, public record, or medical diagnosis. Therefore, it is inadmissible hearsay within hearsay.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"G\",\n  \"confidence\": 90\n}",
+ "finished_at": "2026-11-02T11:16:23+00:00"
+}

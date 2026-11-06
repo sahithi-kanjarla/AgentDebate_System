@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1026",
+ "category": "law",
+ "gold": "H",
+ "n_options": 9,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "H",
+ "answer": "H",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 719,
+ "tokens_out": 208,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "me when he was not performing duties for the company and the company had no control over his driving—the company is not liable for his torts under the theory of negligent hiring.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"H\",\n  \"confidence\": 90\n}",
+ "finished_at": "2026-11-02T11:53:31+00:00"
+}

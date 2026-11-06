@@ -1,0 +1,263 @@
+{
+ "qid": "math500-442",
+ "question": "Let $f(x) = 2^x.$ Find $\\sqrt{f(f(f(f(1))))}.$",
+ "gold": "256",
+ "meta": {
+  "level": 4,
+  "subject": "Algebra",
+  "unique_id": "test/algebra/1343.json"
+ },
+ "finished_at": "2026-10-19T09:42:28+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "256",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 604,
+    "latency_ms": 2503,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "256",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 611,
+    "latency_ms": 1058,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": "256",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 836,
+    "latency_ms": 19953,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "B": {
+   "answer": "256",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 2051,
+    "latency_ms": 19993,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "256",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6123,
+    "latency_ms": 60935,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "256",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6123,
+    "latency_ms": 60935,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "256",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 5039,
+    "latency_ms": 31795,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "256",
+   "confidence": 100,
+   "tokens_in": 434,
+   "tokens_out": 177,
+   "latency_ms": 1058,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\"reasoning\":\"Compute stepwise: f(1)=2, f(f(1))=2^2=4, f(f(f(1)))=2^4=16, f(f(f(f(1))))=2^16=65536. Square root of 65536 is 256.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"256\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "256",
+   "confidence": 100,
+   "tokens_in": 349,
+   "tokens_out": 255,
+   "latency_ms": 2503,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "f(4)$.\\n$f(4) = 2^4 = 16$.\\n\\nStep 4: Evaluate $f(f(f(f(1)))) = f(16)$.\\n$f(16) = 2^{16} = 65536$.\\n\\nStep 5: Find the square root of this result.\\n$\\sqrt{65536} = 2^8 = 256$.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"256\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "256",
+   "confidence": 100,
+   "tokens_in": 353,
+   "tokens_out": 483,
+   "latency_ms": 19953,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\"reasoning\": \"Compute f(1)=2^1=2, f(f(1))=2^2=4, f(f(f(1)))=2^4=16, f(f(f(f(1))))=2^16=65536. sqrt(65536)=256.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"256\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "256",
+   "confidence": 100,
+   "tokens_in": 719,
+   "tokens_out": 219,
+   "latency_ms": 1856,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": ") = f(16) = 2^{16} = 65536$. Step 5: Take the square root of 65536, which is $\\sqrt{65536} = 256$. Both other responses followed the exact same valid steps and arrived at 256.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"256\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "256",
+   "confidence": 100,
+   "tokens_in": 812,
+   "tokens_out": 264,
+   "latency_ms": 8990,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\"reasoning\": \"Both other responses correctly compute f(1)=2, f(f(1))=4, f(f(f(1)))=16, f(f(f(f(1))))=2^16=65536, and sqrt(65536)=256. No factual errors found.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"256\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "256",
+   "confidence": 100,
+   "tokens_in": 851,
+   "tokens_out": 123,
+   "latency_ms": 11765,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\"reasoning\":\"Both responses correctly compute the nested function: f(1)=2, f(2)=4, f(4)=16, f(16)=65536, and sqrt(65536)=256. No errors found.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"256\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "256",
+  "confidence": 100,
+  "tokens_in": 1013,
+  "tokens_out": 71,
+  "latency_ms": 29125,
+  "truncated": false,
+  "finish_reason": "stop",
+  "raw_tail": "{\"final_answer\":\"256\",\"confidence\":100,\"summary\":\"All debaters computed the nested exponentials correctly: 2,4,16,65536, and the square root of 65536 is 256.\",\"dissent\":null,\"consensus_reached\":true}",
+  "repair_used": false,
+  "error": null
+ },
+ "judge_c": null
+}

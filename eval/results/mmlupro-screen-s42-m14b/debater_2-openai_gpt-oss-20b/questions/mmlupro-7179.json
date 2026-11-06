@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7179",
+ "category": "economics",
+ "gold": "B",
+ "n_options": 4,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "D",
+ "answer": "D",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 522,
+ "tokens_out": 296,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "sample size increases, the tests converge to the chi‑square null distribution; they do not always reject the null, so D is false. The question asks for the incorrect statement; the best choice is D.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"D\",\"confidence\":100}",
+ "finished_at": "2026-10-29T10:54:15+00:00"
+}

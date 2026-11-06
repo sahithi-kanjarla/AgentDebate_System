@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1714",
+ "category": "law",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 725,
+ "tokens_out": 187,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "tness 'willing to take the stand,' the prosecutor directly drew attention to the defendant's exercise of his constitutional right to remain silent, which is grounds for reversal.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"B\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T10:31:50+00:00"
+}

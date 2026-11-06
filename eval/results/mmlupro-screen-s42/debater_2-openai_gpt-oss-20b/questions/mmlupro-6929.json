@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-6929",
+ "category": "economics",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 548,
+ "tokens_out": 562,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": " 25,000 = 125,000 + 0.10D. Total liabilities = deposits (other liabilities + equity cancel with other assets). Thus 125,000 + 0.10D = D. Solve: 0.9D = 125,000 → D = 138,888.888… ≈ 138,889. Option B.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"B\",\"confidence\":100}",
+ "finished_at": "2026-10-28T19:05:23+00:00"
+}

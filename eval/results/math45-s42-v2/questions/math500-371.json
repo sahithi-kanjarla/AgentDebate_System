@@ -1,0 +1,263 @@
+{
+ "qid": "math500-371",
+ "question": "Let $a,$ $b,$ $c$ be real numbers such that\n\\[|ax^2 + bx + c| \\le 1\\]for all $0 \\le x \\le 1.$  Find the largest possible value of $|a| + |b| + |c|.$",
+ "gold": "17",
+ "meta": {
+  "level": 5,
+  "subject": "Intermediate Algebra",
+  "unique_id": "test/intermediate_algebra/955.json"
+ },
+ "finished_at": "2026-10-19T09:05:48+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 3,
+  "truncated_turns": 1,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 9301,
+    "latency_ms": 0,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1133,
+    "latency_ms": 0,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": null,
+   "status": "missing",
+   "correct": false,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 0,
+    "latency_ms": 0,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": true
+  },
+  "B": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 0,
+    "tokens": 10434,
+    "latency_ms": 93491,
+    "cache_hits": 3
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 4,
+    "tokens": 17932,
+    "latency_ms": 198961,
+    "cache_hits": 3
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 4,
+    "tokens": 17932,
+    "latency_ms": 198961,
+    "cache_hits": 3
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 3,
+    "tokens": 16601,
+    "latency_ms": 198436,
+    "cache_hits": 3
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 92,
+   "tokens_in": 474,
+   "tokens_out": 659,
+   "latency_ms": 0,
+   "truncated": false,
+   "finish_reason": null,
+   "raw_tail": "are a=8, b=-8, c=1, giving |a|+|b|+|c|=8+8+1=17. By Chebyshev optimality, no other quadratic with sup norm ≤1 can yield a larger sum of absolute coefficients. Hence the maximum possible value is 17.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"17\",\"confidence\":92}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 100,
+   "tokens_in": 4899,
+   "tokens_out": 4402,
+   "latency_ms": 0,
+   "truncated": false,
+   "finish_reason": null,
+   "raw_tail": "$|8| + |-8| + |1| = 17.$ By Markov's inequality and the extremal properties of Chebyshev polynomials, this is the maximum possible value for a quadratic polynomial on $[0, 1].$\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"17\",\n  \"confidence\": 100\n}",
+   "repair_used": true,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": false,
+   "answer": null,
+   "confidence": null,
+   "tokens_in": 0,
+   "tokens_out": 0,
+   "latency_ms": 0,
+   "truncated": true,
+   "finish_reason": null,
+   "raw_tail": "",
+   "repair_used": false,
+   "error": "empty_response (finish_reason=length)"
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 95,
+   "tokens_in": 920,
+   "tokens_out": 121,
+   "latency_ms": 1078,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "her response which argues using the shifted Chebyshev polynomial T2(2x-1)=8x^2-8x+1 achieving |a|+|b|+|c|=17 and claims optimality by extremal properties. This reasoning is sound; no error detected.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"17\",\"confidence\":95}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 100,
+   "tokens_in": 762,
+   "tokens_out": 152,
+   "latency_ms": 1538,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "ng the polynomial $p(x) = 8x^2 - 8x + 1$ with coefficients $a=8, b=-8, c=1$. The sum of their absolute values is $|8| + |-8| + |1| = 17$. This confirms my previous calculation.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"17\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 95,
+   "tokens_in": 1045,
+   "tokens_out": 3167,
+   "latency_ms": 104912,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "a linear functional of coefficients under sup-norm constraint must attaint the bound at three alternating points, leading uniquely (up to sign) to this polynomial. Hence 17 is the maximum.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"17\", \"confidence\": 95}",
+   "repair_used": false,
+   "error": null
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "17",
+  "confidence": 100,
+  "tokens_in": 1242,
+  "tokens_out": 89,
+  "latency_ms": 510,
+  "truncated": false,
+  "finish_reason": "stop",
+  "raw_tail": "{\"final_answer\":\"17\",\"confidence\":100,\"summary\":\"All debaters agree the extremal polynomial is the shifted Chebyshev polynomial (8x^2-8x+1), giving (|a|+|b|+|c|=17).\",\"dissent\":null,\"consensus_reached\":true}",
+  "repair_used": false,
+  "error": null
+ },
+ "judge_c": null
+}

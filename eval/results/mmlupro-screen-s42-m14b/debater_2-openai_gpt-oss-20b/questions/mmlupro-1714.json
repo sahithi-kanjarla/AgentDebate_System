@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1714",
+ "category": "law",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 795,
+ "tokens_out": 751,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "ed to influence the jury. It is an unfair personal attack on the defendant, not a rebuttal of the defense’s attacks on the undercover agent. Therefore the conviction should be reversed on that basis.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"A\",\"confidence\":90}",
+ "finished_at": "2026-10-29T10:54:11+00:00"
+}

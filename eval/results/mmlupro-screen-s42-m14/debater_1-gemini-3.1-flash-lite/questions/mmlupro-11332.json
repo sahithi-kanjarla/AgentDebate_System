@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-11332",
+ "category": "engineering",
+ "gold": "E",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "F",
+ "answer": "F",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 513,
+ "tokens_out": 492,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "68 = 111,212 Btu/hr ft^3. R = 0.375/12 = 0.03125 ft. T0 - Ts = (111,212 * 0.03125^2) / (4 * 13) = 108.6 / 52 = 2.09°F.\\n4. T0 = 417.5 + 2.09 = 419.59°F. This is closest to 418°F.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"F\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T10:31:48+00:00"
+}

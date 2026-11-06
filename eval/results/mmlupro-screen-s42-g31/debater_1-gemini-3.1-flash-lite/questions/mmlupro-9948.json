@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-9948",
+ "category": "physics",
+ "gold": "D",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "D",
+ "answer": "D",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 445,
+ "tokens_out": 203,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "K_out1, K_out2) = 1.1 MeV and 8.4 MeV. Q = (K_out1 + K_out2) - K_in. Q = (1.1 + 8.4) - 5.5 = 9.5 - 5.5 = 4.0 MeV. Comparing this to the options, 4.0 MeV corresponds to option D.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"D\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-10-29T08:01:17+00:00"
+}

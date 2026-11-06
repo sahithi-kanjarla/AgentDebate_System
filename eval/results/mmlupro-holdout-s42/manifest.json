@@ -1,0 +1,124 @@
+{
+ "run": "mmlupro-holdout-s42",
+ "created": "2026-11-06T05:13:34+00:00",
+ "config": {
+  "dataset": "mmlupro-holdout",
+  "seed": 42,
+  "source_sha256": "1d89dfbfa174b2be5e99663d11b2d11a46ec94d74883b52da09f5edc6214f966",
+  "prompt_suffix": "Answer with only the letter (A to {last}) of the correct option.",
+  "rounds": 3,
+  "min_critique_rounds": 1,
+  "early_stop": true,
+  "allow_fallback": false,
+  "agents_fingerprint": "453541ce352fec0d",
+  "profile": {
+   "max_tokens": 2048,
+   "rpm": {
+    "groq": 4
+   }
+  },
+  "include_c": false
+ },
+ "order": [
+  "mmlupro-1608",
+  "mmlupro-9895",
+  "mmlupro-7570",
+  "mmlupro-4147",
+  "mmlupro-9533",
+  "mmlupro-9279",
+  "mmlupro-7302",
+  "mmlupro-7676",
+  "mmlupro-11291",
+  "mmlupro-9552",
+  "mmlupro-3675",
+  "mmlupro-1597",
+  "mmlupro-11838",
+  "mmlupro-1557",
+  "mmlupro-12029",
+  "mmlupro-7053",
+  "mmlupro-3990",
+  "mmlupro-9850",
+  "mmlupro-7587",
+  "mmlupro-3608",
+  "mmlupro-11969",
+  "mmlupro-4193",
+  "mmlupro-7589",
+  "mmlupro-9398",
+  "mmlupro-1332",
+  "mmlupro-11499",
+  "mmlupro-4645",
+  "mmlupro-1834",
+  "mmlupro-11736",
+  "mmlupro-7505",
+  "mmlupro-9191",
+  "mmlupro-12254",
+  "mmlupro-1698",
+  "mmlupro-11491",
+  "mmlupro-7555",
+  "mmlupro-10014",
+  "mmlupro-11869",
+  "mmlupro-1231",
+  "mmlupro-11916",
+  "mmlupro-7422",
+  "mmlupro-9253",
+  "mmlupro-1252",
+  "mmlupro-7001",
+  "mmlupro-4470",
+  "mmlupro-11464",
+  "mmlupro-1500",
+  "mmlupro-3681",
+  "mmlupro-11816",
+  "mmlupro-7290",
+  "mmlupro-926",
+  "mmlupro-3957",
+  "mmlupro-6963",
+  "mmlupro-3715",
+  "mmlupro-9560",
+  "mmlupro-9682",
+  "mmlupro-9870",
+  "mmlupro-1056",
+  "mmlupro-4003",
+  "mmlupro-4375",
+  "mmlupro-1735"
+ ],
+ "screen_pin": {
+  "screen_run": "mmlupro-screen-s42-m14c",
+  "screen_seed": 42,
+  "checked": "2026-11-06T07:16:28+00:00",
+  "accepted_missed": true,
+  "agents": {
+   "debater_1": {
+    "model": "gemini/gemini-3.1-flash-lite",
+    "n": 60,
+    "accuracy": 0.85,
+    "target_met": false,
+    "agents_fingerprint": "453541ce352fec0d",
+    "extractor": "2d407f8950d6841e",
+    "prompt_suffix_sha256": "64e7c895673b0d84f7e076b9f12a0f6f533ce1c379e16b42c1ae564a11249b17"
+   },
+   "debater_2": {
+    "model": "groq/openai/gpt-oss-20b",
+    "n": 60,
+    "accuracy": 0.6,
+    "target_met": true,
+    "agents_fingerprint": "453541ce352fec0d",
+    "extractor": "2d407f8950d6841e",
+    "prompt_suffix_sha256": "64e7c895673b0d84f7e076b9f12a0f6f533ce1c379e16b42c1ae564a11249b17"
+   }
+  }
+ },
+ "sessions": [
+  {
+   "started": "2026-11-06T05:13:34+00:00",
+   "n": 60
+  },
+  {
+   "started": "2026-11-06T06:30:26+00:00",
+   "n": 60
+  },
+  {
+   "started": "2026-11-06T07:16:31+00:00",
+   "n": 60
+  }
+ ]
+}

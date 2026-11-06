@@ -1,0 +1,235 @@
+{
+ "qid": "math500-145",
+ "question": "Let $z$ be a complex number such that\n\\[z + \\frac{1}{z} = \\frac{1 + \\sqrt{5}}{2}.\\]Find\n\\[z^{85} + \\frac{1}{z^{85}}.\\]",
+ "gold": "-2",
+ "meta": {
+  "level": 5,
+  "subject": "Intermediate Algebra",
+  "unique_id": "test/intermediate_algebra/1408.json"
+ },
+ "finished_at": "2026-10-19T07:41:43+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1591,
+    "latency_ms": 4413,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1032,
+    "latency_ms": 1710,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 2102,
+    "latency_ms": 32744,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "B": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 4725,
+    "latency_ms": 32779,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 8,
+    "api_calls": 8,
+    "tokens": 13909,
+    "latency_ms": 63764,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 8,
+    "api_calls": 8,
+    "tokens": 13909,
+    "latency_ms": 63764,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 11817,
+    "latency_ms": 48390,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 465,
+   "tokens_out": 567,
+   "latency_ms": 1710,
+   "truncated": false
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 377,
+   "tokens_out": 1214,
+   "latency_ms": 4413,
+   "truncated": false
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 384,
+   "tokens_out": 1718,
+   "latency_ms": 32744,
+   "truncated": false
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 1846,
+   "tokens_out": 319,
+   "latency_ms": 2342,
+   "truncated": false
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": false,
+   "answer": null,
+   "confidence": null,
+   "tokens_in": 1984,
+   "tokens_out": 505,
+   "latency_ms": 3361,
+   "truncated": false
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 1796,
+   "tokens_out": 642,
+   "latency_ms": 15572,
+   "truncated": false
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "-2",
+  "confidence": 100,
+  "tokens_in": 1969,
+  "tokens_out": 123,
+  "latency_ms": 15350,
+  "truncated": false
+ },
+ "judge_c": null
+}

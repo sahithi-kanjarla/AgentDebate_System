@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1606",
+ "category": "law",
+ "gold": "E",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "D",
+ "answer": "D",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 2530,
+ "tokens_out": 1691,
+ "api_calls": 2,
+ "error": null,
+ "raw_tail": "s: B (timing of learning is irrelevant), C (waiver is irrelevant for spousal privilege), E/J (marital privilege does not apply), F/G/H/I (irrelevant to the privileges).\"\n    }\n  ],\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"D\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T11:16:54+00:00"
+}

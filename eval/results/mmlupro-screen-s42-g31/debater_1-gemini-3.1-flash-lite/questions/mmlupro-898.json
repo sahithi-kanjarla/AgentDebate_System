@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-898",
+ "category": "law",
+ "gold": "C",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "C",
+ "answer": "C",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 560,
+ "tokens_out": 205,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "of criminal negligence or recklessness required for involuntary manslaughter. Since there is no intent to harm and no criminal negligence, the defendant is not guilty of a crime.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"C\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T07:59:19+00:00"
+}

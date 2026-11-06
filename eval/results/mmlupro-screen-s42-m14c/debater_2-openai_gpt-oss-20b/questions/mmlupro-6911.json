@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-6911",
+ "category": "economics",
+ "gold": "F",
+ "n_options": 8,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "F",
+ "answer": "F",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 575,
+ "tokens_out": 160,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "The sample regression function (SRF) is the estimated function obtained from sample data. Thus the correct statement is that the PRF is a description of the process thought to be generating the data.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"F\",\"confidence\":90}",
+ "finished_at": "2026-11-02T11:53:32+00:00"
+}

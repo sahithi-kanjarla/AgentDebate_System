@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-11441",
+ "category": "engineering",
+ "gold": "J",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 705,
+ "tokens_out": 245,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "r pound of benzene. For one mole (78.11 lb), the energy released is 18,000 × 78.11 = 1,405,980 Btu. The enthalpy change is negative, so ΔH = –1.40598×10^6 Btu/lb‑mole, which corresponds to option B.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"B\",\"confidence\":100}",
+ "finished_at": "2026-11-02T11:16:23+00:00"
+}

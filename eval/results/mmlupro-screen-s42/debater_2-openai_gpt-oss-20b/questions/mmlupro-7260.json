@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7260",
+ "category": "economics",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "I",
+ "answer": "I",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 718,
+ "tokens_out": 261,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "s → bar owners raise gin price → price change → quantity supplied changes.\\nc) Price of leather shoes rises → manufacturers increase production → quantity supplied changes.\\nThus option I matches.\\n\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"I\",\"confidence\":100}",
+ "finished_at": "2026-10-28T19:10:22+00:00"
+}

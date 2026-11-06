@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1714",
+ "category": "law",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-8b-2512",
+ "answer_raw": null,
+ "answer": null,
+ "status": "missing",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 2282,
+ "tokens_out": 1352,
+ "api_calls": 2,
+ "error": "schema validation failed on: critiques.0.target",
+ "raw_tail": "planation\": \"The prosecutor’s summation improperly commented on the defendant’s failure to testify, which is a clear violation of legal standards and requires reversal of the conviction.\"\n    }\n  ],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"B\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-11-02T11:23:19+00:00"
+}

@@ -1,0 +1,215 @@
+{
+ "qid": "gsm8k-test-618",
+ "question": "The school auditorium has 4 rows of seats. There are 18 seats in each row. One-fourth of the seats were occupied by the administrators. One-third of the remaining seats were occupied by the parents and the rest were occupied by the students. How many students were there in the school auditorium?",
+ "gold": "36",
+ "finished_at": "2026-10-19T07:00:30+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "36",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 625,
+    "latency_ms": 1618,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A2": {
+   "answer": "36",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 672,
+    "latency_ms": 1250,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A3": {
+   "answer": "36",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 738,
+    "latency_ms": 7800,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "B": {
+   "answer": "36",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 2035,
+    "latency_ms": 7824,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "C": {
+   "answer": "36",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6489,
+    "latency_ms": 15668,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D": {
+   "answer": "36",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6489,
+    "latency_ms": 15668,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D_vote": {
+   "answer": "36",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 5270,
+    "latency_ms": 14891,
+    "cache_hits": 0
+   },
+   "note": null
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "36",
+   "confidence": 100,
+   "tokens_in": 470,
+   "tokens_out": 202,
+   "latency_ms": 1250
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "36",
+   "confidence": 100,
+   "tokens_in": 385,
+   "tokens_out": 240,
+   "latency_ms": 1618
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "36",
+   "confidence": 100,
+   "tokens_in": 394,
+   "tokens_out": 344,
+   "latency_ms": 7800
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "36",
+   "confidence": 100,
+   "tokens_in": 914,
+   "tokens_out": 86,
+   "latency_ms": 839
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "36",
+   "confidence": 100,
+   "tokens_in": 795,
+   "tokens_out": 251,
+   "latency_ms": 1421
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "36",
+   "confidence": 100,
+   "tokens_in": 888,
+   "tokens_out": 301,
+   "latency_ms": 7035
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "36",
+  "confidence": 100,
+  "tokens_in": 1154,
+  "tokens_out": 65,
+  "latency_ms": 763
+ },
+ "judge_c": null
+}

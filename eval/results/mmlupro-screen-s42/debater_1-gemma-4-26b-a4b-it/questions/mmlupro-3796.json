@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-3796",
+ "category": "chemistry",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemma-4-26b-a4b-it",
+ "answer_raw": null,
+ "answer": null,
+ "status": "missing",
+ "correct": false,
+ "truncated": true,
+ "finish_reason": "length",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 3321,
+ "tokens_out": 0,
+ "api_calls": 2,
+ "error": "schema validation failed on: reasoning, final_answer, confidence",
+ "raw_tail": " $\\lambda_e = 0.581 \\times 10^{-10} \\text{ yr}^{-1}$.\n    *   Some sources use $\\lambda = 5.54 \\times 10^{-10}$ and $\\lambda_e = 0.58 \\times 10^{-10}$.\n    *   Let's re-calculate:\n        $N_{\\text{Ar}}/N_{\\text{K}} = 0.04789$\n        $t = (1/5.543 \\times 10^{-10}) \\ln(1 + 0.04789 \\cdot (5</thought>",
+ "finished_at": "2026-10-28T19:35:08+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7260",
+ "category": "economics",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "G",
+ "answer": "G",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 632,
+ "tokens_out": 167,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "s) causes a movement along the existing supply curve (Change in quantity supplied). Therefore, a) is Change in supply, b) is Change in supply, c) is Change in quantity supplied.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"G\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-11-02T11:53:31+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7087",
+ "category": "economics",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "H",
+ "answer": "H",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 595,
+ "tokens_out": 222,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "The question asks for the definition of 'new economics'. Among the options, the most general and accurate description is that it refers to the latest economic theories. Therefore option H is correct.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"H\",\"confidence\":90}",
+ "finished_at": "2026-10-29T08:02:28+00:00"
+}

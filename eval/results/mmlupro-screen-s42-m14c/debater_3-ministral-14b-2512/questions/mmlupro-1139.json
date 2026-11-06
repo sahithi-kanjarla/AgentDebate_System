@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1139",
+ "category": "law",
+ "gold": "I",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "H",
+ "answer": "H",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 982,
+ "tokens_out": 451,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "o kill. Likely vehicular manslaughter.\\n\\n**H** is the clearest case of intent to harm (or kill) during a fit of rage, making it the most likely scenario for a murder conviction.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"H\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-11-02T12:21:36+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7087",
+ "category": "economics",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "I",
+ "answer": "I",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 516,
+ "tokens_out": 106,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "digms by prioritizing human well-being and environmental sustainability over traditional growth metrics like GDP. Among the provided options, option I best captures this meaning.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"I\",\n  \"confidence\": 90\n}",
+ "finished_at": "2026-11-02T11:53:31+00:00"
+}

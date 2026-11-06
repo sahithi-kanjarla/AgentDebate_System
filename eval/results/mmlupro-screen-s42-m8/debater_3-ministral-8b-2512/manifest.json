@@ -1,0 +1,30 @@
+{
+ "run": "mmlupro-screen-s42-m8",
+ "created": "2026-11-02T11:16:22+00:00",
+ "config": {
+  "dataset": "mmlupro-screen",
+  "seed": 42,
+  "source_sha256": "1d89dfbfa174b2be5e99663d11b2d11a46ec94d74883b52da09f5edc6214f966",
+  "prompt_suffix": "Answer with only the letter (A to {last}) of the correct option.",
+  "prompt_suffix_sha256": "64e7c895673b0d84f7e076b9f12a0f6f533ce1c379e16b42c1ae564a11249b17",
+  "extractor": "2d407f8950d6841e",
+  "agent": "debater_3",
+  "provider": "mistral",
+  "model": "ministral-8b-2512",
+  "max_tokens": 2048,
+  "temperature": 0.6,
+  "allow_fallback": false,
+  "agents_fingerprint": "b612edf1e0fda5fd",
+  "profile": {
+   "max_tokens": 2048,
+   "rpm": {
+    "groq": 4
+   }
+  }
+ },
+ "sessions": [
+  {
+   "started": "2026-11-02T11:16:22+00:00"
+  }
+ ]
+}

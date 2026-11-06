@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-11332",
+ "category": "engineering",
+ "gold": "E",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-8b-2512",
+ "answer_raw": null,
+ "answer": null,
+ "status": "missing",
+ "correct": false,
+ "truncated": true,
+ "finish_reason": "length",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 3124,
+ "tokens_out": 4096,
+ "api_calls": 2,
+ "error": "schema validation failed on: reasoning, final_answer, confidence",
+ "raw_tail": "d to surroundings per unit length = h × π × D × (T_s − T_air)\",\n      \"solve_for_Ts\": \"T_s = T_air + q_elec / (h × π × D) = 70 + 10 / (5 × π × 0.0625) ≈ 70 + 10.1859 ≈ 80.1859°F\",\n      \"conduction_inside\": \"Heat conducted from surface to centerline: q_elec = (2πkL / ln(r_o/r_i)) × (T_center − T_s).",
+ "finished_at": "2026-11-02T11:19:39+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1139",
+ "category": "law",
+ "gold": "I",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "H",
+ "answer": "H",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 977,
+ "tokens_out": 215,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "ment demonstrates an intent to cause serious bodily harm or a conscious disregard for human life (depraved heart), which satisfies the malice aforethought requirement for murder.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"H\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-11-02T11:16:23+00:00"
+}

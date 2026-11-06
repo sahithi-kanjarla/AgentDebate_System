@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-898",
+ "category": "law",
+ "gold": "C",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "E",
+ "answer": "E",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 640,
+ "tokens_out": 238,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "o kill that person, so no intent to kill the actual victim. The act was reckless and caused death, so involuntary manslaughter/neglectful homicide applies. Option E corresponds to negligent homicide.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"E\",\"confidence\":90}",
+ "finished_at": "2026-10-28T19:12:52+00:00"
+}

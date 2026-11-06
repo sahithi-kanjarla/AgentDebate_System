@@ -1,0 +1,263 @@
+{
+ "qid": "math500-341",
+ "question": "What is the smallest number which is one less than twice its reciprocal?",
+ "gold": "-2",
+ "meta": {
+  "level": 4,
+  "subject": "Algebra",
+  "unique_id": "test/algebra/858.json"
+ },
+ "finished_at": "2026-10-19T09:39:27+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 590,
+    "latency_ms": 2563,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 700,
+    "latency_ms": 1593,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 818,
+    "latency_ms": 11613,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "B": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 2108,
+    "latency_ms": 11647,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6334,
+    "latency_ms": 60657,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6334,
+    "latency_ms": 60657,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 5242,
+    "latency_ms": 30878,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 95,
+   "tokens_in": 423,
+   "tokens_out": 277,
+   "latency_ms": 1593,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\n  \"reasoning\":\"Set n = 2*(1/n) - 1. Multiply by n: n^2 = 2 - n. Rearranged: n^2 + n - 2 = 0. Factor: (n+2)(n-1)=0, giving solutions n=1 and n=-2. The smallest (least) number is -2.\",\n  \"critiques\":[],\n  \"changed_mind\":false,\n  \"changed_mind_because\":null,\n  \"final_answer\":\"-2\",\n  \"confidence\":95\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 336,
+   "tokens_out": 254,
+   "latency_ms": 2563,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "= 0\\nStep 6: Solve for x:\\nx = 1 or x = -2\\nStep 7: The question asks for the 'smallest number', which means we compare 1 and -2.\\nStep 8: The smaller of the two numbers is -2.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"-2\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 344,
+   "tokens_out": 474,
+   "latency_ms": 11613,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\"reasoning\": \"Solve equation x = 2/x - 1 leading to x^2 + x - 2 = 0, solutions x = -2 and x = 1. Smallest is -2.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"-2\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 669,
+   "tokens_out": 176,
+   "latency_ms": 1871,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "n^2 = 2 - n, which rearranges to n^2 + n - 2 = 0. Factoring gives (n + 2)(n - 1) = 0, so the roots are n = 1 and n = -2. The question asks for the smallest number, which is -2.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"-2\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 819,
+   "tokens_out": 454,
+   "latency_ms": 17192,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "soning\": \"Both other responses correctly set up the equation x = 2/x - 1, solved the quadratic x^2 + x - 2 = 0, found roots -2 and 1, and identified -2 as the smallest. No mistakes found.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"-2\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 849,
+   "tokens_out": 167,
+   "latency_ms": 19205,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": ". Both correctly set up the equation x = 2/x - 1, solved it to obtain the roots x=1 and x=-2, and identified the smallest number as -2. There are no errors or hidden assumptions in their reasoning.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"-2\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "-2",
+  "confidence": 100,
+  "tokens_in": 1012,
+  "tokens_out": 80,
+  "latency_ms": 29763,
+  "truncated": false,
+  "finish_reason": "stop",
+  "raw_tail": "{\"final_answer\":\"-2\",\"confidence\":100,\"summary\":\"All three independent solutions correctly solved the equation x = 2/x – 1, yielding x = 1 or x = –2, and identified –2 as the smallest number.\",\"dissent\":null,\"consensus_reached\":true}",
+  "repair_used": false,
+  "error": null
+ },
+ "judge_c": null
+}

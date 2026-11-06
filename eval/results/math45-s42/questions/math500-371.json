@@ -1,0 +1,235 @@
+{
+ "qid": "math500-371",
+ "question": "Let $a,$ $b,$ $c$ be real numbers such that\n\\[|ax^2 + bx + c| \\le 1\\]for all $0 \\le x \\le 1.$  Find the largest possible value of $|a| + |b| + |c|.$",
+ "gold": "17",
+ "meta": {
+  "level": 5,
+  "subject": "Intermediate Algebra",
+  "unique_id": "test/intermediate_algebra/955.json"
+ },
+ "finished_at": "2026-10-19T07:35:39+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 1,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": null,
+   "status": "missing",
+   "correct": false,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 9301,
+    "latency_ms": 14497,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1133,
+    "latency_ms": 2301,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": null,
+   "status": "missing",
+   "correct": false,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 0,
+    "latency_ms": 0,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": true
+  },
+  "B": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 10434,
+    "latency_ms": 105574,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 18043,
+    "latency_ms": 206405,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 18043,
+    "latency_ms": 206405,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "17",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 16783,
+    "latency_ms": 205531,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 92,
+   "tokens_in": 474,
+   "tokens_out": 659,
+   "latency_ms": 2301,
+   "truncated": false
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": false,
+   "answer": null,
+   "confidence": null,
+   "tokens_in": 4899,
+   "tokens_out": 4402,
+   "latency_ms": 14497,
+   "truncated": false
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": false,
+   "answer": null,
+   "confidence": null,
+   "tokens_in": 0,
+   "tokens_out": 0,
+   "latency_ms": 0,
+   "truncated": true
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 95,
+   "tokens_in": 641,
+   "tokens_out": 452,
+   "latency_ms": 1918,
+   "truncated": false
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 100,
+   "tokens_in": 758,
+   "tokens_out": 265,
+   "latency_ms": 2356,
+   "truncated": false
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "17",
+   "confidence": 100,
+   "tokens_in": 764,
+   "tokens_out": 3469,
+   "latency_ms": 99923,
+   "truncated": false
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "17",
+  "confidence": 100,
+  "tokens_in": 1169,
+  "tokens_out": 91,
+  "latency_ms": 861,
+  "truncated": false
+ },
+ "judge_c": null
+}

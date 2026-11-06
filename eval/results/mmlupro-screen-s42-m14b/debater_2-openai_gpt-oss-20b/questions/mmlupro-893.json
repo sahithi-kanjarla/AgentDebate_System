@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-893",
+ "category": "law",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "G",
+ "answer": "G",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 663,
+ "tokens_out": 238,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "g stolen property requires knowledge at the time of receipt. Larceny requires a taking with intent to permanently deprive, which she did not have. Thus neither crime applies. The correct choice is G.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"G\",\"confidence\":95}",
+ "finished_at": "2026-10-29T10:54:15+00:00"
+}

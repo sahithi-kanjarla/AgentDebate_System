@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7559",
+ "category": "economics",
+ "gold": "F",
+ "n_options": 9,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "F",
+ "answer": "F",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 491,
+ "tokens_out": 108,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "ycle, the economy is at or near full capacity. The main threat is excess demand leading to price pressures—i.e., inflation. The other options are more characteristic of downturns or specific sectors.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"F\",\"confidence\":90}",
+ "finished_at": "2026-10-29T10:54:14+00:00"
+}

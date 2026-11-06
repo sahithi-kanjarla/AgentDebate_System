@@ -1,0 +1,263 @@
+{
+ "qid": "math500-412",
+ "question": "Let $P(x)$ be a quadratic polynomial with real coefficients satisfying $x^2 - 2x + 2 \\le P(x) \\le 2x^2 - 4x + 3$ for all real  numbers $x$, and suppose $P(11) = 181$. Find $P(16)$.",
+ "gold": "406",
+ "meta": {
+  "level": 4,
+  "subject": "Intermediate Algebra",
+  "unique_id": "test/intermediate_algebra/2146.json"
+ },
+ "finished_at": "2026-10-19T09:33:25+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 1,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "406",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 903,
+    "latency_ms": 2339,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "406",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1116,
+    "latency_ms": 2324,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": null,
+   "status": "missing",
+   "correct": false,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 0,
+    "latency_ms": 0,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": true
+  },
+  "B": {
+   "answer": "406",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 2,
+    "api_calls": 2,
+    "tokens": 2019,
+    "latency_ms": 83013,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "406",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 9815,
+    "latency_ms": 165131,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "406",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 9815,
+    "latency_ms": 165131,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "406",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 5,
+    "api_calls": 5,
+    "tokens": 8246,
+    "latency_ms": 164483,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "406",
+   "confidence": 100,
+   "tokens_in": 479,
+   "tokens_out": 637,
+   "latency_ms": 2324,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "^2, so any quadratic P between them must be lower + c*(x-1)^2 with constant c∈[0,1]. Using P(11)=181 gives 101+100c=181 → c=0.8. Then P(16)= lower(16)+0.8*(15)^2 =226+180=406.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"406\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "406",
+   "confidence": 100,
+   "tokens_in": 397,
+   "tokens_out": 506,
+   "latency_ms": 2339,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "s quadratic polynomial satisfies all the conditions.\\nNow we can find $P(16)$ using this polynomial:\\n$P(16) = 1.8(16-1)^2 + 1 = 1.8(15)^2 + 1 = 1.8(225) + 1 = 405 + 1 = 406$.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"406\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": false,
+   "answer": null,
+   "confidence": null,
+   "tokens_in": 0,
+   "tokens_out": 0,
+   "latency_ms": 0,
+   "truncated": true,
+   "finish_reason": null,
+   "raw_tail": "",
+   "repair_used": false,
+   "error": "empty_response (finish_reason=length)"
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "406",
+   "confidence": 100,
+   "tokens_in": 1067,
+   "tokens_out": 133,
+   "latency_ms": 2355,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\"reasoning\":\"The other response correctly derived that P(x) must equal a(x-1)^2+1 with 1≤a≤2, found a=1.8 from P(11)=181, and computed P(16)=1.8*225+1=406. No mistakes detected.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"406\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "406",
+   "confidence": 100,
+   "tokens_in": 697,
+   "tokens_out": 456,
+   "latency_ms": 2634,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": ". Since $0 \\le 0.8 \\le 1$, this is valid. Step 7: Now find $P(16)$ using $k = 0.8$: $P(16) = (1 + 0.8)(16-1)^2 + 1 = 1.8 \\times 15^2 + 1 = 1.8 \\times 225 + 1 = 405 + 1 = 406$.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"406\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "406",
+   "confidence": 100,
+   "tokens_in": 1138,
+   "tokens_out": 2736,
+   "latency_ms": 81436,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "th responses correctly derive that P(x) must be of the form A(x-1)^2+1 with A in [1,2]. Using P(11)=181 gives A=1.8, leading to P(16)=1.8*225+1=406. No mistakes found in either response.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"406\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "406",
+  "confidence": 100,
+  "tokens_in": 1511,
+  "tokens_out": 58,
+  "latency_ms": 634,
+  "truncated": false,
+  "finish_reason": "stop",
+  "raw_tail": "{\"final_answer\":\"406\",\"confidence\":100,\"summary\":\"Both debaters derived the same polynomial form and computed P(16) consistently as 406.\",\"dissent\":null,\"consensus_reached\":true}",
+  "repair_used": false,
+  "error": null
+ },
+ "judge_c": null
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1103",
+ "category": "law",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "J",
+ "answer": "J",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 671,
+ "tokens_out": 669,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "the building owner's testimony about the janitor's statement is still hearsay, even if the owner can testify about it. The issue is admissibility, not the ability to testify.\"\n  },\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"J\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-11-02T12:23:56+00:00"
+}

@@ -1,0 +1,215 @@
+{
+ "qid": "gsm8k-test-608",
+ "question": "Joe has $50 to buy an outfit for his new field trip. There is a 30% off sale at the clothing store. The shirt he picks out has a price of $25. He also picks out a pair of shorts for $35. Assuming that sales tax is included, how much money will Joe have left after the purchase?",
+ "gold": "8",
+ "finished_at": "2026-10-19T07:05:02+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "8",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 595,
+    "latency_ms": 1595,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A2": {
+   "answer": "8",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 663,
+    "latency_ms": 1249,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A3": {
+   "answer": "8",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 919,
+    "latency_ms": 11373,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "B": {
+   "answer": "8",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 2177,
+    "latency_ms": 11404,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "C": {
+   "answer": "8",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6593,
+    "latency_ms": 43656,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D": {
+   "answer": "8",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6593,
+    "latency_ms": 43656,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D_vote": {
+   "answer": "8",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 5501,
+    "latency_ms": 42642,
+    "cache_hits": 0
+   },
+   "note": null
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "8",
+   "confidence": 99,
+   "tokens_in": 478,
+   "tokens_out": 185,
+   "latency_ms": 1249
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "8",
+   "confidence": 100,
+   "tokens_in": 395,
+   "tokens_out": 200,
+   "latency_ms": 1595
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "8",
+   "confidence": 95,
+   "tokens_in": 403,
+   "tokens_out": 516,
+   "latency_ms": 11373
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "8",
+   "confidence": 99,
+   "tokens_in": 939,
+   "tokens_out": 114,
+   "latency_ms": 1292
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "8",
+   "confidence": 100,
+   "tokens_in": 864,
+   "tokens_out": 123,
+   "latency_ms": 1757
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "8",
+   "confidence": 100,
+   "tokens_in": 842,
+   "tokens_out": 442,
+   "latency_ms": 31204
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "8",
+  "confidence": 100,
+  "tokens_in": 1035,
+  "tokens_out": 57,
+  "latency_ms": 999
+ },
+ "judge_c": null
+}

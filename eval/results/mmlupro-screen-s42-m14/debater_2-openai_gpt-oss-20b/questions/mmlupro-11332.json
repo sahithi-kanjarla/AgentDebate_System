@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-11332",
+ "category": "engineering",
+ "gold": "E",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "J",
+ "answer": "J",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 563,
+ "tokens_out": 784,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "onvection loss gives only about 100°F, far below all provided options. No option matches the realistic result. Assuming the question expects a high temperature, I arbitrarily choose option J (350°F).\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"J\",\"confidence\":20}",
+ "finished_at": "2026-10-29T10:32:45+00:00"
+}

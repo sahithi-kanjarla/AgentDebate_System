@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1873",
+ "category": "law",
+ "gold": "A",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 896,
+ "tokens_out": 183,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "found that such a requirement is constitutional because it bears a rational relationship to the state's interest in ensuring that those who exercise such authority are citizens.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"A\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-10-29T07:58:35+00:00"
+}

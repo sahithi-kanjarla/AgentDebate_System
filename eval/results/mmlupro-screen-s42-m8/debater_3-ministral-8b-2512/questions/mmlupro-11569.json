@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-11569",
+ "category": "engineering",
+ "gold": "I",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-8b-2512",
+ "answer_raw": null,
+ "answer": null,
+ "status": "missing",
+ "correct": false,
+ "truncated": true,
+ "finish_reason": "length",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 3386,
+ "tokens_out": 4096,
+ "api_calls": 2,
+ "error": "schema validation failed on: reasoning, final_answer, confidence",
+ "raw_tail": "s\": [\n        {\n          \"correlation\": \"k_g = 0.023 * (v^0.8) * (D^(-0.2)) * (μ^(-0.4)) * (Sc^(-0.67))\",\n          \"substituted_values\": {\n            \"v\": \"10800 ft/hr\",\n            \"D\": \"0.25 ft\",\n            \"μ\": \"0.0456 lb/(ft·hr)\",\n            \"Sc\": \"0.027\"\n          },\n          \"calculation",
+ "finished_at": "2026-11-02T11:22:50+00:00"
+}

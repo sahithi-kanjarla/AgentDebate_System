@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1103",
+ "category": "law",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "J",
+ "answer": "J",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 2100,
+ "tokens_out": 1166,
+ "api_calls": 2,
+ "error": null,
+ "raw_tail": "ption applies. None do here.\"\n    },\n    {\n      \"step5\": \"Option J correctly states that the statement is hearsay with no applicable exception, making it inadmissible.\"\n    }\n  ],\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"J\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T11:45:58+00:00"
+}

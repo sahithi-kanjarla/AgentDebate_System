@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1464",
+ "category": "law",
+ "gold": "H",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 778,
+ "tokens_out": 742,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "r & Willa. The 1/2 held by Hunter & Brandon is a joint tenancy; when Hunter dies, the entire 1/2 passes to Brandon. The son receives no part of that. Thus the son’s total interest is 1/2 of the land.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"B\",\"confidence\":90}",
+ "finished_at": "2026-11-02T11:53:32+00:00"
+}

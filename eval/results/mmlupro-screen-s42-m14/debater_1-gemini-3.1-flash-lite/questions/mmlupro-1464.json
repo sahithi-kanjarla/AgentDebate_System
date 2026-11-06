@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1464",
+ "category": "law",
+ "gold": "H",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "H",
+ "answer": "H",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 706,
+ "tokens_out": 369,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "la's estate (devised to son) includes her 1/4 from the first deed = 1/4. Brandon's interest (1/4) passes to his heirs (not the son). Total interest for the son = 1/2 + 1/4 = 3/4.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"H\",\n  \"confidence\": 90\n}",
+ "finished_at": "2026-10-29T10:31:57+00:00"
+}

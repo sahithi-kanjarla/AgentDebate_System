@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-11448",
+ "category": "engineering",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "G",
+ "answer": "G",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 549,
+ "tokens_out": 443,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "atm at T2=100 K. ln(2.5)=0.9163. 1/T2-1/T1 = 0.01 - 0.01109 = -0.00109. Δh_vap = -R * ln(P2/P1) / (1/T2-1/T1) = -1.987*0.9163 / (-0.00109) ≈ 1672 cal/mol. Closest option is 1658 cal/g‑mol (option G).\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"G\",\"confidence\":90}",
+ "finished_at": "2026-10-28T19:08:37+00:00"
+}

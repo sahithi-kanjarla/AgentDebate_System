@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-3796",
+ "category": "chemistry",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 672,
+ "tokens_out": 1269,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "he fraction of ^40K that has decayed is Ar/N₀ = 4.68×10⁻⁵. Thus e^(–λt)=1–4.68×10⁻⁵, giving t≈8.4×10⁴ yr. This is far outside the provided options, so none of the listed answers match the calculation.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"A\",\"confidence\":0}",
+ "finished_at": "2026-11-02T11:53:31+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-9948",
+ "category": "physics",
+ "gold": "D",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "D",
+ "answer": "D",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 534,
+ "tokens_out": 166,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "{\"reasoning\":\"Q = (1.1+8.4) - 5.5 = 4.0\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"D\",\"confidence\":100}",
+ "finished_at": "2026-10-29T10:33:31+00:00"
+}

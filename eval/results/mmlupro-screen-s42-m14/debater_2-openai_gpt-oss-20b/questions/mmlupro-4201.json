@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-4201",
+ "category": "chemistry",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "G",
+ "answer": "G",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 626,
+ "tokens_out": 236,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "r: 1 L ≈1000 g, ΔT=30°C, c=1 cal/g°C → q=1000*1*30=30000 cal=30 kcal. For aluminum: 1 kg=1000 g, c=0.215 cal/g°C, ΔT=30°C → q=1000*0.215*30=6450 cal=6.45 kcal. Option G matches (30 Kcal, 6.45 Kcal).\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"G\",\"confidence\":100}",
+ "finished_at": "2026-10-29T10:33:30+00:00"
+}

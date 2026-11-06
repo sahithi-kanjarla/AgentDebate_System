@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-9340",
+ "category": "physics",
+ "gold": "I",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "J",
+ "answer": "J",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 2486,
+ "tokens_out": 1753,
+ "api_calls": 2,
+ "error": null,
+ "raw_tail": "formly accelerated motion: s = 0.5 * a * t², where s = 9 ft, a = 5 ft/s².\",\n    \"Substitute values: 9 = 0.5 * 5 * t² → 9 = 2.5 * t² → t² = 9 / 2.5 = 3.6 → t = √3.6 ≈ 1.897 s.\"\n  ],\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"J\",\n  \"confidence\": 85\n}",
+ "finished_at": "2026-10-29T11:10:50+00:00"
+}

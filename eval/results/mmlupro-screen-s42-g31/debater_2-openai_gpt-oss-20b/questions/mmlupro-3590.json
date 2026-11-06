@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-3590",
+ "category": "chemistry",
+ "gold": "A",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 538,
+ "tokens_out": 222,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "{\"reasoning\":\"Used ideal gas law: density = PM/RT. P=720 mmHg =0.947 atm, M=44 g/mol, T=373 K, R=0.082057. Computed density ≈1.36 g/L, closest option A (1.32).\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"A\",\"confidence\":90}",
+ "finished_at": "2026-10-29T08:02:26+00:00"
+}

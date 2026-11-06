@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1464",
+ "category": "law",
+ "gold": "H",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "E",
+ "answer": "E",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 710,
+ "tokens_out": 1180,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "on\": \"Therefore, Hunter's son inherits both interests: one-half from the tenancy by the entirety and one-half from the joint tenancy, totaling the entire tract of land.\"\n    }\n  ],\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"E\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T11:08:05+00:00"
+}

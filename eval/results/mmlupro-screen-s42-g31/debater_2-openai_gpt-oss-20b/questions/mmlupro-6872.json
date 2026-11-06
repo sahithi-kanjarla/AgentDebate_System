@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-6872",
+ "category": "economics",
+ "gold": "C",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "C",
+ "answer": "C",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 664,
+ "tokens_out": 118,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "oning\":\"Ricardo’s theory states that with a fixed land supply and rising population, land becomes scarcer, rent increases, profits fall, leading to economic stagnation. Option C reflects this chain.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"C\",\"confidence\":100}",
+ "finished_at": "2026-10-29T08:02:26+00:00"
+}

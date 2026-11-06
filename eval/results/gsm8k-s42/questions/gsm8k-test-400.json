@@ -1,0 +1,215 @@
+{
+ "qid": "gsm8k-test-400",
+ "question": "A glass of milk is 8 ounces of milk.  John drinks 2 glasses of milk.  If milk has 3 calories per ounce how many calories did he consume?",
+ "gold": "48",
+ "finished_at": "2026-10-19T07:06:40+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 524,
+    "latency_ms": 2513,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A2": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 543,
+    "latency_ms": 2006,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A3": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 714,
+    "latency_ms": 23123,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "B": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 1781,
+    "latency_ms": 23156,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "C": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 5468,
+    "latency_ms": 38396,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 5468,
+    "latency_ms": 38396,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D_vote": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 4543,
+    "latency_ms": 37581,
+    "cache_hits": 0
+   },
+   "note": null
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 445,
+   "tokens_out": 98,
+   "latency_ms": 2006
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 358,
+   "tokens_out": 166,
+   "latency_ms": 2513
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 369,
+   "tokens_out": 345,
+   "latency_ms": 23123
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 796,
+   "tokens_out": 106,
+   "latency_ms": 1216
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 663,
+   "tokens_out": 149,
+   "latency_ms": 1811
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 742,
+   "tokens_out": 306,
+   "latency_ms": 14391
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "48",
+  "confidence": 100,
+  "tokens_in": 854,
+  "tokens_out": 71,
+  "latency_ms": 798
+ },
+ "judge_c": null
+}

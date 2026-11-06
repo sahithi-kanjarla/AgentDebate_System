@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1103",
+ "category": "law",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "J",
+ "answer": "J",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 760,
+ "tokens_out": 321,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "l into any recognized hearsay exception (recorded recollection, medical diagnosis, spontaneous declaration to an opponent, etc.). Therefore it is inadmissible as hearsay with no applicable exception.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"J\",\"confidence\":90}",
+ "finished_at": "2026-10-28T19:17:53+00:00"
+}

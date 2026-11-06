@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1026",
+ "category": "law",
+ "gold": "H",
+ "n_options": 9,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "G",
+ "answer": "G",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 2826,
+ "tokens_out": 1836,
+ "api_calls": 2,
+ "error": null,
+ "raw_tail": "r options: Options A, B, C, D, F, H are inconsistent with the facts or legal principles. Option E is vague, while Option I is partially correct but less precise than G.\"\n    }\n  ],\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"G\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T11:12:53+00:00"
+}

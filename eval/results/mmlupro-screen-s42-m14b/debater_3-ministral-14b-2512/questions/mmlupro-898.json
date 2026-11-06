@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-898",
+ "category": "law",
+ "gold": "C",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 1955,
+ "tokens_out": 1196,
+ "api_calls": 2,
+ "error": null,
+ "raw_tail": " },\n    {\n      \"step\": 6,\n      \"description\": \"Given the reckless disregard for human safety and the fatal result, *manslaughter* is the most legally accurate charge.\"\n    }\n  ],\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"B\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T11:28:05+00:00"
+}

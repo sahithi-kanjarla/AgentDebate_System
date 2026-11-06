@@ -1,0 +1,263 @@
+{
+ "qid": "math500-236",
+ "question": "Compute\n\\[\\frac{1}{\\cos^2 10^\\circ} + \\frac{1}{\\sin^2 20^\\circ} + \\frac{1}{\\sin^2 40^\\circ}.\\]",
+ "gold": "12",
+ "meta": {
+  "level": 4,
+  "subject": "Precalculus",
+  "unique_id": "test/precalculus/989.json"
+ },
+ "finished_at": "2026-10-19T09:24:44+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "12",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 2887,
+    "latency_ms": 7347,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "12",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 898,
+    "latency_ms": 1780,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": "12",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1840,
+    "latency_ms": 32830,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "B": {
+   "answer": "12",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 5625,
+    "latency_ms": 32861,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "12",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 18500,
+    "latency_ms": 73626,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "12",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 18500,
+    "latency_ms": 73626,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "12",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 14716,
+    "latency_ms": 72490,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "12",
+   "confidence": 97,
+   "tokens_in": 458,
+   "tokens_out": 440,
+   "latency_ms": 1780,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "ot20°≈2.747 (square≈7.543), cot40°≈1.1918 (square≈1.420). Adding 3 gives about 11.994, which is extremely close to 12, indicating the exact value is the integer 12. Hence the required integer is 12.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"12\",\"confidence\":97}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "12",
+   "confidence": 100,
+   "tokens_in": 370,
+   "tokens_out": 2517,
+   "latency_ms": 7347,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "+ 6 = 9$.\\nThus, $\\cot^2 20^\\circ + \\cot^2 40^\\circ + \\cot^2 80^\\circ = 9$.\\nTherefore, $\\csc^2 20^\\circ + \\csc^2 40^\\circ + \\csc^2 80^\\circ = 3 + 9 = 12$.\\nThus the sum is 12.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"12\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "12",
+   "confidence": 95,
+   "tokens_in": 376,
+   "tokens_out": 1464,
+   "latency_ms": 32830,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "10°) ≈ 1.03109, csc^2(20°) ≈ 8.5486, csc^2(40°) ≈ 2.4203. Sum ≈ 12.0000, suggesting exact integer 12. Verified via high-precision calculation or trigonometric identities yields exactly 12.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"12\", \"confidence\": 95}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "12",
+   "confidence": 100,
+   "tokens_in": 3132,
+   "tokens_out": 88,
+   "latency_ms": 1158,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\"reasoning\":\"Both responses compute the sum and arrive at 12, using either an identity or numeric verification. No mistakes detected.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"12\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "12",
+   "confidence": 100,
+   "tokens_in": 866,
+   "tokens_out": 472,
+   "latency_ms": 2818,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "2 40^\\circ + \\sin^2 20^\\circ = \\frac{3}{2}\\) or similar relations, we can rigorously prove the sum equals 12 as corroborated by the approximations in Response 1 and Response 2.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"12\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "12",
+   "confidence": 100,
+   "tokens_in": 3292,
+   "tokens_out": 1241,
+   "latency_ms": 39590,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": ", we find cot^2 20° + cot^2 40° + cot^2 80° = 9. Since csc^2 θ = 1 + cot^2 θ, the sum equals 3 + 9 = 12. Numerical verification also yields approximately 12, confirming the exact integer.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"12\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "12",
+  "confidence": 100,
+  "tokens_in": 3727,
+  "tokens_out": 57,
+  "latency_ms": 1122,
+  "truncated": false,
+  "finish_reason": "stop",
+  "raw_tail": "{\"final_answer\":\"12\",\"confidence\":100,\"summary\":\"All independent and critique responses agree the expression evaluates to 12.\",\"dissent\":null,\"consensus_reached\":true}",
+  "repair_used": false,
+  "error": null
+ },
+ "judge_c": null
+}

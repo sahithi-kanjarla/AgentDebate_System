@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1873",
+ "category": "law",
+ "gold": "A",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 970,
+ "tokens_out": 205,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "in public safety positions such as police officers. The restriction is rationally related to the special demands of the police function. Therefore the statute is constitutional. The best answer is A.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"A\",\"confidence\":95}",
+ "finished_at": "2026-11-02T11:16:23+00:00"
+}

@@ -1,0 +1,263 @@
+{
+ "qid": "math500-145",
+ "question": "Let $z$ be a complex number such that\n\\[z + \\frac{1}{z} = \\frac{1 + \\sqrt{5}}{2}.\\]Find\n\\[z^{85} + \\frac{1}{z^{85}}.\\]",
+ "gold": "-2",
+ "meta": {
+  "level": 5,
+  "subject": "Intermediate Algebra",
+  "unique_id": "test/intermediate_algebra/1408.json"
+ },
+ "finished_at": "2026-10-19T09:10:33+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 6,
+  "truncated_turns": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1591,
+    "latency_ms": 0,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1032,
+    "latency_ms": 0,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 2102,
+    "latency_ms": 0,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "B": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 0,
+    "tokens": 4725,
+    "latency_ms": 11,
+    "cache_hits": 3
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 1,
+    "tokens": 12719,
+    "latency_ms": 1236,
+    "cache_hits": 6
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 1,
+    "tokens": 12719,
+    "latency_ms": 1236,
+    "cache_hits": 6
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "-2",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 0,
+    "tokens": 10433,
+    "latency_ms": 25,
+    "cache_hits": 6
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 377,
+   "tokens_out": 1214,
+   "latency_ms": 0,
+   "truncated": false,
+   "finish_reason": null,
+   "raw_tail": "\\\\cos(5 \\\\times \\\\pi / 5) = 2 \\\\cos(\\\\pi) = -2$.\\nSince $z^{10} = 1$, $z^{85} = z^{85} = z^{80} \\\\cdot z^5 = (z^{10})^8 z^5 = z^5$. \\nSo $z^{85} + 1/z^{85} = z^5 + 1/z^5 = -2$.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"-2\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 465,
+   "tokens_out": 567,
+   "latency_ms": 0,
+   "truncated": false,
+   "finish_reason": null,
+   "raw_tail": "isfies t^2 - x t +1=0, giving |z|=1 and z = e^{iθ} with 2cosθ = x. Thus cosθ = x/2 = (1+√5)/4 = cos36°, so θ = π/5. Define a_n = z^n+z^{-n}=2cos(nθ). Then a_85 = 2cos(85·π/5)=2cos(17π)=2·(-1) = -2.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"-2\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 384,
+   "tokens_out": 1718,
+   "latency_ms": 0,
+   "truncated": false,
+   "finish_reason": null,
+   "raw_tail": " so z = e^{± iπ/5}. Then z^n + 1/z^n = 2 cos(nπ/5). For n=85, 85π/5 = 17π, cos(17π) = -1, so result is 2 * (-1) = -2. Alternatively, using recurrence or periodicity modulo 10 yields same.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"-2\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 840,
+   "tokens_out": 265,
+   "latency_ms": 0,
+   "truncated": false,
+   "finish_reason": null,
+   "raw_tail": "right)$. Step 4: Substitute $n = 85$: $85\\\\pi / 5 = 17\\\\pi$. Step 5: Calculate $2\\\\cos(17\\\\pi) = 2(-1) = -2$. The reasoning is robust and verified by Response 1 and Response 2.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"-2\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 1846,
+   "tokens_out": 319,
+   "latency_ms": 0,
+   "truncated": false,
+   "finish_reason": null,
+   "raw_tail": "s z+1/z=φ where φ=(1+√5)/2, leading to z=e^{±iπ/5}. Using the identity z^n+1/z^n=2cos(nπ/5), for n=85 we get 2cos(17π) = -2. The algebraic and periodicity arguments are consistent. No errors found.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"-2\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "-2",
+   "confidence": 100,
+   "tokens_in": 1796,
+   "tokens_out": 642,
+   "latency_ms": 0,
+   "truncated": false,
+   "finish_reason": null,
+   "raw_tail": "oth other responses correctly identified that z+1/z equals the golden ratio φ = 2cos(π/5), leading to z = e^{±iπ/5}. Then z^{85}+z^{-85}=2cos(85π/5)=2cos(17π)=2(-1)=-2. No mistakes found.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"-2\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "-2",
+  "confidence": 100,
+  "tokens_in": 2193,
+  "tokens_out": 93,
+  "latency_ms": 1194,
+  "truncated": false,
+  "finish_reason": "stop",
+  "raw_tail": "{\"final_answer\":\"-2\",\"confidence\":100,\"summary\":\"All three independent analyses concluded that (z=e^{pm ipi/5}), so (z^{85}+1/z^{85}=2cos(85pi/5)=2cos(17pi)=-2).\",\"dissent\":null,\"consensus_reached\":true}",
+  "repair_used": false,
+  "error": null
+ },
+ "judge_c": null
+}

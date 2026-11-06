@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1606",
+ "category": "law",
+ "gold": "E",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "D",
+ "answer": "D",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 745,
+ "tokens_out": 370,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "usal testimonial privilege is a right held by the spouse and is not automatically lost by divorce; the husband has not waived it. Therefore the wife's testimony is inadmissible under both privileges.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"D\",\"confidence\":90}",
+ "finished_at": "2026-11-02T11:53:32+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-6929",
+ "category": "economics",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 509,
+ "tokens_out": 395,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": " 100,000 + 0.10 * D + 25,000 = D. 11. 125,000 + 0.10 * D = D. 12. 125,000 = 0.90 * D. 13. D = 125,000 / 0.90 = 138,888.888... 14. Rounding to the nearest option, we get 138,889.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"B\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-10-29T07:54:21+00:00"
+}

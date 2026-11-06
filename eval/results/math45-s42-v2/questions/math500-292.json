@@ -1,0 +1,263 @@
+{
+ "qid": "math500-292",
+ "question": "Given that \\begin{align*}x_{1}&=211,\\\\ x_{2}&=375,\\\\ x_{3}&=420,\\\\ x_{4}&=523,\\ \\text{and}\\\\ x_{n}&=x_{n-1}-x_{n-2}+x_{n-3}-x_{n-4}\\ \\text{when}\\ n\\geq5, \\end{align*}find the value of $x_{531}+x_{753}+x_{975}$.",
+ "gold": "898",
+ "meta": {
+  "level": 4,
+  "subject": "Intermediate Algebra",
+  "unique_id": "test/intermediate_algebra/90.json"
+ },
+ "finished_at": "2026-10-19T09:28:40+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "898",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1237,
+    "latency_ms": 4026,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "898",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1330,
+    "latency_ms": 2478,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": "898",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 3079,
+    "latency_ms": 85567,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "B": {
+   "answer": "898",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 5646,
+    "latency_ms": 85600,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "898",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 13398,
+    "latency_ms": 116018,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "898",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 13398,
+    "latency_ms": 116018,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "898",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 11490,
+    "latency_ms": 112938,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "898",
+   "confidence": 97,
+   "tokens_in": 517,
+   "tokens_out": 813,
+   "latency_ms": 2478,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "x7=-375, x8=-420, x9=-523, x10=-267, then repeats. Thus x_n = x_{((n-1) mod 10)+1}. For n=531,753,975 we have residues 1,3,5 respectively, giving values 211, 420, 267. Their sum is 211+420+267=898.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"898\",\"confidence\":97}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "898",
+   "confidence": 100,
+   "tokens_in": 432,
+   "tokens_out": 805,
+   "latency_ms": 4026,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": ".\\n- For $x_{753}$: $753 \\equiv 3 \\pmod{10}$, so $x_{753} = x_3 = 420$.\\n- For $x_{975}$: $975 \\equiv 5 \\pmod{10}$, so $x_{975} = x_5 = 267$.\\n\\nSum = $211 + 420 + 267 = 898$.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"898\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "898",
+   "confidence": 100,
+   "tokens_in": 444,
+   "tokens_out": 2635,
+   "latency_ms": 85567,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "ting the first ten terms confirms x_{n+10}=x_n for n≥1. Reducing the indices modulo 10: 531≡1→x_{531}=x_1=211; 753≡3→x_{753}=x_3=420; 975≡5→x_{975}=x_5=267. Their sum is 211+420+267=898.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"898\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "898",
+   "confidence": 100,
+   "tokens_in": 1509,
+   "tokens_out": 104,
+   "latency_ms": 1614,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "{\"reasoning\":\"Both responses compute the recurrence and correctly identify a period of 10, yielding x_{531}=211, x_{753}=420, x_{975}=267, sum 898. No errors found.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"898\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "898",
+   "confidence": 100,
+   "tokens_in": 1143,
+   "tokens_out": 239,
+   "latency_ms": 2170,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "erms. For the requested indices: 531 mod 10 = 1 (term 211), 753 mod 10 = 3 (term 420), and 975 mod 10 = 5 (term 267). The sum is 211 + 420 + 267 = 898. All steps are verified.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"898\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "898",
+   "confidence": 100,
+   "tokens_in": 1601,
+   "tokens_out": 1248,
+   "latency_ms": 27303,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": " sequence: 211, 375, 420, 523, 267, -211, -375, -420, -523, -267. Computed indices: 531 ≡ 1 (mod 10) → 211; 753 ≡ 3 → 420; 975 ≡ 5 → 267. Sum = 898. No mistakes found in other responses.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"898\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "898",
+  "confidence": 100,
+  "tokens_in": 1836,
+  "tokens_out": 72,
+  "latency_ms": 3067,
+  "truncated": false,
+  "finish_reason": "stop",
+  "raw_tail": "{\"final_answer\":\"898\",\"confidence\":100,\"summary\":\"All three independent analyses found the sequence has period 10 and computed the required terms as 211, 420, and 267, summing to 898.\",\"dissent\":null,\"consensus_reached\":true}",
+  "repair_used": false,
+  "error": null
+ },
+ "judge_c": null
+}

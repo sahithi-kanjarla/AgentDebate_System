@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-7242",
+ "category": "economics",
+ "gold": "B",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 542,
+ "tokens_out": 130,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "in lower employment. When the market becomes perfectly competitive, wage rises to the competitive equilibrium and employment rises to the competitive quantity. Thus both wage and employment increase.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"B\",\"confidence\":90}",
+ "finished_at": "2026-10-29T10:54:16+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-4220",
+ "category": "chemistry",
+ "gold": "J",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 857,
+ "tokens_out": 509,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "{\"reasoning\":\"Calculated ΔH° using ΔHf values: a) 10.6 Kcal, b) 8.3 Kcal, c) 4.0 Kcal. Matches option B.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"B\",\"confidence\":90}",
+ "finished_at": "2026-10-29T08:02:28+00:00"
+}

@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-4201",
+ "category": "chemistry",
+ "gold": "G",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "G",
+ "answer": "G",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 556,
+ "tokens_out": 443,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": " to options.\",\n      \"details\": [\n        \"Part (a) result: 30 Kcal.\",\n        \"Part (b) result: 6.45 Kcal.\",\n        \"Matching option: G (30 Kcal, 6.45 Kcal).\"\n      ]\n    }\n  ],\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"G\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-11-02T12:18:36+00:00"
+}

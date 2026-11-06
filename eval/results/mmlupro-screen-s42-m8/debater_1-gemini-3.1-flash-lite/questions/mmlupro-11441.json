@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-11441",
+ "category": "engineering",
+ "gold": "J",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "B",
+ "answer": "B",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 643,
+ "tokens_out": 214,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "thalpy change ΔH is negative. Calculation: ΔH = -(18,000 Btu/lb) * (78.11 lb/lbmole) = -1,405,980 Btu/lbmole. Expressing this in scientific notation: -1.40598 × 10^6 Btu/lbmole.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"B\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-11-02T11:16:23+00:00"
+}

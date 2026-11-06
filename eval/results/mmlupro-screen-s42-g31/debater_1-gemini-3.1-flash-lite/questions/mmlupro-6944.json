@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-6944",
+ "category": "economics",
+ "gold": "A",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 508,
+ "tokens_out": 145,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "rve. Consequently, the bank's reserves decrease by the amount of the purchase. This reduction in reserves restricts the banking system's ability to create money through lending.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"A\",\n  \"confidence\": 100\n}",
+ "finished_at": "2026-10-29T07:55:59+00:00"
+}

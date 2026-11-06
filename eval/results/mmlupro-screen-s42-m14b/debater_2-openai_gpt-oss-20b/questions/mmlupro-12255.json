@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-12255",
+ "category": "engineering",
+ "gold": "I",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "J",
+ "answer": "J",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 1262,
+ "tokens_out": 657,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": ".5 Pr^0.33/x. Using k≈0.030 Btu/(hr·ft·°F), Pr≈0.7, Re^0.5≈205, Pr^0.33≈0.88 gives h≈0.90 Btu/(hr·ft²·°F). Option J lists 0.9 Btu/hr ft^2°F, matching the computed value. Thus J is the correct choice.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"J\",\"confidence\":90}",
+ "finished_at": "2026-10-29T10:54:15+00:00"
+}

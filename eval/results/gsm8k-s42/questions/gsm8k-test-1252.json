@@ -1,0 +1,215 @@
+{
+ "qid": "gsm8k-test-1252",
+ "question": "Dominick went to his team's changing room and saw half as many robots as helmets and half as many helmets as footballs kept there. If there were 20 helmets, calculate the total number of items Dominick saw.",
+ "gold": "70",
+ "finished_at": "2026-10-19T06:59:15+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "70",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 588,
+    "latency_ms": 1814,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A2": {
+   "answer": "70",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 644,
+    "latency_ms": 828,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A3": {
+   "answer": "70",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 863,
+    "latency_ms": 11029,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "B": {
+   "answer": "70",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 2095,
+    "latency_ms": 11071,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "C": {
+   "answer": "70",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6308,
+    "latency_ms": 18172,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D": {
+   "answer": "70",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 6308,
+    "latency_ms": 18172,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D_vote": {
+   "answer": "70",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 5230,
+    "latency_ms": 17733,
+    "cache_hits": 0
+   },
+   "note": null
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "70",
+   "confidence": 95,
+   "tokens_in": 453,
+   "tokens_out": 191,
+   "latency_ms": 828
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "70",
+   "confidence": 100,
+   "tokens_in": 369,
+   "tokens_out": 219,
+   "latency_ms": 1814
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "70",
+   "confidence": 100,
+   "tokens_in": 379,
+   "tokens_out": 484,
+   "latency_ms": 11029
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "70",
+   "confidence": 95,
+   "tokens_in": 853,
+   "tokens_out": 115,
+   "latency_ms": 930
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "70",
+   "confidence": 100,
+   "tokens_in": 734,
+   "tokens_out": 217,
+   "latency_ms": 1869
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "70",
+   "confidence": 100,
+   "tokens_in": 845,
+   "tokens_out": 371,
+   "latency_ms": 6634
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "70",
+  "confidence": 100,
+  "tokens_in": 1012,
+  "tokens_out": 66,
+  "latency_ms": 427
+ },
+ "judge_c": null
+}

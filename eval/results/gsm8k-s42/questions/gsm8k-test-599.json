@@ -1,0 +1,215 @@
+{
+ "qid": "gsm8k-test-599",
+ "question": "A pet store currently has 5 dogs, 2 cats, and 10 birds. How many legs in total do the pets in the store have?",
+ "gold": "48",
+ "finished_at": "2026-10-19T07:01:44+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 585,
+    "latency_ms": 3440,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A2": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 586,
+    "latency_ms": 966,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A3": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 626,
+    "latency_ms": 5708,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "B": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 1797,
+    "latency_ms": 5755,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "C": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 5789,
+    "latency_ms": 13650,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 5789,
+    "latency_ms": 13650,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D_vote": {
+   "answer": "48",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 4766,
+    "latency_ms": 12412,
+    "cache_hits": 0
+   },
+   "note": null
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 440,
+   "tokens_out": 146,
+   "latency_ms": 966
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 354,
+   "tokens_out": 231,
+   "latency_ms": 3440
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 362,
+   "tokens_out": 264,
+   "latency_ms": 5708
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 865,
+   "tokens_out": 111,
+   "latency_ms": 703
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 716,
+   "tokens_out": 163,
+   "latency_ms": 1374
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "48",
+   "confidence": 100,
+   "tokens_in": 804,
+   "tokens_out": 310,
+   "latency_ms": 6625
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "48",
+  "confidence": 100,
+  "tokens_in": 960,
+  "tokens_out": 63,
+  "latency_ms": 1223
+ },
+ "judge_c": null
+}

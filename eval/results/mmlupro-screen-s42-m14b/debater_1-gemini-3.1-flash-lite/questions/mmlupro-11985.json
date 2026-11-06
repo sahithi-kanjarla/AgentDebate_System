@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-11985",
+ "category": "engineering",
+ "gold": "A",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 495,
+ "tokens_out": 902,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "H - T0ΔS. Since ΔH = 0 (isolated), I = T0 * ΔS_gen. Using T0 = 250K? No. Let's check T0 = 273K? 273 * 1.48 = 404. Let's try T0 = 298K? 298 * 1.48 = 441.04. This matches option A.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"A\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T10:54:09+00:00"
+}

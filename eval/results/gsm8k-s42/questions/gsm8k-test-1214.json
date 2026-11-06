@@ -1,0 +1,215 @@
+{
+ "qid": "gsm8k-test-1214",
+ "question": "Jordan has 2 children who wear diapers.  Each child requires 5 diaper changes per day.  Jordan's wife changes half of the diapers.  How many diapers does Jordan change per day?",
+ "gold": "5",
+ "finished_at": "2026-10-19T06:51:34+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "5",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 516,
+    "latency_ms": 1204,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A2": {
+   "answer": "5",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 580,
+    "latency_ms": 876,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "A3": {
+   "answer": "5",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 720,
+    "latency_ms": 9686,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "B": {
+   "answer": "5",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 1816,
+    "latency_ms": 9707,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "C": {
+   "answer": "5",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 5566,
+    "latency_ms": 26205,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D": {
+   "answer": "5",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 5566,
+    "latency_ms": 26205,
+    "cache_hits": 0
+   },
+   "note": null
+  },
+  "D_vote": {
+   "answer": "5",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 4607,
+    "latency_ms": 25682,
+    "cache_hits": 0
+   },
+   "note": null
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "5",
+   "confidence": 100,
+   "tokens_in": 449,
+   "tokens_out": 131,
+   "latency_ms": 876
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "5",
+   "confidence": 100,
+   "tokens_in": 363,
+   "tokens_out": 153,
+   "latency_ms": 1204
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "5",
+   "confidence": 100,
+   "tokens_in": 374,
+   "tokens_out": 346,
+   "latency_ms": 9686
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "5",
+   "confidence": 100,
+   "tokens_in": 779,
+   "tokens_out": 111,
+   "latency_ms": 685
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "5",
+   "confidence": 100,
+   "tokens_in": 682,
+   "tokens_out": 186,
+   "latency_ms": 1213
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "5",
+   "confidence": 100,
+   "tokens_in": 742,
+   "tokens_out": 291,
+   "latency_ms": 15957
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "5",
+  "confidence": 100,
+  "tokens_in": 889,
+  "tokens_out": 70,
+  "latency_ms": 515
+ },
+ "judge_c": null
+}

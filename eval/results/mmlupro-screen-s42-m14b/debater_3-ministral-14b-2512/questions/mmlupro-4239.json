@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-4239",
+ "category": "chemistry",
+ "gold": "D",
+ "n_options": 10,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "D",
+ "answer": "D",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": true,
+ "fallback_used": false,
+ "tokens_in": 3002,
+ "tokens_out": 2517,
+ "api_calls": 2,
+ "error": null,
+ "raw_tail": "(102,025.33)² - (101,331.12)² = 6.98 × 10⁷ Pa²\",\n        \"η\": \"(π * (1 × 10^-3)⁴ * 6.98 × 10⁷) / (16 * 9.02 × 10^-7 * 1 * 101,678.225) = 1.82 × 10^-5 kg·m⁻¹·s⁻¹\"\n      }\n    }\n  ],\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"D\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-10-29T11:18:57+00:00"
+}

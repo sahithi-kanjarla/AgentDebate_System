@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-9170",
+ "category": "physics",
+ "gold": "A",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 561,
+ "tokens_out": 367,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "m, L=0.10 m.  \\nΔn = 100×6.322×10⁻⁷ / (2×0.10) = 6.322×10⁻⁵ / 0.20 = 3.161×10⁻⁴.  \\nThe gas’s index before evacuation is n₀ = 1 + Δn = 1.000316, which rounds to 1.00032.  Option A matches this value.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"A\",\"confidence\":95}",
+ "finished_at": "2026-10-29T10:54:11+00:00"
+}

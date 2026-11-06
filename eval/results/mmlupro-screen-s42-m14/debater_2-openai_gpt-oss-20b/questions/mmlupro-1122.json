@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1122",
+ "category": "law",
+ "gold": "A",
+ "n_options": 10,
+ "agent": "debater_2",
+ "model": "groq/openai/gpt-oss-20b",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 558,
+ "tokens_out": 114,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "{\"reasoning\":\"Hart argued that the Nazi law was validly enacted and recognized, so option A is correct.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"A\",\"confidence\":90}",
+ "finished_at": "2026-10-29T10:33:29+00:00"
+}

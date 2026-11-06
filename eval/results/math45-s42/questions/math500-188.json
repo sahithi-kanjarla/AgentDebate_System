@@ -1,0 +1,235 @@
+{
+ "qid": "math500-188",
+ "question": "Find the largest $x$-value at which the graphs of $f(x)=e^{3x^2-|\\lfloor x \\rfloor|!}+\\binom{22+735235|\\lfloor x \\rfloor |}{2356}+\\phi(|\\lfloor x \\rfloor|+1)+72x^4+3x^3-6x^2+2x+1$ and $g(x)=e^{3x^2-|\\lfloor x \\rfloor|!}+\\binom{22+735235|\\lfloor x \\rfloor |}{2356}+\\phi(|\\lfloor x \\rfloor|+1)+72x^4+4x^3-11x^2-6x+13$ intersect, where $\\lfloor x \\rfloor$ denotes the floor function of $x$, and $\\phi(n)$ denotes the sum of the positive integers $\\le$ and relatively prime to $n$.",
+ "gold": "6",
+ "meta": {
+  "level": 5,
+  "subject": "Algebra",
+  "unique_id": "test/algebra/733.json"
+ },
+ "finished_at": "2026-10-19T07:38:40+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": null,
+   "status": "missing",
+   "correct": false,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 2694,
+    "latency_ms": 5217,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "6",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1194,
+    "latency_ms": 2877,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": "6",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1578,
+    "latency_ms": 20001,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "B": {
+   "answer": "6",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 4,
+    "api_calls": 4,
+    "tokens": 5466,
+    "latency_ms": 20029,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "6",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 9,
+    "api_calls": 9,
+    "tokens": 13928,
+    "latency_ms": 60855,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "6",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 9,
+    "api_calls": 9,
+    "tokens": 13928,
+    "latency_ms": 60855,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "6",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 8,
+    "api_calls": 8,
+    "tokens": 12719,
+    "latency_ms": 48360,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "6",
+   "confidence": 97,
+   "tokens_in": 615,
+   "tokens_out": 579,
+   "latency_ms": 2877,
+   "truncated": false
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": false,
+   "answer": null,
+   "confidence": null,
+   "tokens_in": 1651,
+   "tokens_out": 1043,
+   "latency_ms": 5217,
+   "truncated": false
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "6",
+   "confidence": 100,
+   "tokens_in": 539,
+   "tokens_out": 1039,
+   "latency_ms": 20001,
+   "truncated": false
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": false,
+   "answer": null,
+   "confidence": null,
+   "tokens_in": 2633,
+   "tokens_out": 1093,
+   "latency_ms": 4481,
+   "truncated": false
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "6",
+   "confidence": 100,
+   "tokens_in": 929,
+   "tokens_out": 459,
+   "latency_ms": 11569,
+   "truncated": false
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "6",
+   "confidence": 100,
+   "tokens_in": 877,
+   "tokens_out": 1262,
+   "latency_ms": 28311,
+   "truncated": false
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "6",
+  "confidence": 100,
+  "tokens_in": 1130,
+  "tokens_out": 79,
+  "latency_ms": 12480,
+  "truncated": false
+ },
+ "judge_c": null
+}

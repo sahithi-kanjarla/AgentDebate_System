@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1232",
+ "category": "law",
+ "gold": "A",
+ "n_options": 9,
+ "agent": "debater_3",
+ "model": "mistral/ministral-14b-2512",
+ "answer_raw": "A",
+ "answer": "A",
+ "status": "correct",
+ "correct": true,
+ "truncated": false,
+ "finish_reason": "stop",
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 662,
+ "tokens_out": 551,
+ "api_calls": 1,
+ "error": null,
+ "raw_tail": "hem proves they did not shoot the spear that struck the victim. This aligns with the legal principle that defendants bear the burden of proving their non-liability in such cases.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"A\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-11-02T11:57:11+00:00"
+}

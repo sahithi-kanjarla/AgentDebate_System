@@ -1,0 +1,263 @@
+{
+ "qid": "math500-428",
+ "question": "Let $a,$ $b,$ $c,$ $d$ be positive real numbers such that $a + b + c + d = 1.$  Find the minimum value of\n\\[\\frac{1}{a} + \\frac{1}{b} + \\frac{4}{c} + \\frac{16}{d}.\\]",
+ "gold": "64",
+ "meta": {
+  "level": 4,
+  "subject": "Intermediate Algebra",
+  "unique_id": "test/intermediate_algebra/121.json"
+ },
+ "finished_at": "2026-10-19T09:36:26+00:00",
+ "facts": {
+  "rounds_run": 1,
+  "early_stopped": true,
+  "c_equals_d": true,
+  "prefix_consistent": true,
+  "cache_hits_d": 0,
+  "truncated_turns": 0,
+  "extra": {}
+ },
+ "conditions": {
+  "A1": {
+   "answer": "64",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 982,
+    "latency_ms": 2346,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A2": {
+   "answer": "64",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 911,
+    "latency_ms": 1212,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "A3": {
+   "answer": "64",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 1,
+    "api_calls": 1,
+    "tokens": 1312,
+    "latency_ms": 25601,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "B": {
+   "answer": "64",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 3,
+    "api_calls": 3,
+    "tokens": 3205,
+    "latency_ms": 25626,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "C": {
+   "answer": "64",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 9303,
+    "latency_ms": 60974,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D": {
+   "answer": "64",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 7,
+    "api_calls": 7,
+    "tokens": 9303,
+    "latency_ms": 60974,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  },
+  "D_vote": {
+   "answer": "64",
+   "status": "correct",
+   "correct": true,
+   "fallback": false,
+   "cost": {
+    "calls": 6,
+    "api_calls": 6,
+    "tokens": 7520,
+    "latency_ms": 34330,
+    "cache_hits": 0
+   },
+   "note": null,
+   "truncated": false
+  }
+ },
+ "turns": [
+  {
+   "round": 0,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "64",
+   "confidence": 100,
+   "tokens_in": 481,
+   "tokens_out": 430,
+   "latency_ms": 1212,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "for all variables. This yields a=b, c=2a, d=4a. With sum a+b+c+d=8a=1, we get a=1/8, b=1/8, c=1/4, d=1/2. Plugging into the expression gives 1/a+1/b+4/c+16/d = 8+8+16+32 = 64, which is the minimum.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"64\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "64",
+   "confidence": 100,
+   "tokens_in": 394,
+   "tokens_out": 588,
+   "latency_ms": 2346,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": " + 4k = 8k = 1 \\implies k = 1/8$.\\nThus $a = 1/8, b = 1/8, c = 2/8 = 1/4, d = 4/8 = 1/2$.\\nLet's check: $1/8 + 1/8 + 1/4 + 1/2 = 1/4 + 1/4 + 1/2 = 1$.\\nThe minimum value is 64.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"64\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 0,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "64",
+   "confidence": 100,
+   "tokens_in": 400,
+   "tokens_out": 912,
+   "latency_ms": 25601,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "rz, the minimum of sum w_i/x_i given sum x_i = constant occurs when x_i proportional to sqrt(w_i). Here w = [1,1,4,16]; sqrt(w) = [1,1,2,4]; sum = 8; minimum = (sum sqrt(w))^2 = 8^2 = 64.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"64\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 1",
+   "persona": "Solver",
+   "provider": "gemini",
+   "model": "gemini-3.5-flash-lite",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "64",
+   "confidence": 100,
+   "tokens_in": 829,
+   "tokens_out": 356,
+   "latency_ms": 2435,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "rt{w})^2 / (\\sum x_i) = 8^2 / 1 = 64$. Step 6: Check equality conditions: $a/1 = b/1 = c/2 = d/4 = 1/8$, which are positive real numbers summing to 1. The result 64 is correct.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"64\",\n  \"confidence\": 100\n}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 2",
+   "persona": "Skeptic",
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "64",
+   "confidence": 100,
+   "tokens_in": 1287,
+   "tokens_out": 123,
+   "latency_ms": 6320,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "Cauchy-Schwarz (or weighted AM‑HM) to obtain the lower bound 64 and identified the equality case a:b:c:d = 1:1:2:4 giving a=1/8,b=1/8,c=1/4,d=1/2, which satisfies the constraint. No mistakes found.\",\"critiques\":[],\"changed_mind\":false,\"changed_mind_because\":null,\"final_answer\":\"64\",\"confidence\":100}",
+   "repair_used": false,
+   "error": null
+  },
+  {
+   "round": 1,
+   "label": "Debater 3",
+   "persona": "Fact-Checker",
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "fallback_used": false,
+   "valid": true,
+   "answer": "64",
+   "confidence": 100,
+   "tokens_in": 1249,
+   "tokens_out": 471,
+   "latency_ms": 8673,
+   "truncated": false,
+   "finish_reason": "stop",
+   "raw_tail": "y apply either Lagrange multipliers or Cauchy-Schwarz (Titu's lemma) to find the minimum. The derivation shows the minimum is 64, achieved at a=b=1/8, c=1/4, d=1/2. No errors are present.\", \"critiques\": [], \"changed_mind\": false, \"changed_mind_because\": null, \"final_answer\": \"64\", \"confidence\": 100}",
+   "repair_used": false,
+   "error": null
+  }
+ ],
+ "judge_d": {
+  "round": 2,
+  "label": "Judge",
+  "persona": "Judge",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "valid": true,
+  "answer": "64",
+  "confidence": 100,
+  "tokens_in": 1701,
+  "tokens_out": 82,
+  "latency_ms": 26628,
+  "truncated": false,
+  "finish_reason": "stop",
+  "raw_tail": "{\"final_answer\":\"64\",\"confidence\":100,\"summary\":\"All three independent solutions correctly applied Cauchy–Schwarz (or Lagrange multipliers) to show the minimum is 64, achieved at a:b:c:d=1:1:2:4.\",\"dissent\":null,\"consensus_reached\":true}",
+  "repair_used": false,
+  "error": null
+ },
+ "judge_c": null
+}

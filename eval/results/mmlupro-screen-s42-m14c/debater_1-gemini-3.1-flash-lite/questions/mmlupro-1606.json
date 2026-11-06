@@ -1,0 +1,22 @@
+{
+ "qid": "mmlupro-1606",
+ "category": "law",
+ "gold": "E",
+ "n_options": 10,
+ "agent": "debater_1",
+ "model": "gemini/gemini-3.1-flash-lite",
+ "answer_raw": "D",
+ "answer": "D",
+ "status": "wrong",
+ "correct": false,
+ "truncated": false,
+ "finish_reason": null,
+ "repair_used": false,
+ "fallback_used": false,
+ "tokens_in": 649,
+ "tokens_out": 189,
+ "api_calls": 0,
+ "error": null,
+ "raw_tail": "private communication made during the marriage, it is protected by the marital communications privilege. Therefore, the wife's testimony regarding this statement is inadmissible.\",\n  \"critiques\": [],\n  \"changed_mind\": false,\n  \"changed_mind_because\": null,\n  \"final_answer\": \"D\",\n  \"confidence\": 95\n}",
+ "finished_at": "2026-11-02T11:53:31+00:00"
+}
